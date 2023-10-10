@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include hyde_app *.css
+recursive-include hyde_app *.csv
+recursive-include hyde_app *.html
+recursive-include hyde_app *.ico
+recursive-include hyde_app *.js
+recursive-include hyde_app *.json
+recursive-include hyde_app *.md
+recursive-include hyde_app *.png
+recursive-include hyde_app *.py
+recursive-include hyde_app *.svg
+recursive-include hyde_app *.txt
+recursive-exclude hyde_app *.pyc
