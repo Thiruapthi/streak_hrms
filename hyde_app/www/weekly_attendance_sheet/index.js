@@ -1,6 +1,5 @@
 frappe.ready(function(){
 
-	console.log(frappe.session.user)
 	if(frappe.session.user === "Guest"){
 		const heading = document.getElementById("heading")
 		const filtersContainer = document.getElementById("filters-container")
@@ -94,12 +93,11 @@ frappe.ready(function(){
 				employeeName = employeeEl.value
 				employeeEl.value = ""
 				frappe.call({
-					method:"hrms.www.website.index.get_employee_id",
+					method:"hyde_app.www.weekly_attendance_sheet.index.get_employee_id",
 					args:{inputName:employeeName},
 					callback:function(r){
-						console.log(r.message)
 						employeeId = r.message
-						console.log(employeeId)
+
 						if (employeeId===undefined){
 							frappe.throw(
 								title='Enter Valid Employee Name',
@@ -107,7 +105,7 @@ frappe.ready(function(){
 							
 						}
 						frappe.call({
-							method: "hrms.www.website.index.get_weekly_report",
+							method: "hyde_app.www.weekly_attendance_sheet.index.get_weekly_report",
 							args:{
 							   'company': 'KCS','employee':employeeId
 					
@@ -119,7 +117,6 @@ frappe.ready(function(){
 								var present_date = r.message[2]
 								var previous_date = r.message[3]
 					
-								console.log(r.message)
 								
 								displayTableWithData(columns, data, present_date, previous_date)
 					
@@ -134,7 +131,7 @@ frappe.ready(function(){
 		
 		
 			frappe.call({
-				method: "hrms.www.website.index.get_weekly_report",
+				method: "hyde_app.www.weekly_attendance_sheet.index.get_weekly_report",
 				args:{
 				   'company': 'KCS','employee':employeeId
 		
@@ -145,9 +142,7 @@ frappe.ready(function(){
 					var data = r.message[1];
 					var present_date = r.message[2]
 					var previous_date = r.message[3]
-		
-					console.log(r.message)
-					
+							
 					displayTableWithData(columns, data, present_date, previous_date)
 		
 		
