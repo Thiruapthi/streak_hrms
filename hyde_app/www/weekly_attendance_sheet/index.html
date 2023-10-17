@@ -1,0 +1,22 @@
+{% extends "templates/web.html" %}
+
+
+{% block page_content %}
+
+<h1 id="heading">Weekly Attendence Sheet <span id = "previous_date"></span> To <span id = "present_date"></span></h1>
+<div id="filters-container">
+    <input type = "text" placeholder="Employee" id="employee-input">
+    <button class="btn btn-primary" id = "button">Apply Filters</button>
+</div>
+
+
+<table style="width:100%" id="data-table">
+    <tr id = "table-headers">
+     
+    </tr>
+    <tr id = "table-body">
+    </tr>
+  </table>
+
+
+{% endblock %}
