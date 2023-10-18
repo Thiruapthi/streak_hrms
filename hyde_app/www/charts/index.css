@@ -39,4 +39,12 @@ table, th, td {
       height:30px;
       width:250px;
   }
-
+  .heading-without-login{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    color:cadetblue;
+}
+.hide-filters{
+    display:none;
+}

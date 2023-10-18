@@ -11,10 +11,8 @@ def get_script_report_data(selectedMonthVal, filterByEmployeeVal, filterByYearVa
 			"company":filterByCompany,
 			"month":selectedMonthVal,
 			"year":filterByYearVal,
-			# "employee": filterByEmployeeVal
 		}
 		columns,data,message,chart = execute(filters)
-		# print(data,"this is index.py data")
 		return columns,data,message,chart
 	else :
 		filters = {
@@ -24,10 +22,7 @@ def get_script_report_data(selectedMonthVal, filterByEmployeeVal, filterByYearVa
 			"employee": filterByEmployeeVal
 		}
 		columns,data,message,chart = execute(filters)
-		# print(data,"this is index.py data")
 		return columns,data,message,chart
-	# print(data)
-	# print(columns,data,"this is index.py data")
 
 @frappe.whitelist(allow_guest=True)
 def get_emplyees():
