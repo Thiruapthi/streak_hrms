@@ -1,4 +1,22 @@
 frappe.ready(function(){
+	if(frappe.session.user === "Guest"){
+		const heading = document.getElementById("heading")
+		const filter = document.getElementById("filter")
+		const filterByEmployee = document.getElementById("filterByEmployee")
+		const filterByYear = document.getElementById("filterByYear")
+		const filterByCompany = document.getElementById("filterByCompany")
+		const applyFiltersButton = document.getElementById("applyFiltersButton")
+
+		heading.textContent = "You can't see the Report without Login"
+		heading.classList.add("heading-without-login")
+		filter.classList.add("hide-filters")
+		filterByEmployee.classList.add("hide-filters")
+		filterByYear.classList.add("hide-filters")
+		filterByCompany.classList.add("hide-filters")
+		applyFiltersButton.classList.add("hide-filters")
+
+	}
+	else{
 
 	var currentMonth = new Date().getMonth() + 1; // Adding 1 to make it 1-12
 	
@@ -11,7 +29,6 @@ frappe.ready(function(){
 	frappe.call({
 		method: "hyde_app.www.charts.index.get_emplyees",
 		callback: function(r) {
-			console.log(r)
 			var employeeList = r.message
 			var selectElement = document.getElementById("filterByEmployee");
 	
@@ -27,7 +44,6 @@ frappe.ready(function(){
 	frappe.call({
 		method: "hyde_app.www.charts.index.get_company_list",
 		callback: function(r) {
-			console.log(r)
 			var employeeList = r.message
 			var selectElement = document.getElementById("filterByCompany");
 	
@@ -55,12 +71,8 @@ frappe.ready(function(){
 		},
 		
 		callback: function(r) {
-			console.log(r.message)
 			var columns = r.message[0];
 			var data = r.message[1];
-			// console.log(columns)
-			console.log(data)
-			// const selectedMonth = document.getElementById('filter').value;
 			
 			createTable(data,columns)
 	
@@ -74,7 +86,6 @@ frappe.ready(function(){
 	
 		if(data.length>=1){
 			
-	
 			var thead = table.createTHead();
 			var row = thead.insertRow();
 			for (var i = 0; i < columns.length; i++) {
@@ -128,10 +139,7 @@ frappe.ready(function(){
 		let filterByEmployeeVal = document.getElementById('filterByEmployee').value;
 		let filterByYearVal = document.getElementById('filterByYear').value ;
 		let filterByCompany = document.getElementById('filterByCompany').value;
-			console.log(filterByEmployeeVal)
-			console.log(filterByYearVal)
-			console.log(filterByCompany)
-	
+			
 		frappe.call({
 			method: "hyde_app.www.charts.index.get_script_report_data",
 			args: {
@@ -142,18 +150,15 @@ frappe.ready(function(){
 				
 			},
 			callback: function(r) {
-				console.log(r.message)
 				var columns = r.message[0];
 				var data = r.message[1];
-				// console.log(columns)
-				console.log(data)
-				// const selectedMonth = document.getElementById('filter').value;
 				
 				createTable(data,columns)
 		
 			}
 		});
 	}
-	})
+}
+})
 	
 	
