@@ -3,6 +3,7 @@ frappe.ready(function(){
 	if(frappe.session.user === "Guest"){
 		const heading = document.getElementById("heading")
 		const filtersContainer = document.getElementById("filters-container")
+		console.log(frappe.session.user)
 
 		heading.textContent = "You can't see the Report without Login"
 		heading.classList.add("heading-without-login")
@@ -13,6 +14,7 @@ frappe.ready(function(){
 	else{
 
 		function displayTableWithData(columns, data, present_date, previous_date) {
+			console.log("1",columns,data,present_date,previous_date)
 			var table = document.getElementById("data-table");
 			var previous_dateEl = document.getElementById("previous_date");
 			var present_dateEl = document.getElementById("present_date");
@@ -91,18 +93,20 @@ frappe.ready(function(){
 			var employeeId = ""
 			buttonEl.addEventListener("click",function(){
 				employeeName = employeeEl.value
+				console.log(employeeName)
 				employeeEl.value = ""
 				frappe.call({
 					method:"hyde_app.www.weekly_attendance_sheet.index.get_employee_id",
 					args:{inputName:employeeName},
 					callback:function(r){
 						employeeId = r.message
+						console.log(employeeId)
 
 						if (employeeId===undefined){
 							frappe.throw(
-								title='Enter Valid Employee Name',
-								msg='This file does not exist'					)
-							
+								title='Enter Valid Employee Name'
+								)
+						
 						}
 						frappe.call({
 							method: "hyde_app.www.weekly_attendance_sheet.index.get_weekly_report",
@@ -116,8 +120,8 @@ frappe.ready(function(){
 								var data = r.message[1];
 								var present_date = r.message[2]
 								var previous_date = r.message[3]
-					
 								
+								console.log("2",columns,data,present_date,previous_date)
 								displayTableWithData(columns, data, present_date, previous_date)
 					
 					
@@ -137,11 +141,12 @@ frappe.ready(function(){
 		
 				},
 				callback: function(r) {
-		
+
 					var columns = r.message[0];
 					var data = r.message[1];
 					var present_date = r.message[2]
 					var previous_date = r.message[3]
+					console.log("3",columns, data, present_date, previous_date)
 							
 					displayTableWithData(columns, data, present_date, previous_date)
 		
