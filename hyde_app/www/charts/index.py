@@ -25,8 +25,8 @@ def get_script_report_data(selectedMonthVal, filterByEmployeeVal, filterByYearVa
 		return columns,data,message,chart
 
 @frappe.whitelist(allow_guest=True)
-def get_emplyees():
-	employeeList = frappe.get_all('Employee', fields=['name', 'employee_name'])
+def get_employees():
+	employeeList = frappe.get_all('Employee', fields=['name', 'employee_name','company'])
 	return employeeList
 
 @frappe.whitelist(allow_guest=True)
