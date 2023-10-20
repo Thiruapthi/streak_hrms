@@ -61,7 +61,7 @@ frappe.ready(function () {
 		let defaultMonth = currentMonthStr;
 		let defaultEmployee = 'None'
 		let defaultYear = '2023'
-		let defaultCompany = 'KCS'
+		let defaultCompany = 'Korecent Solutions'
 		// let filterByCompany = document.getElementById('filterByCompany')
 		// filterByCompany.value = defaultCompany
 
