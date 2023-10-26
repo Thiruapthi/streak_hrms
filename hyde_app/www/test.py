@@ -27,7 +27,7 @@ def migrate():
 @frappe.whitelist(allow_guest=True) 
 def write_options(doc={},method=""):
     ind = 0
-    file_path = '/home/yash/New-Hr/apps/hyde_app/hyde_app/hyde/custom/opportunity.json'
+    file_path = 'apps/hyde_app/hyde_app/hyde/custom/opportunity.json'
     new_options = update_opportunity_sales_stage_1()
     if doc:
         print(True,"\n\n\n\n")
