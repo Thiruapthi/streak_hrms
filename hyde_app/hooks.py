@@ -30,7 +30,9 @@ app_license = "MIT"
 
 # include js in doctype views
 doctype_js = {"Role" : "public/js/role.js",
-"Opportunity" : "public/js/opportunity.js"}
+"Opportunity" : "public/js/opportunity.js",
+"Sales Stage" : "public/js/sales_stage.js"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -119,13 +121,16 @@ doctype_js = {"Role" : "public/js/role.js",
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
+doc_events = {
 #	"*": {
 #		"on_update": "method",
 #		"on_cancel": "method",
 #		"on_trash": "method"
 #	}
-# }
+"Sales Stage":{
+    "on_trash":"hyde_app.www.test.write_options"
+}
+}
 
 # Scheduled Tasks
 # ---------------
