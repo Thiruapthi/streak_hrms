@@ -44,7 +44,7 @@
    "name": "Opportunity-custom_test",
    "no_copy": 0,
    "non_negative": 0,
-   "options": "Testing\nNegotiation/Review\nProposal/Price Quote\nPerception Analysis\nIdentifying Decision Makers\nValue Proposition\nNeeds Analysis\nQualification\nProspecting",
+   "options": "Negotiation/Review\nProposal/Price Quote\nPerception Analysis\nIdentifying Decision Makers\nValue Proposition\nNeeds Analysis\nQualification\nProspecting",
    "owner": "Administrator",
    "permlevel": 0,
    "precision": "",
