@@ -121,16 +121,16 @@ doctype_js = {"Role" : "public/js/role.js",
 # ---------------
 # Hook on document methods and events
 
-doc_events = {
-#	"*": {
-#		"on_update": "method",
-#		"on_cancel": "method",
-#		"on_trash": "method"
-#	}
-"Sales Stage":{
-    "on_trash":"hyde_app.www.test.write_options"
-}
-}
+# doc_events = {
+# #	"*": {
+# #		"on_update": "method",
+# #		"on_cancel": "method",
+# #		"on_trash": "method"
+# #	}
+# "Sales Stage":{
+#     "on_trash":"hyde_app.www.test.write_options"
+# }
+# }
 
 # Scheduled Tasks
 # ---------------
