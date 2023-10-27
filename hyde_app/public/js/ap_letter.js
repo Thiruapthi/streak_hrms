@@ -5,8 +5,8 @@ frappe.ui.form.on('Appointment Letter',{
         frappe.call({
             method: 'hyde_app.api.update_applicant_status_interview',
             args: {
-                applicant_name : applicantName ,
-                new_status : newStatus
+                'applicant_name': applicantName,
+                'status': newStatus
             }
     })
 }
