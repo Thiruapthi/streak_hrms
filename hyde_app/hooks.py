@@ -33,7 +33,12 @@ doctype_js = {"Role" : "public/js/role.js",
 "Opportunity" : "public/js/opportunity.js",
 "Sales Stage" : "public/js/sales_stage.js",
 "Leave Application":"public/js/leave_application.js",
-"Job Applicant":"public/js/job_applicant.js"
+"Job Applicant":"public/js/job_applicant.js",
+"Appointment Letter": "public/js/ap_letter.js",
+"Employee":"public/js/employee.js",
+"Interview":"public/js/interview.js",
+"Job Offer" : "public/js/jb_offer.js",
+"Employee Onboarding":"public/js/onboard.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
