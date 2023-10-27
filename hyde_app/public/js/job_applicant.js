@@ -3,6 +3,16 @@ frappe.ui.form.on("Job Applicant", {
     refresh: function(frm) {
         var interviewButton = $(".document-link[data-doctype='Interview'] button[data-doctype='Interview']");
         interviewButton.remove();
+        const documentTypes = ['Employee', 'Job Offer', 'Employee Onboarding', 'Appointment Letter'];
+
+        documentTypes.forEach((type) => {
+            const selector = `.document-link[data-doctype='${type}']`;
+            if (frm.doc.status === 'Rejected') {
+                $(selector).hide();
+            } else {
+                $(selector).show();
+            }
+        });
         frappe.call({
             method: "frappe.client.get_list",
             args: {
