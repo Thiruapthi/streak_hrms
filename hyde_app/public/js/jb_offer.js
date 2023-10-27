@@ -12,7 +12,7 @@ frappe.ui.form.on('Job Offer', {
         }
         
         frappe.call({
-            method: 'hyde_app.api.update_applicant_status',    
+            method: 'hyde_app.api.update_applicant_status_interview',    
             args: {
                 applicant_name: applicantName,
                 new_status: newStatus
