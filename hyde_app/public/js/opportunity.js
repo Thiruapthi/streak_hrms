@@ -6,3 +6,9 @@ frappe.ui.form.on("Opportunity", {
         })
       }
 })
+
+frappe.ui.form.on("Opportunity", {
+  refresh: function (frm) {
+      frm.set_value("sales_stage",frm.doc.custom_test);
+      }
+})
