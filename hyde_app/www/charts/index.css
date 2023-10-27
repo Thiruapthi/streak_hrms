@@ -1,50 +1,56 @@
 table, th, td {
-    border: 1px solid black;
+    border: 1px solid rgb(146, 145, 145);
     padding:8px;
-
   }
+
   th{
-      color:green;
+      color:rgb(123, 17, 165);
       width:200px;
   }
 
-  
   .page_content{
       overflow:auto;
-     
   }
 
   .heading-1{
       font-size:24px;
       padding-bottom: 20px;
+      font-family: sans-serif;
   }
 
-  .btn-1{
-      border-width:0px;
-      height:30px;
-      width:100px;
-      border-radius:10px;
-      margin-left:20px;
-  }
-
-  .select-month{
-      margin-bottom: 30px;
-      margin-left:20px;
-      height:30px;
-      width:100px;
-  }
-  .select-employee{
-      margin-bottom: 10px;
-      margin-left:15px;
-      height:30px;
-      width:250px;
-  }
   .heading-without-login{
     display: flex;
     flex-direction: row;
     justify-content: center;
     color:cadetblue;
 }
+
 .hide-filters{
     display:none;
+}
+
+.select-container {
+    margin-bottom: 20px;
+    margin-left: 20px;
+    display: inline-block;
+}
+
+.select-month, .select-employee, .select-company, .select-year {
+    height: 32px;
+    width: 170px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.select-month:focus, .select-employee:focus, .select-company:focus, .select-year:focus {
+    outline: none;
+    border-color: #007BFF;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }

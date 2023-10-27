@@ -23,11 +23,9 @@ frappe.ready(function () {
 		var currentMonthStr = currentMonth.toString().padStart(2, '0');
 
 		let selectedMonth = document.getElementById('filter');
-
-		// Set the default selection to the current month
 		selectedMonth.value = currentMonthStr;
-
-
+		var defaultCompany = 'Korecent Solutions';
+	
 		frappe.call({
 			method: "hyde_app.www.charts.index.get_employees",
 			callback: function (r) {
@@ -40,9 +38,9 @@ frappe.ready(function () {
 					option.text = employeeList[i].name + ' - ' + employeeList[i].employee_name;
 					selectElement.appendChild(option);
 				}
-
 			}
 		})
+
 		frappe.call({
 			method: "hyde_app.www.charts.index.get_company_list",
 			callback: function (r) {
@@ -56,21 +54,20 @@ frappe.ready(function () {
 					selectElement.appendChild(option);
 				}
 
+		    let filterByCompany = document.getElementById('filterByCompany');
+		    filterByCompany.value = defaultCompany;
 			}
 		})
+
 		let defaultMonth = currentMonthStr;
 		let defaultEmployee = 'None'
 		let defaultYear = '2023'
-		let defaultCompany = 'Korecent Solutions'
-		// let filterByCompany = document.getElementById('filterByCompany')
-		// filterByCompany.value = defaultCompany
-
 
 		frappe.call({
 
 			method: "hyde_app.www.charts.index.get_script_report_data",
 			args: {
-				'selectedMonthVal': defaultMonth,  // Pass the selected month as an argument
+				'selectedMonthVal': defaultMonth,
 				'filterByEmployeeVal': defaultEmployee,
 				'filterByYearVal': defaultYear,
 				'filterByCompany': defaultCompany
@@ -80,15 +77,15 @@ frappe.ready(function () {
 			callback: function (r) {
 				var columns = r.message[0];
 				var data = r.message[1];
-
 				createTable(data, columns)
-
 			}
 		});
 
+		document.getElementById('filter').addEventListener('change', applyFilter);
+		document.getElementById('filterByYear').addEventListener('change', applyFilter);
+		document.getElementById('filterByCompany').addEventListener('change', applyFilter);
 
 		let selectedEmployee = document.getElementById("filterByEmployee")
-
 
 		selectedEmployee.addEventListener("change", () => {
 			fetchCompanyName()
@@ -103,7 +100,7 @@ frappe.ready(function () {
 				frappe.call({
 					method: "hyde_app.www.charts.index.get_script_report_data",
 					args: {
-						'selectedMonthVal': selectedMonthVal,  // Pass the selected month as an argument
+						'selectedMonthVal': selectedMonthVal,
 						'filterByEmployeeVal': filterByEmployeeVal,
 						'filterByYearVal': filterByYearVal,
 						'filterByCompany': filterByCompany
@@ -182,7 +179,16 @@ frappe.ready(function () {
 									cell.innerHTML = data[i].employee_name;
 								}
 							} else {
+								let a = data[i][j-2];
+								if(a==="P" || a==="WFH"){
+									cell.innerHTML= '<span style="color:green;">' + a + '</span>';
+								}else if(a==="HD"){
+									cell.innerHTML= '<span style="color:orange;">' + a + '</span>';
+								}else if(a==="L" || a==="A"){
+									cell.innerHTML= '<span style="color:red;">' + a + '</span>';
+								}else{
 								cell.innerHTML = data[i][j - 2];
+								}
 							}
 						}
 					}
@@ -193,11 +199,6 @@ frappe.ready(function () {
 				table.innerHTML = '<tr></tr>';
 			}
 		}
-
-
-		document.getElementById('filter').addEventListener('change', applyFilter);
-		document.getElementById('filterByYear').addEventListener('change', applyFilter);
-		document.getElementById('filterByCompany').addEventListener('change', applyFilter);
 
 
 		function applyFilter() {
@@ -227,4 +228,3 @@ frappe.ready(function () {
 		}
 	}
 })
-
