@@ -3,7 +3,7 @@ frappe.ui.form.on('Appointment Letter',{
         let applicantName = frm.doc.job_applicant
         let newStatus  = "Appointment Letter Released"
         frappe.call({
-            method: 'hyde_app.api.update_applicant_status',
+            method: 'hyde_app.api.update_applicant_status_interview',
             args: {
                 applicant_name : applicantName ,
                 new_status : newStatus
