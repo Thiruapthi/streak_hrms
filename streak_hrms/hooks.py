@@ -12,7 +12,7 @@ app_license = "MIT"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/streak_hrms/css/streak_hrms.css"
-# app_include_js = "/assets/streak_hrms/js/streak_hrms.js"
+app_include_js = "/assets/streak_hrms/js/streak_hrms.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/streak_hrms/css/streak_hrms.css"
