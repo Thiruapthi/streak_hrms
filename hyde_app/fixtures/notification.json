@@ -1,0 +1,42 @@
+[
+ {
+  "attach_print": 0,
+  "channel": "Email",
+  "condition": "",
+  "date_changed": null,
+  "days_in_advance": 0,
+  "docstatus": 0,
+  "doctype": "Notification",
+  "document_type": "Interview",
+  "enabled": 1,
+  "event": "Save",
+  "is_standard": 0,
+  "message": "<p>Dear {{ doc.interview_details[0].custom_interviewer_name }}, </p>\n\n\n<p>Greetings of the day! </p>\n\n\n\n<p>An interview has been scheduled for {{ doc.designation }} on {{ doc.scheduled_on }} at {{ doc.from_time }}. Candidate name is {{ doc.custom_job_applicant_name }}.</p>\n\n<p>Below enclosed is his/her resume for your <a href={{ doc.resume_link }} > reference </a>.</p>\n\n\n<p>Please ensure your availability for the interview and incase of any rescheduling let us know 1 day in advance.</p>\n\n\n<p>Thanks and regards</p>\n<p>HR- Team KoreCent</p>",
+  "method": null,
+  "modified": "2023-10-30 15:50:47.800162",
+  "module": null,
+  "name": "interviewer - Recruitment",
+  "print_format": null,
+  "property_value": null,
+  "recipients": [
+   {
+    "bcc": null,
+    "cc": null,
+    "condition": null,
+    "parent": "interviewer - Recruitment",
+    "parentfield": "recipients",
+    "parenttype": "Notification",
+    "receiver_by_document_field": "interviewer,interview_details",
+    "receiver_by_role": null
+   }
+  ],
+  "send_system_notification": 1,
+  "send_to_all_assignees": 0,
+  "sender": "Hello 1",
+  "sender_email": "mthirupathi091998@gmail.com",
+  "set_property_after_alert": null,
+  "slack_webhook_url": null,
+  "subject": "Software Engineer interview  - {{ doc.interview_round }}",
+  "value_changed": null
+ }
+]
