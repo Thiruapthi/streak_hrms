@@ -23,9 +23,7 @@ frappe.ui.form.on("Job Applicant", {
             },
             callback: function (response) {
               if (!response.exc) {
-                console.log(response.message.length);
                 if (response.message.length == 0) {
-                  console.log(response.message.length);
                   $(".document-link[data-doctype='Interview']").hide();
                 } else {
                   $(".document-link[data-doctype='Interview']").show();
@@ -35,7 +33,6 @@ frappe.ui.form.on("Job Applicant", {
           });
     },
     before_save(frm) {
-        console.log("hello")
 		frm.set_value("status", "Interview Pending");
 	}
     

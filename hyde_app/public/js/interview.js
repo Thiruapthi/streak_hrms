@@ -11,7 +11,6 @@ frappe.ui.form.on('Interview', {
         else {
             newStatus = 'Interview Scheduled'
         }
-        console.log(newStatus,"newstatus")
         frappe.call({
             method: 'hyde_app.api.update_applicant_status_interview',
             args: {
