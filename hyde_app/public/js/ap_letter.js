@@ -32,5 +32,33 @@ validate: function(frm) {
             }
         }
     });
+},
+
+annexure_template:function(frm){
+    if(frm.doc.annexure_template){
+        frappe.call({
+            method: 'hyde_app.api.get_annexure_template_details',
+            args : {
+                template : frm.doc.annexure_template
+            },
+            callback: function(r){
+                if(r.message){
+                    let message_body = r.message;
+                    frm.doc.annexure_components = []
+                    for (var i in message_body[1]) {
+                        let component = message_body[1][i].component;
+                        let amount = message_body[1][i].ammount;
+                        // Add a new row to the annexure_components table
+                        frm.add_child("annexure_components", {
+                            component: component,
+                            amount: amount
+                        });
+                    }
+                    frm.refresh();
+                }
+            }
+
+        });
+    }
 }
 })
