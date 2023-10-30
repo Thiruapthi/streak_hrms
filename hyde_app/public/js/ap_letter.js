@@ -47,7 +47,7 @@ annexure_template:function(frm){
                     frm.doc.annexure_components = []
                     for (var i in message_body[1]) {
                         let component = message_body[1][i].component;
-                        let amount = message_body[1][i].ammount;
+                        let amount = message_body[1][i].amount;
                         // Add a new row to the annexure_components table
                         frm.add_child("annexure_components", {
                             component: component,
