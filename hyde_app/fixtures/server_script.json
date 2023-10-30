@@ -1,0 +1,18 @@
+[
+ {
+  "allow_guest": 0,
+  "api_method": null,
+  "cron_format": null,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Server Script",
+  "doctype_event": "Before Save",
+  "event_frequency": "All",
+  "modified": "2023-10-30 10:33:04.697034",
+  "module": null,
+  "name": "Job Applicant Email Should Unique",
+  "reference_doctype": "Job Applicant",
+  "script": "email_name = doc.email_id\nresults = frappe.get_all(\"Job Applicant\", filters={}, pluck='email_id')\nfor i in results:\n    if email_name==i:\n        frappe.throw(\"The Email ID Is Already Linked With Another JOb Application Kindly Choose Different One To Continue\")",
+  "script_type": "DocType Event"
+ }
+]
