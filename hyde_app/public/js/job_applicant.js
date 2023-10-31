@@ -9,6 +9,7 @@ frappe.ui.form.on("Job Applicant", {
             const selector = `.document-link[data-doctype='${type}']`;
             if (frm.doc.status === 'Rejected') {
                 $(selector).hide();
+                $(".inner-group-button").hide();
             } else {
                 $(selector).show();
             }
