@@ -8,6 +8,11 @@ def update_applicant_status_interview(applicant_name, status):
         applicant.save()
         applicant.reload()
         frappe.db.commit()
+        frappe.publish_realtime('applicant_status_update', {
+            'doc': applicant,
+            'applicant_name': applicant_name,
+            'status': status
+        })
     except frappe.DoesNotExistError:
         frappe.msgprint(f"Job Applicant '{applicant_name}' not found.")
 

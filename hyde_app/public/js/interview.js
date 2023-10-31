@@ -16,6 +16,14 @@ frappe.ui.form.on('Interview', {
             args: {
                 'applicant_name': applicantName,
                 'status': newStatus
+            },
+            callback:function(r){
+                frappe.realtime.on("applicant_status_update", function(data) {
+                    console.log('Status updated:', data.applicant_name, data.status,data.doc);
+                    let frm = data.doc
+                    frm.refresh()
+
+                });
             }
         });
     }
