@@ -33,7 +33,18 @@ frappe.ui.form.on("Job Applicant", {
           });
     },
     before_save(frm) {
-		frm.set_value("status", "Interview Pending");
+		// frm.set_value("status", "Interview Pending");
+    
+    let contact = {
+      "doctype": "Contact",
+      "first_name": frm.doc.applicant_name,
+      "email_id": frm.doc.email_id
+    }
+    if (frm.doc.phone_number) {
+      contact.phone_number = frm.doc.phone_number; // Replace with the actual phone number
+    }
+
+    frappe.db.insert(contact)
 	}
     
 });
