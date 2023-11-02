@@ -33,19 +33,42 @@ frappe.ui.form.on("Job Applicant", {
             },
           });
     },
-    before_save(frm) {
-		// frm.set_value("status", "Interview Pending");
-    
-    let contact = {
-      "doctype": "Contact",
-      "first_name": frm.doc.applicant_name,
-      "email_id": frm.doc.email_id
-    }
-    if (frm.doc.phone_number) {
-      contact.phone_number = frm.doc.phone_number; // Replace with the actual phone number
-    }
+  //   after_save(frm) {
+	// 	// frm.set_value("status", "Interview Pending");
+  //   frappe.call({
+  //     method: 'hyde_app.api.Interview_Rounds',  // Replace with your method and module name
+  //     args: {
+  //         'job_titles': frm.doc.job_title,
+  //         'doc' : frm.doc  // Pass any relevant arguments
+  //       },
+  //     callback:function(r){
+  //       console.log(r.message)
+  //       cur_frm.refresh_fields('rounds')
+  //       frm.save()
+  //     }
+  //     });
+	// },
 
-    frappe.db.insert(contact)
+  validate(frm) {
+		// frm.set_value("status", "Interview Pending");
+    console.log("sdfghujik",frm.doc.applicant_name)
+    frappe.call({
+      method: 'hyde_app.api.job_applicant_contact',  // Replace with your method and module name
+      args: {
+          'email': frm.doc.email_id,  // Pass any relevant arguments
+          'mobile' : frm.doc.phone_number,
+          'name' : frm.doc.applicant_name
+        },
+      callback:function(r){
+        cur_frm.refresh_fields('rounds')
+      }
+      });
+      
 	}
     
+});
+
+frappe.realtime.on("applicant_status_update", function(data) {
+  cur_frm.reload_doc()
+
 });

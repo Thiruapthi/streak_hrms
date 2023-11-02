@@ -31,5 +31,59 @@ def get_annexure_template_details(template):
 		filters={"parent": template},
 		order_by="idx"
 	)
-     
 	return introduction,annexure_details
+
+
+# @frappe.whitelist()
+# def Interview_Rounds(job_titles,doc):
+#     source_doctype = "Job Opening"
+#     # target_doctype = "Job Applicant"
+#     print("\n\n\n\n\n\n",'interview round',"\n\n\n\n\n\n\n\n")
+#     # Get a list of source documents
+#     # source_documents = frappe.get_doc(source_doctype, filters={"job_title": job_title})
+
+#     # for source_doc in source_documents:
+#         # Load the source document
+#     source_doc = frappe.get_doc(doctype=source_doctype, job_title= job_titles)
+#     print(source_doc,"\n\n\n\n\n\n\n\n")   
+#         # Add the source child table data to the target child table
+#     for source_row in source_doc.custom_round:
+#             doc.append('custom_rounds', {
+#                 "interview_rounds": source_row.interview_rounds
+#             })
+#     doc.save()
+#     doc.insert()
+#     frappe.db.commit()
+#     return
+
+
+
+@frappe.whitelist(allow_guest=True)
+def job_applicant_contact(email,mobile,name):
+    contact = frappe.get_list("Contact", filters={"email_id": email})
+    c= frappe.new_doc("Contact")
+    print(c,"c\n\n\n\n\n\n\n\n")
+    # Update or create the `Csontact` document
+    if not contact:
+        print(contact,"\n\n\n\n\n\n\n\n")
+        print(c,"c\n\n\n\n\n\n\n\n")
+        c.first_name = name
+        c.email_id=email
+
+    if mobile:
+        print(mobile,"wokring\n\n\n\n\n")
+        c.first_name = name
+        c.append("phone_nos", {
+            "phone": mobile,
+            "is_primary_mobile_no": 1
+        })
+
+    # # Add email_id to the email_ids child table
+        c.append("email_ids", {
+            "email_id": email,
+            "is_primary": 1
+        })
+
+    # Save the `Contact` document
+    c.save()
+    frappe.db.commit()
