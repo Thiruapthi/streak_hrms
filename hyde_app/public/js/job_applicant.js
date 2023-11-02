@@ -32,6 +32,21 @@ frappe.ui.form.on("Job Applicant", {
               }
             },
           });
+
+        if(frm.doc.status==="Rejected"){
+          var transactionsContainer = document.querySelector('.transactions');
+          var formDocumentsContainer = transactionsContainer.querySelector('.form-documents');
+          var rowElement = formDocumentsContainer.querySelector('.row');
+
+          rowElement.classList.add('d-flex', 'flex-column');
+        }
+        else{
+          var transactionsContainer = document.querySelector('.transactions');
+          var formDocumentsContainer = transactionsContainer.querySelector('.form-documents');
+          var rowElement = formDocumentsContainer.querySelector('.row');
+
+          rowElement.classList.remove('d-flex', 'flex-column');
+        }
     },
   //   after_save(frm) {
 	// 	// frm.set_value("status", "Interview Pending");
