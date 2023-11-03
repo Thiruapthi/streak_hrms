@@ -74,22 +74,25 @@ frappe.ui.form.on("Job Applicant", {
 
   },
 
-  // validate(frm) {
-	// 	// frm.set_value("status", "Interview Pending");
-  //   console.log("sdfghujik",frm.doc.applicant_name)
-  //   frappe.call({
-  //     method: 'hyde_app.api.job_applicant_contact',  // Replace with your method and module name
-  //     args: {
-  //         'email': frm.doc.email_id,  // Pass any relevant arguments
-  //         'mobile' : frm.doc.phone_number,
-  //         'name' : frm.doc.applicant_name
-  //       },
-  //     callback:function(r){
-  //       cur_frm.refresh_fields('rounds')
-  //     }
-  //     });
-
-	// }
+  validate(frm) {
+		// frm.set_value("status", "Interview Pending");
+    if (!frm.doc.contact_created) {
+    frappe.call({
+      method: 'hyde_app.api.job_applicant_contact',  // Replace with your method and module name
+      args: {
+          'email': frm.doc.email_id,  // Pass any relevant arguments
+          'mobile' : frm.doc.phone_number,
+          'name' : frm.doc.applicant_name
+        },
+      callback:function(r){
+        cur_frm.refresh_fields('rounds')
+        frm.doc.contact_created = 1
+        frm.save()
+      }
+      });
+    }
+    
+	}
 })
 
 frappe.realtime.on("applicant_status_update", function (data) {

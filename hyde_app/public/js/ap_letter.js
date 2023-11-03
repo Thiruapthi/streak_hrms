@@ -32,6 +32,29 @@ validate: function(frm) {
             }
         }
     });
+    frappe.call({
+        method: "frappe.client.get_value",
+        args: {
+            doctype: "Job Offer",
+            filters: {
+                job_applicant: frm.doc.job_applicant
+            },
+            fieldname: 'offer_date'
+        },
+        callback: function(response) {
+            // console.log("Response:", response);
+    
+            if (!response.exc) {
+                var appointment = response.message.offer_date;
+                // console.log("Offer Date:", appointment);
+                if (frm.doc.appointment_date < appointment) {
+                    // console.log("Appointment Date is before Offer Date");
+                    frappe.msgprint(__("Appointment date can't be before offer date"));
+                    frappe.validated = false;
+                }
+            } 
+        }
+    });
 },
 
 annexure_template:function(frm){
