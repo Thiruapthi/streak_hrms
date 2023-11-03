@@ -99,3 +99,14 @@ def job_applicant_contact(email,mobile,name):
     # Save the `Contact` document
     c.save()
     frappe.db.commit()
+
+@frappe.whitelist()
+def get_user_details(user):
+    user_list = frappe.get_list(
+		"User",
+          fields=["full_name","name"],
+		filters = {
+               "name":user
+        }
+	)
+    return user_list
