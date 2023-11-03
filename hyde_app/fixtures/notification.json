@@ -11,7 +11,7 @@
   "enabled": 1,
   "event": "Days Before",
   "is_standard": 0,
-  "message": "<p>Dear {{ doc.interview_details[0].custom_interviewer_name }}, </p>\n\n\n<p>Greetings of the day! </p>\n\n\n\n<p>An interview has been scheduled for {{ doc.designation }} on {{ doc.scheduled_on }} at {{ doc.from_time }}. Candidate name is {{ doc.custom_job_applicant_name }}.</p>\n\n<p>Below enclosed is the resume for your <a href={{ doc.resume_link }} > reference </a>.</p>\n\n<p>Please ensure your availability for the interview and incase of any rescheduling let us know 1 day in advance.</p>\n\n\n<p>Thanks and regards</p>\n<p>HR- Team KoreCent</p>",
+  "message": "<p>Dear {{ doc.interview_details[0].custom_interviewer_name }}, </p>\n\n\n<p>Greetings of the day! </p>\n\n\n\n<p>An interview has been scheduled for {{ doc.designation }} on {{ doc.scheduled_on }} at {{ doc.from_time }}. Candidate name is {{ doc.custom_job_applicant_name }}.</p>\n\n<p>Below enclosed is the resume for your <a href={{ doc.resume_link }} > reference </a>.</p>\n\n<p>Please ensure your availability for the interview and incase of any rescheduling let us know 1 day in advance.</p>\n\n\n<p>Thanks and regards</p>\n<p>HR- Team KoreCent</p> \n\n <div style='padding: 20px; text-align: center;'><p style='font-size: 18px; margin-bottom: 20px;'>We value your feedback!</p><a href='{{ frappe.get_url() }}/app/interview-feedback/view/list?interview={{ doc.name }}' style='background-color: #007BFF; color: #fff; text-decoration: none; display: inline-block; padding: 15px 30px; border-radius: 5px; font-size: 16px;'>Provide Feedback</a></div>",
   "method": null,
   "modified": "2023-11-02 14:37:26.854401",
   "module": null,
