@@ -9,7 +9,7 @@ app_license = "MIT"
 
 # Includes in <head>
 # ------------------
-
+# fixtures = [{"doctype": "Notification", "filters": {"name": ["in", ["Job Applicant Email","interviewer - Recruitment"]]}}]
 # include js, css files in header of desk.html
 # app_include_css = "/assets/hyde_app/css/hyde_app.css"
 # app_include_js = "/assets/hyde_app/js/hyde_app.js"
@@ -120,9 +120,10 @@ doctype_js = {"Role" : "public/js/role.js",
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-#	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	# "ToDo": "custom_app.overrides.CustomToDo"
+    "Interview":"hyde_app.Controllers.interview.CustomInterviewController"
+}
 
 # Document Events
 # ---------------
