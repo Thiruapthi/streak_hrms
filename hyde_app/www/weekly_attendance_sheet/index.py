@@ -1,58 +1,70 @@
 import frappe
-from datetime import date,timedelta
+import json
+from datetime import date, timedelta
+from collections import defaultdict
 from hrms.hr.report.monthly_attendance_sheet.monthly_attendance_sheet import execute
 
 @frappe.whitelist(allow_guest=True)
 def get_weekly_report(company,employee):
     current_date = date.today()
-    current_month = int((current_date.strftime("%Y-%m-%d")).split("-")[1])
-    current_year = int((current_date.strftime("%Y-%m-%d")).split("-")[0])
+    previous_date = (current_date + timedelta(days=-6))
+    dates = previous_date + timedelta(days=-1)
 
+    columns = ["Employee", "Employee Name"]
 
-    filters ={
-            'month': current_month, 'year':current_year, 'company': company,'employee': employee
+    while dates < current_date:
+        dates = dates + timedelta(days=+1)
+        day_name = dates.strftime('%a')
+        day = int((dates.strftime("%Y-%m-%d")).split("-")[2])
 
-		}
-    columns, data, message, chart = execute(filters)
-
-    updatedcolumns = []
-    updateddata = []
-
-    current_date_num = int((current_date.strftime("%Y-%m-%d")).split("-")[2])
-
-    previous_start_date = current_date+timedelta(days=-6)
-    previous_start_date_num = int((previous_start_date.strftime("%Y-%m-%d")).split("-")[2])
-
-    for eachcolumn in columns:
-        if (type(eachcolumn["fieldname"])==int):
-            if previous_start_date_num<=eachcolumn["fieldname"]<=current_date_num:
-                updatedcolumns.append(eachcolumn)
-
-        elif (type(eachcolumn["fieldname"])==str):
-            if(eachcolumn["label"]!="Shift"):
-                updatedcolumns.append(eachcolumn)
-
-
-    for eachrow in data:
-        eachrowobj = {}
-        for i in eachrow:
-            if type(i)==int:
-                if previous_start_date_num<=i<=current_date_num:
-                    eachrowobj[i] = eachrow[i]
-
-            elif (type(i)==str):
-                eachrowobj[i] = eachrow[i]
-        updateddata.append(eachrowobj)   
-
-        
+        columns.append(str(day) + " " + day_name)
     
+    records = []
+    if employee=="":
+        records.extend(list(frappe.db.sql(f"""SELECT employee,employee_name,status,attendance_date,company FROM `tabAttendance` WHERE company='{company}' AND attendance_date BETWEEN '{previous_date}' AND '{current_date}' ORDER BY attendance_date ASC """)))
+    else:
+        records.extend(list(frappe.db.sql(f"""SELECT employee,employee_name,status,attendance_date,company FROM `tabAttendance` WHERE company='{company}' AND employee = '{employee}' AND attendance_date BETWEEN '{previous_date}' AND '{current_date}' ORDER BY attendance_date ASC """)))
 
-    present_date = date.today()
-    previous_date = present_date+timedelta(days=-6)
-    present_date = present_date.strftime("%d-%m-%Y")
-    previous_date = previous_date.strftime("%d-%m-%Y")
+    # Group records by employee ID
+    employee_records = defaultdict(lambda: defaultdict(str))
+    for record in records:
+        employee_id, employee_name, status, attendance_date, _ = record
+        day = attendance_date.day
 
-    return updatedcolumns,updateddata,present_date,previous_date
+        if status == "Present":
+            status = "P"
+        elif status == "Absent":
+            status = "A"
+        elif status == "On Leave":
+            status = "L"
+        elif status == "Half Day":
+            status = "HD"
+        elif status == "Work From Home":
+            status = "WFH"
+
+        employee_records[employee_id]['Employee Name'] = employee_name
+        employee_records[employee_id][day] = status
+
+    # Fill missing dates with empty strings
+    for employee_attendance in employee_records.values():
+        for day in range((current_date - previous_date).days + 1):
+            date_to_check = previous_date + timedelta(days=day)
+            day = date_to_check.day
+            if day not in employee_attendance:
+                employee_attendance[day] = ""
+
+    # Convert defaultdict to a list of dictionaries and sort dates
+    formatted_data = []
+    for employee_id, attendance_status in employee_records.items():
+        sorted_dates = sorted([day for day in attendance_status.keys() if day != 'Employee Name'], key=int)
+        formatted_record = {
+            "Employee": employee_id,
+            "Employee Name": attendance_status['Employee Name'],
+            **{day: attendance_status[day] for day in sorted_dates}
+        }
+        formatted_data.append(formatted_record)
+
+    return  columns,formatted_data, current_date, previous_date
 
 @frappe.whitelist(allow_guest=True)
 def get_employees():
