@@ -21,68 +21,87 @@ frappe.ready(function(){
 				table.deleteRow(0); // Deletes the first row in the table
 			}
 
-			// Add table header columns dynamically
+
+			if (data.length>=1){
+
+				// Add table header columns dynamically
 			var thead = table.createTHead();
 			var row = thead.insertRow();
 			for (var i = 0; i < columns.length; i++) {
 				var th = document.createElement("th");
-				th.innerHTML = columns[i].label;
+				th.innerHTML = columns[i];
 				row.appendChild(th);
 			}
-		
-			// Add table body rows dynamically
+				// Add table body rows dynamically																						
 			var tbody = table.createTBody();
 			for (var i = 0; i < data.length; i++) {
+
 				var row = tbody.insertRow();
 				for (var j = 0; j < columns.length; j++) {
 					var cell = row.insertCell(j);
 		
 					for(var eachColumn in data[i]){
-		
-						if(columns[j].fieldname===parseInt(eachColumn)){
-							if(data[i][`${eachColumn}`]==="P" || data[i][`${eachColumn}`]==="WFH"){
+
+						if (columns[j].includes(" ")){
+							var num = columns[j].split(" ")[0];
+							if (!isNaN(num)){
+								if(eachColumn===num){
+									if(data[i][`${eachColumn}`]==="P" || data[i][`${eachColumn}`]==="WFH"){
 							
-								cell.classList.add("present");
-								cell.innerHTML = data[i][`${eachColumn}`]
+										cell.classList.add("present");
+										cell.innerHTML = data[i][`${eachColumn}`]
+				
+									}else if(data[i][`${eachColumn}`]==="L"){
+				
+										cell.classList.add("leave");
+										cell.innerHTML = data[i][`${eachColumn}`]
+				
+									}else if(data[i][`${eachColumn}`]==="HD"){
+				
+										cell.classList.add("half_day");
+										cell.innerHTML = data[i][`${eachColumn}`]
+				
+									}else if(data[i][`${eachColumn}`]==="H"){
+				
+										cell.classList.add("holiday");
+										cell.innerHTML = data[i][`${eachColumn}`]
+				
+									}else if(data[i][`${eachColumn}`]==="A"){
+				
+										cell.classList.add("absent");
+										cell.innerHTML = data[i][`${eachColumn}`]
+				
+									}
+				
+									cell.innerHTML = data[i][`${eachColumn}`]
+								}
+							}else{
+
+								if((columns[j]===(eachColumn))){
 		
-							}else if(data[i][`${eachColumn}`]==="L"){
-		
-								cell.classList.add("leave");
-								cell.innerHTML = data[i][`${eachColumn}`]
-		
-							}else if(data[i][`${eachColumn}`]==="HD"){
-		
-								cell.classList.add("half_day");
-								cell.innerHTML = data[i][`${eachColumn}`]
-		
-							}else if(data[i][`${eachColumn}`]==="H"){
-		
-								cell.classList.add("holiday");
-								cell.innerHTML = data[i][`${eachColumn}`]
-		
-							}else if(data[i][`${eachColumn}`]==="A"){
-		
-								cell.classList.add("absent");
-								cell.innerHTML = data[i][`${eachColumn}`]
-		
+									cell.classList.add("remaining");
+									cell.innerHTML = data[i][`${eachColumn}`]
+								}
+
 							}
-		
-							cell.innerHTML = data[i][`${eachColumn}`]
+
 						}
 						else{
-							if((columns[j].fieldname===(eachColumn))){
+							if((columns[j]===(eachColumn))){
 		
 								cell.classList.add("remaining");
 								cell.innerHTML = data[i][`${eachColumn}`]
 		
 		
 							}
-							
-		
 						}
 					}
 				}
 			}
+
+			}
+		
+			
 		}
 
 
@@ -163,7 +182,7 @@ frappe.ready(function(){
 						var columns = r.message[0];
 						var data = r.message[1];
 						var present_date = r.message[2]
-						var previous_date = r.message[3]							
+						var previous_date = r.message[3]  					
 						displayTableWithData(columns, data, present_date, previous_date)
 					}
 				});
@@ -209,7 +228,7 @@ frappe.ready(function(){
 					var columns = r.message[0];
 					var data = r.message[1];
 					var present_date = r.message[2]
-					var previous_date = r.message[3]							
+					var previous_date = r.message[3]
 					displayTableWithData(columns, data, present_date, previous_date)
 					
 				}
