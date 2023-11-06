@@ -21,30 +21,40 @@ def get_weekly_report(company,employee):
     
     records = []
     if employee=="":
-        records.extend(list(frappe.db.sql(f"""SELECT employee,employee_name,status,attendance_date,company FROM `tabAttendance` WHERE company='{company}' AND attendance_date BETWEEN '{previous_date}' AND '{current_date}' ORDER BY attendance_date ASC """)))
+        records.extend(list(frappe.db.sql(f"""SELECT employee,employee_name,docstatus,status,attendance_date,company FROM `tabAttendance` WHERE company='{company}' AND attendance_date BETWEEN '{previous_date}' AND '{current_date}' ORDER BY attendance_date ASC """)))
     else:
-        records.extend(list(frappe.db.sql(f"""SELECT employee,employee_name,status,attendance_date,company FROM `tabAttendance` WHERE company='{company}' AND employee = '{employee}' AND attendance_date BETWEEN '{previous_date}' AND '{current_date}' ORDER BY attendance_date ASC """)))
+        records.extend(list(frappe.db.sql(f"""SELECT employee,employee_name,docstatus,status,attendance_date,company FROM `tabAttendance` WHERE company='{company}' AND employee = '{employee}' AND attendance_date BETWEEN '{previous_date}' AND '{current_date}' ORDER BY attendance_date ASC """)))
 
     # Group records by employee ID
     employee_records = defaultdict(lambda: defaultdict(str))
     for record in records:
-        employee_id, employee_name, status, attendance_date, _ = record
+        employee_id, employee_name,docstatus, status, attendance_date, _ = record
         day = attendance_date.day
+        print(record)
+        if docstatus==2:
+            status = ""
+            employee_records[employee_id]['Employee Name'] = employee_name
+            employee_records[employee_id][day] = status
+        elif docstatus ==0:
+            status = ""    
+            employee_records[employee_id]['Employee Name'] = employee_name
+            employee_records[employee_id][day] = status
 
-        if status == "Present":
-            status = "P"
-        elif status == "Absent":
-            status = "A"
-        elif status == "On Leave":
-            status = "L"
-        elif status == "Half Day":
-            status = "HD"
-        elif status == "Work From Home":
-            status = "WFH"
+        else:
+            if status == "Present":
+                status = "P"
+            elif status == "Absent":
+                status = "A"
+            elif status == "On Leave":
+                status = "L"
+            elif status == "Half Day":
+                status = "HD"
+            elif status == "Work From Home":
+                status = "WFH"
 
-        employee_records[employee_id]['Employee Name'] = employee_name
-        employee_records[employee_id][day] = status
-
+            employee_records[employee_id]['Employee Name'] = employee_name
+            employee_records[employee_id][day] = status
+             
     # Fill missing dates with empty strings
     for employee_attendance in employee_records.values():
         for day in range((current_date - previous_date).days + 1):
