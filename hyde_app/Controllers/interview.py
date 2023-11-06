@@ -31,13 +31,13 @@ class CustomInterviewController(OriginalInterviewController):
             message = (
 				_("Dear {0},").format(job_Applicant)
 				+ "<br><br>"
-				+ _("Greeting of the day!")
+				+ _("Greetings of the day!")
 				+ "<br><br>"
-				+ _("We are pleased to inform you that your interview is scheduled for {0} on {1} at {2}").format(designation,Schedule_On,from_time)
+				+ _("We are pleased to inform you that your Interview is scheduled for  {0} on {1} at {2}").format(designation,Schedule_On,from_time)
 				+"<br><br>"
 				+_("It will be a {0}").format(Interview_round)
 				+"<br><br>"
-				+_("Wishing you the best for your interview.")
+				+_("Wishing you the best for your Interview.")
 				+"<br><br>"
 				+_("Thanks and regards,")
 				+"<br><br>"
@@ -55,14 +55,14 @@ class CustomInterviewController(OriginalInterviewController):
             Interviewer_message = (
 				_("Dear {0},").format(Interviewer_Name)
 				+"<br><br>"
-				+_("Greeting of the day!")
+				+_("Greetings of the day!")
 				+"<br><br>"
-				+_("An Interview has been scheduled for {0} on {1} at {2}. Candidate name is {3}.").format(designation,Schedule_On,from_time,job_Applicant)
+				+_("An Interview has been scheduled for  {0} on {1} at {2}. Candidate name is {3}.").format(designation,Schedule_On,from_time,job_Applicant)
 				+"<br><br>"
 				+_("Below enclosed is the resume for your ")
 				+f'<a href="{dynamic_link}"> Reference</a>'
 				+"<br><br>"
-				+_("Please ensure your availability for the interview and incase of any rescheduling let us know 1 day in advance.")
+				+_("Please ensure your availability for the Interview and incase of any rescheduling let us know 1 day in advance.")
 				+"<br><br>"
 				+_("Thanks and regards")
 				+"<br><br>"
