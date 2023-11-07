@@ -5,7 +5,7 @@ frappe.ui.form.on('Interview', {
         if (frm.doc.status === "Cleared") {
             newStatus = "Job Offer Pending";
         }
-        else if(frm.doc.status === "Rejected"){
+        else if (frm.doc.status === "Rejected") {
             newStatus = "Rejected";
         }
         else {
@@ -16,6 +16,9 @@ frappe.ui.form.on('Interview', {
             args: {
                 'applicant_name': applicantName,
                 'status': newStatus
+            },
+            callback: function (r) {
+                location.reload();
             }
         });
     }
