@@ -16,6 +16,8 @@ frappe.ui.form.on('Job Offer', {
             args: {
                 'applicant_name': applicantName,
                 'status': newStatus
+            },callback: function (r) {
+                location.reload();
             }
         });
     },

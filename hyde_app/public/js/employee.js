@@ -7,6 +7,8 @@ frappe.ui.form.on('Employee',{
             args: {
                 'applicant_name': applicantName,
                 'status': newStatus
+            },callback: function (r) {
+                location.reload();
             }
     })
     },

@@ -7,6 +7,8 @@ frappe.ui.form.on('Appointment Letter',{
             args: {
                 'applicant_name': applicantName,
                 'status': newStatus
+            },callback: function (r) {
+                location.reload();
             }
     })
 },
