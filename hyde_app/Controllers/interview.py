@@ -52,12 +52,12 @@ class CustomInterviewController(OriginalInterviewController):
         if new_from_date.hour >= 12:
             new_from_date -= datetime.timedelta(hours=12)
             new_end_date  -= datetime.timedelta(hours=12)
-            N_date_F = new_from_date.date()
-            N_time_F = new_from_date.time()
-            N_date_E = new_end_date.date()
-            N_time_E = new_end_date.time()
-            Final_F_date = str(N_date_F)+"T"+str(N_time_F)+"Z"
-            Final_E_date = str(N_date_E)+"T"+str(N_time_E)+"Z"
+        N_date_F = new_from_date.date()
+        N_time_F = new_from_date.time()
+        N_date_E = new_end_date.date()
+        N_time_E = new_end_date.time()
+        Final_F_date = str(N_date_F)+"T"+str(N_time_F)+"Z"
+        Final_E_date = str(N_date_E)+"T"+str(N_time_E)+"Z"
         try:
             google_settings = frappe.get_single("Google Settings")
             user_email = frappe.get_value("User", frappe.session.user, "email")
