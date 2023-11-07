@@ -33,36 +33,8 @@ def get_annexure_template_details(template):
 def Interview_Rounds(job_titles):
     values = {'job_title':job_titles}
     source_data = frappe.db.sql("""SELECT  ir.interview_rounds FROM `tabJob Opening` jo JOIN `tabInterview Rounds` ir ON jo.name = ir.parent WHERE     jo.job_title = %(job_title)s""",values = values,as_dict=True   )
-    # doc = []
-    # print(source_data,'source_data\n\n\n\n\n\n\n\n\n\n\n')
-    # # Get the source document based on the job title
+    
     return source_data
-    # # Iterate through the source child table and extract data
-    # for source_row in source_doc.custom_round:
-    #     doc.append({
-    #         "interview_rounds": source_row.interview_rounds
-    #     })
-    # print(doc,"doc\n\n\n\n\n\n\n\n\n")
-    # return doc
-    # source_doctype = "Job Opening"
-    # doc = []
-    # # target_doctype = "Job Applicant"
-    # print("\n\n\n\n\n\n",'interview round',"\n\n\n\n\n\n\n\n")
-    # # Get a list of source documents
-    # # source_documents = frappe.get_doc(source_doctype, filters={"job_title": job_title})
-
-    # # for source_doc in source_documents:
-    #     # Load the source document
-    # source_doc = frappe.get_doc(doctype=source_doctype, job_title= job_titles)
-    # print(source_doc,"\n\n\n\n\n\n\n\n")   
-    #     # Add the source child table data to the target child table
-    # for source_row in source_doc.custom_round:
-    #         print(source_row)
-    #         doc.append{
-    #             "interview_rounds": source_row.interview_rounds
-    #         }
-    # return doc
-
 
 
 @frappe.whitelist(allow_guest=True)

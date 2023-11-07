@@ -25,6 +25,33 @@ frappe.ui.form.on('Employee Onboarding', {
         frappe.call({
             method: "frappe.client.get_value",
             args: {
+                doctype: "Appointment Letter",
+                filters: {
+                    name: frm.doc.job_applicant,
+                },
+                fieldname: 'appointment_date'
+            },
+            callback: function (response) {
+                if (!response.exc) {
+                    var appointmentdate = response.message.appointment_date;
+                    if (frm.doc.date_of_joining < appointmentdate) {
+                        frappe.msgprint(__("Date of Joining can't be before offer date"));
+                        frappe.validated = false;
+                    }
+                } else {
+                    console.error('Error fetching applicant status: ' + response.exc);
+                }
+            }
+        });
+
+        if (frm.doc.date_of_joining > frm.doc.boarding_begins_on) {
+            frappe.msgprint(__("Boarding date can't be before joining date"));
+            frappe.validated = false;
+        }
+        
+        frappe.call({
+            method: "frappe.client.get_value",
+            args: {
                 doctype: "Job Applicant",
                 filters: {
                     name: frm.doc.job_applicant,
