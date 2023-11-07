@@ -94,8 +94,3 @@ frappe.ui.form.on("Job Applicant", {
     
 	}
 })
-
-frappe.realtime.on("applicant_status_update", function (data) {
-  cur_frm.reload_doc()
-
-})
