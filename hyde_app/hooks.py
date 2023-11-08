@@ -38,7 +38,8 @@ doctype_js = {"Role" : "public/js/role.js",
 "Employee":"public/js/employee.js",
 "Interview":"public/js/interview.js",
 "Job Offer" : "public/js/job_offer.js",
-"Employee Onboarding":"public/js/employee_onboarding.js"
+"Employee Onboarding":"public/js/employee_onboarding.js",
+"Compensatory Leave Request":"public/js/compensatory_leave_request.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
