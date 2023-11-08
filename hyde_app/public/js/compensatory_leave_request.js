@@ -1,4 +1,7 @@
 frappe.ui.form.on('Compensatory Leave Request', {
+    onload: function(frm) {
+        frm.set_value('leave_type', 'Compensatory Off');
+    },
 	refresh: function(frm) {
 		frm.set_query("leave_type", function() {
 			return {
