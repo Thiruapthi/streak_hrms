@@ -6,7 +6,17 @@ validate(frm) {
             const roundedRating = roundToEven(originalRating);
             cur_frm.doc.skill_assessment[i].rating = roundedRating;
         }
-    }
+    },
+
+    after_save(frm) {
+      var interview = frm.doc.interview
+      frappe.call({
+          method: 'hyde_app.api.get_interviewers_list',
+          args: {
+            'interview': interview
+          }
+        });
+  }
     
 })
 
