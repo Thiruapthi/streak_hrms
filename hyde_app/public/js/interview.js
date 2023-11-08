@@ -21,5 +21,42 @@ frappe.ui.form.on('Interview', {
                 location.reload();
             }
         });
+    },
+
+    validate(frm) {
+        frappe.call({
+            method: 'hyde_app.api.get_job_applicant_details',
+            args: {
+                'job_applicant': frm.doc.job_applicant,
+                'job_opening': frm.doc.job_opening,
+            },
+            callback: function (r) {
+                if (r.message) {
+                    const interviewStatus = r.message[0];
+                    const sourceData = r.message[1];
+                    const currentRound = frm.doc.interview_round;
+    
+                    const currentRoundIndex = sourceData.findIndex(item => item.interview_rounds === currentRound);
+                  
+                    if (currentRoundIndex > 0) {
+                        const previousRoundName = sourceData[currentRoundIndex - 1].interview_rounds;
+                        const previousRoundStatus = interviewStatus.find(item => item.interview_round === previousRoundName);
+    
+                        if (previousRoundStatus && previousRoundStatus.status === "Cleared") {
+                            frappe.validated = true;
+                        } else {
+                            frappe.msgprint("You need to clear the previous round - "+previousRoundName);
+                            frappe.validated = false;
+                        }
+                    }   else {
+                        // No previous rounds to check, allow saving
+                        frappe.validated = true;
+                    }
+                }else {
+                // No previous interview round found, allow saving
+                 frappe.validated = true;
+                }
+            }
+        });
     }
 })
