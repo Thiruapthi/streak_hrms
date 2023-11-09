@@ -139,7 +139,14 @@ doc_events = {
 #	}
 "Sales Stage":{
     "after_delete":"hyde_app.www.test.update_custom_select_field1"
-}
+},
+ "Interview": {
+       "on_update": "hyde_app.api.notify_hr_on_interview_update",
+   }
+   ,
+ "Appointment Letter": {
+       "after_insert": "hyde_app.api.send_appointment_email",
+   }
 }
 
 # Scheduled Tasks
