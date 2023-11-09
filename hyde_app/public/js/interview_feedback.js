@@ -1,10 +1,20 @@
 frappe.ui.form.on('Interview Feedback',{   
 validate(frm) {
-        console.log('78964');
         for (let i = 0; i < cur_frm.doc.skill_assessment.length; i++) {
             const originalRating = cur_frm.doc.skill_assessment[i].rating;
             const roundedRating = roundToEven(originalRating);
             cur_frm.doc.skill_assessment[i].rating = roundedRating;
+            if (cur_frm.doc.skill_assessment[i].rating === 0.2) {
+              cur_frm.doc.skill_assessment[i].custom_grading = 'Not Acceptable';
+            } else if (cur_frm.doc.skill_assessment[i].rating === 0.4) {
+              cur_frm.doc.skill_assessment[i].custom_grading = 'Poor';
+            } else if (cur_frm.doc.skill_assessment[i].rating === 0.6) {
+              cur_frm.doc.skill_assessment[i].custom_grading = 'Average';
+            } else if (cur_frm.doc.skill_assessment[i].rating === 0.8) {
+              cur_frm.doc.skill_assessment[i].custom_grading = 'Good';
+            } else if (cur_frm.doc.skill_assessment[i].rating === 1) {
+              cur_frm.doc.skill_assessment[i].custom_grading = 'Exceptional';
+            }
         }
     },
 
