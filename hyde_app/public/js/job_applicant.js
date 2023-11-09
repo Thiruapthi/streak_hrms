@@ -1,5 +1,15 @@
 frappe.ui.form.on("Job Applicant", {
   refresh: function (frm) {
+    frm.add_custom_button('Applicant History', function(){
+      frappe.call({
+        args: {email:frm.doc.email_id},
+        method: "hyde_app.api.get_job_applications",
+        callback: function(r) {
+          if (r.message) {
+            showJobApplications(r.message);
+        }  }
+    });
+    });
     
     cur_frm.events.create_dialog = function (frm) {
      
@@ -154,3 +164,117 @@ frappe.ui.form.on("Job Applicant", {
     
 	}
 })
+
+
+function showJobApplications(data) {
+  console.log(data);
+  let d = new frappe.ui.Dialog({
+    title: "Job Applications",
+    fields: [
+      {
+        label: "Job Applications",
+        fieldname: "history",
+        fieldtype: "HTML",
+        options: createItemTable(data),
+        read_only: 1,
+      },
+    ],
+    size: "large",
+    primary_action_label: "Submit",
+    primary_action: function (values) {
+      console.log(values);
+      d.hide();
+    },
+  });
+
+  d.show();
+  setTimeout(function () {
+    data.forEach((item) => {
+      if (item.interviews.length === 0) {
+        console.log(item.name, "test");
+
+        $(`button[data-target="${item.name}"]`).hide();
+      }
+    });
+  }, 500);
+}
+
+function createItemTable(data) {
+  let tableHTML = `
+      <table class="table table-striped table-hover">
+        <thead class="thead-dark">
+          <tr>
+            <th class="table-heading">#</th>
+            <th class="table-heading">Applicant Name</th>
+            <th class="table-heading">Job Title</th>
+            <th class="table-heading">Status</th>
+            <th class="table-heading">Applicant Rating</th>
+            <th class="table-heading">Interview Feedback</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+  data.forEach((item, index) => {
+    tableHTML += `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${item.applicant_name}</td>
+          <td>${item.job_title}</td>
+          <td>${item.status}</td>
+          <td>${item.applicant_rating}</td>
+          <td><button class="show-interview-button btn btn-primary" data-target="${
+            item.name
+          }">Show</button></td>
+        </tr>
+        <tr id="${item.name}" style="display: none;">
+          <td colspan="6">
+            <table class="interview-table">
+              <thead>
+                <tr>
+                  <th>Interview Round</th>
+                  <th>Interviewer</th>
+                  <th>Result</th>
+                  <th>Feedback</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${item.interviews
+                  .map(
+                    (interview) => `
+                      <tr>
+                        <td>${interview.interview_round}</td>
+                        <td>${interview.interviewer}</td>
+                        <td>${interview.result}</td>
+                        <td>${interview.feedback}</td>
+                      </tr>
+                    `
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      `;
+  });
+
+  tableHTML += `
+        </tbody>
+      </table>
+    `;
+
+  return tableHTML;
+}
+
+$(document).on("click", ".show-interview-button", function () {
+  const target = $(this).data("target");
+  var trElement = document.getElementById(target);
+
+  if (trElement) {
+    if (trElement.style.display === "none" || trElement.style.display === "") {
+      trElement.style.display = "table-row";
+    } else {
+      trElement.style.display = "none";
+    }
+  }
+});
