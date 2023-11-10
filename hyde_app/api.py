@@ -365,3 +365,43 @@ def notify_hr_on_interview_update(doc, method):
           now=True,
           )
 
+@frappe.whitelist()
+def send_compensatory_leave_request(doc, method):
+    if doc.workflow_state == "Approved":
+        employee_id = doc.employee
+        if not employee_id:
+            frappe.throw("Employee ID is missing")
+
+        work_from_date = doc.work_from_date
+        work_end_date = doc.work_end_date
+        doc = frappe.get_doc("Employee", employee_id)
+        employee_email = doc.company_email
+        employee_name = doc.employee_name
+
+
+        message = f"""
+        <br>
+        Dear {employee_name},
+        <br>
+        <br>
+        
+        Greetings of the day!
+        <br>
+        <br>
+
+        Your compensatory leave request has been approved for the From Date: {work_from_date} To End Date: {work_end_date}. Balance of the same has been added to your leaves.
+        <br>
+        <br>
+        <br>
+
+        Thanks and regards,
+        <br>
+        HR-Team KoreCent
+        """
+
+        frappe.sendmail(
+            recipients=employee_email,
+            subject="Compensatory Leave Request Notification",
+            message=message,
+            header="Compensatory Leave Request Notification"
+        )

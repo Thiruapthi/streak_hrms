@@ -146,6 +146,9 @@ doc_events = {
    ,
  "Appointment Letter": {
        "after_insert": "hyde_app.api.send_appointment_email",
+   },
+  "Compensatory Leave Request":{
+       "on_update": "hyde_app.api.send_compensatory_leave_request"
    }
 }
 
