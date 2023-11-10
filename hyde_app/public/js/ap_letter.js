@@ -1,4 +1,20 @@
 frappe.ui.form.on('Appointment Letter',{
+    job_applicant: function(frm){
+        frappe.call({
+            method: 'hyde_app.api.get_latest_interview',
+            args: {
+                job_applicant: frm.doc.job_applicant
+            },
+            callback: function(r) {
+                if (r.message) {
+                    frm.set_value('custom_interviewer_email', r.message)
+                }else{
+                    frm.set_value('custom_interviewer_email','')
+
+                }
+            }
+        });
+     },
     after_save(frm){
         let applicantName = frm.doc.job_applicant
         let newStatus  = "Appointment Letter Released"
