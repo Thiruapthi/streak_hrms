@@ -8,8 +8,9 @@ def update_applicant_status_interview(applicant_name, status):
         applicant.save()
         applicant.reload()
         frappe.db.commit()
-    except frappe.DoesNotExistError:
-        frappe.msgprint(f"Job Applicant '{applicant_name}' not found.")
+    except:
+        pass
+        # frappe.msgprint(f"Job Applicant '{applicant_name}' not found.")
 
 
 @frappe.whitelist()
