@@ -1,0 +1,49 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-11-10 11:54:01.809972",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "hr_email_id",
+  "hr_manager_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "hr_email_id",
+   "fieldtype": "Data",
+   "label": "HR Email ID",
+   "options": "Email"
+  },
+  {
+   "fieldname": "hr_manager_name",
+   "fieldtype": "Data",
+   "label": "Hr Manager Name"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2023-11-10 14:01:00.271349",
+ "modified_by": "Administrator",
+ "module": "Hyde",
+ "name": "HRSettings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

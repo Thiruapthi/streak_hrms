@@ -149,6 +149,9 @@ doc_events = {
    },
   "Compensatory Leave Request":{
        "on_update": "hyde_app.api.send_compensatory_leave_request"
+   },
+   "Job Offer": {
+       "after_insert": "hyde_app.api.send_Job_offer_email",
    }
 }
 
