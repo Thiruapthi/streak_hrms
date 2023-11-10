@@ -2,21 +2,11 @@
  {
   "docstatus": 0,
   "doctype": "Email Template",
-  "modified": "2023-11-10 11:45:05.023298",
-  "name": "Compensatory Leave Request Approval Notification",
-  "response": "<div class=\"ql-editor read-mode\"><p>{% set leave_approver_email= frappe.db.get_list('Employee', filters={'employee_name': employee_name}, fields='leave_approver') %}</p><p>{% set leave_approver_name_dict = frappe.db.get_list('User', filters = {'email':leave_approver_email[0].leave_approver}, fields = 'full_name')%}</p><p>{% set leave_approver_name = leave_approver_name_dict[0].full_name %}</p><p><br></p><p>Dear {{leave_approver_name}},</p><p><br></p><p>Greetings of the day!</p><p><br></p><p>{{ employee_name }} has raised a compensatory leave request against From Date: {{ work_from_date }} - To End Date: {{ work_end_date }}.Kindly take the necessary action.</p><p><br></p><p>Thanks and regards,</p><p>HR-Team KoreCent</p></div>",
+  "modified": "2023-11-10 15:11:38.650099",
+  "name": "Leave Approval Notification",
+  "response": "<div class=\"ql-editor read-mode\"><h1>Leave Application Notification</h1><p><br></p><p>Dear Concerned,</p><p><br></p><p>Greetings of the day!</p><p><br></p><p>{{employee_name}} has applied for {% if half_day %}half day {% else %}full day {% endif %}{{leave_type}} From {{from_date}} To {{to_date}}.</p><p><br></p><p>Leave Balance Before Application&nbsp;{{leave_balance}}</p><p><br></p><p>Thanks and regards</p><p>HR- Team KoreCent</p></div>",
   "response_html": null,
-  "subject": "Compensatory Leave Request Approval Notification",
-  "use_html": 0
- },
- {
-  "docstatus": 0,
-  "doctype": "Email Template",
-  "modified": "2023-11-10 11:47:41.704177",
-  "name": "Compensatory Leave Request HR Approval Notification",
-  "response": "<div class=\"ql-editor read-mode\"><p>{% set hr_managers = frappe.get_list('Has Role', filters={'parenttype':'User','role': 'HR Manager'}, fields=['parent', 'parenttype', 'parentfield']) %}</p><p>{%set hr_id = hr_managers[0].parent %}</p><p>{% set hr_manager_doc = frappe.get_list('User', filters={'name':hr_id}, fields=['full_name']) %}</p><p>{% set hr_manager_name = hr_manager_doc[0].full_name %}</p><p><br></p><p>{% set leave_approver_email= frappe.db.get_list('Employee', filters={'employee_name': employee_name}, fields='leave_approver') %}</p><p>{% set leave_approver_name_dict = frappe.db.get_list('User', filters = {'email':leave_approver_email[0].leave_approver}, fields = 'full_name')%}</p><p>{% set leave_approver_name = leave_approver_name_dict[0].full_name %}</p><p><br></p><p>Dear {{hr_manager_name}},</p><p><br></p><p>Greetings of the day!</p><p><br></p><p>{{ employee_name }} has raised a compensatory leave request against From Date: {{ work_from_date }} - To End Date: {{ work_end_date }}.. The team lead {{leave_approver_name}} has approved their request. Kindly take the necessary action.</p><p><br></p><p>Thanks and regards,</p><p>HR- Team KoreCent</p></div>",
-  "response_html": null,
-  "subject": "Compensatory Leave Request HR Approval Notification",
+  "subject": "Leave Approval Notification",
   "use_html": 0
  }
 ]
