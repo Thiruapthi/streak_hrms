@@ -476,3 +476,7 @@ def send_compensatory_leave_request(doc, method):
             message=message,
             header="Compensatory Leave Request Notification"
         )
+
+@frappe.whitelist()
+def get_job_opening_rounds(job_title):
+    return frappe.get_doc("Job Opening",job_title)
