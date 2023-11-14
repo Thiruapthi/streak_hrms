@@ -11,8 +11,17 @@ frappe.ui.form.on("Job Applicant", {
     });
     });
     
-    cur_frm.events.create_dialog = function (frm) {
-     
+    cur_frm.events.create_dialog = async function (frm) {
+    var interviewRoundsList=[]
+    await frappe.call({
+      args:{job_title:frm.doc.job_title},
+      method: "hyde_app.api.get_job_opening_rounds",
+      callback: function(r) {
+        if (r.message) {
+           interviewRoundsList = r.message.custom_round.map(item => item.interview_rounds);
+        }
+      }
+     })
       let d = new frappe.ui.Dialog({
         title: 'Enter Interview Round',
         fields: [
@@ -20,9 +29,13 @@ frappe.ui.form.on("Job Applicant", {
             label: 'Interview Round',
             fieldname: 'interview_round',
             fieldtype: 'Link',
+            filters: {
+              'name': ['in', interviewRoundsList]
+          },
             options: 'Interview Round'
           },
         ],
+        
 
         primary_action_label: 'Create Interview',
         primary_action(values) {
