@@ -19,13 +19,18 @@ frappe.ready(function () {
 	else {
 
 		var currentMonth = new Date().getMonth() + 1; // Adding 1 to make it 1-12
-
 		var currentMonthStr = currentMonth.toString().padStart(2, '0');
 
 		let selectedMonth = document.getElementById('filter');
 		selectedMonth.value = currentMonthStr;
-		var defaultCompany = 'Korecent Solutions';
-	
+
+		var currentYear = new Date().getFullYear()
+		var currentYearStr = currentYear.toString()
+
+		let selectedYear = document.getElementById('filterByYear');
+		selectedYear.value = currentYearStr;
+		
+
 		frappe.call({
 			method: "hyde_app.www.charts.index.get_employees",
 			callback: function (r) {
@@ -55,29 +60,33 @@ frappe.ready(function () {
 				}
 
 		    let filterByCompany = document.getElementById('filterByCompany');
-		    filterByCompany.value = defaultCompany;
+		    filterByCompany.value = "Korecent Solutions";
 			}
 		})
 
 		let defaultMonth = currentMonthStr;
-		let defaultEmployee = 'None'
-		let defaultYear = '2023'
+		let employee = 'None'
+		let defaultYear = currentYearStr;
+		var company = 'None';
+
 
 		frappe.call({
 
-			method: "hyde_app.www.charts.index.get_script_report_data",
+			method: "hyde_app.www.charts.index.get_monthly_report",
 			args: {
-				'selectedMonthVal': defaultMonth,
-				'filterByEmployeeVal': defaultEmployee,
-				'filterByYearVal': defaultYear,
-				'filterByCompany': defaultCompany
-
+				'employee': employee,
+				'company': company,
+				'year':defaultYear,
+				'month':defaultMonth
 			},
 
 			callback: function (r) {
 				var columns = r.message[0];
 				var data = r.message[1];
-				createTable(data, columns)
+				var present_date = r.message[2]
+				var previous_date = r.message[3]							
+				displayTableWithData(columns, data, present_date, previous_date)
+		
 			}
 		});
 
@@ -96,22 +105,23 @@ frappe.ready(function () {
 				let filterByYearVal = document.getElementById('filterByYear').value;
 				let filterByCompany = document.getElementById('filterByCompany').value;
 
-
 				frappe.call({
-					method: "hyde_app.www.charts.index.get_script_report_data",
-					args: {
-						'selectedMonthVal': selectedMonthVal,
-						'filterByEmployeeVal': filterByEmployeeVal,
-						'filterByYearVal': filterByYearVal,
-						'filterByCompany': filterByCompany
 
+					method: "hyde_app.www.charts.index.get_monthly_report",
+					args: {
+						'employee': filterByEmployeeVal,						
+						'company': filterByCompany,
+						'year':filterByYearVal,
+						'month':selectedMonthVal
 					},
+		
 					callback: function (r) {
 						var columns = r.message[0];
 						var data = r.message[1];
-
-						createTable(data, columns)
-
+						var present_date = r.message[2]
+						var previous_date = r.message[3]							
+						displayTableWithData(columns, data, present_date, previous_date)
+				
 					}
 				});
 
@@ -145,61 +155,6 @@ frappe.ready(function () {
 
 		}
 
-		function createTable(data, columns) {
-			var table = document.getElementById("data-table");
-			table.innerHTML = '<tr></tr>';
-
-			if (data.length >= 1) {
-				var thead = table.createTHead();
-				var row = thead.insertRow();
-
-				for (var i = 0; i < columns.length; i++) {
-					if (columns[i].label !== "Shift") {
-						var th = document.createElement("th");
-						th.innerHTML = columns[i].label;
-						row.appendChild(th);
-					}
-				}
-
-				// Add table body rows dynamically
-				var tbody = table.createTBody();
-				for (var i = 0; i < data.length; i++) {
-					var row = tbody.insertRow();
-
-					for (var j = 0; j < columns.length; j++) {
-						if (columns[j].label !== "Shift") {
-							var cell = row.insertCell(row.cells.length);
-
-							if (j == 0) {
-								if (data[i].employee !== undefined) {
-									cell.innerHTML = data[i].employee;
-								}
-							} else if (j == 1) {
-								if (data[i].employee_name !== undefined) {
-									cell.innerHTML = data[i].employee_name;
-								}
-							} else {
-								let a = data[i][j-2];
-								if(a==="P" || a==="WFH"){
-									cell.innerHTML= '<span style="color:green;">' + a + '</span>';
-								}else if(a==="HD"){
-									cell.innerHTML= '<span style="color:orange;">' + a + '</span>';
-								}else if(a==="L" || a==="A"){
-									cell.innerHTML= '<span style="color:red;">' + a + '</span>';
-								}else{
-								cell.innerHTML = data[i][j - 2];
-								}
-							}
-						}
-					}
-				}
-			}
-			else {
-				var table = document.getElementById('data-table');
-				table.innerHTML = '<tr></tr>';
-			}
-		}
-
 
 		function applyFilter() {
 
@@ -208,23 +163,115 @@ frappe.ready(function () {
 			let filterByYearVal = document.getElementById('filterByYear').value;
 			let filterByCompany = document.getElementById('filterByCompany').value;
 
+		
 			frappe.call({
-				method: "hyde_app.www.charts.index.get_script_report_data",
-				args: {
-					'selectedMonthVal': selectedMonthVal,  // Pass the selected month as an argument
-					'filterByEmployeeVal': filterByEmployeeVal,
-					'filterByYearVal': filterByYearVal,
-					'filterByCompany': filterByCompany
 
+				method: "hyde_app.www.charts.index.get_monthly_report",
+				args: {				
+					'employee': filterByEmployeeVal,
+					'company': filterByCompany,
+					'year':filterByYearVal,
+					'month':selectedMonthVal	
 				},
+	
 				callback: function (r) {
 					var columns = r.message[0];
 					var data = r.message[1];
-
-					createTable(data, columns)
-
+					var present_date = r.message[2]
+					var previous_date = r.message[3]							
+					displayTableWithData(columns, data, present_date, previous_date)
+			
 				}
 			});
+		}
+
+
+		function displayTableWithData(columns, data, present_date, previous_date) {
+			var table = document.getElementById("data-table");
+			while (table.rows.length > 0) {
+				table.deleteRow(0); // Deletes the first row in the table
+			}
+
+			if (data.length>=1){
+
+			// Add table header columns dynamically
+			var thead = table.createTHead();
+			var row = thead.insertRow();
+			for (var i = 0; i < columns.length; i++) {
+				var th = document.createElement("th");
+				th.innerHTML = columns[i];
+				row.appendChild(th);
+			}
+				// Add table body rows dynamically																						
+			var tbody = table.createTBody();
+			for (var i = 0; i < data.length; i++) {
+
+				var row = tbody.insertRow();
+				for (var j = 0; j < columns.length; j++) {
+					var cell = row.insertCell(j);
+		
+					for(var eachColumn in data[i]){
+
+						if (columns[j].includes(" ")){
+							var num = columns[j].split(" ")[0];
+							if (!isNaN(num)){
+								if(eachColumn===num){
+									if(data[i][`${eachColumn}`]==="P" || data[i][`${eachColumn}`]==="WFH"){
+							
+										cell.classList.add("present");
+										cell.innerHTML = data[i][`${eachColumn}`]
+				
+									}else if(data[i][`${eachColumn}`]==="L"){
+				
+										cell.classList.add("leave");
+										cell.innerHTML = data[i][`${eachColumn}`]
+				
+									}else if(data[i][`${eachColumn}`]==="HD"){
+				
+										cell.classList.add("half_day");
+										cell.innerHTML = data[i][`${eachColumn}`]
+				
+									}else if(data[i][`${eachColumn}`]==="H"){
+				
+										cell.classList.add("holiday");
+										cell.innerHTML = data[i][`${eachColumn}`]
+				
+									}else if(data[i][`${eachColumn}`]==="A"){
+				
+										cell.classList.add("absent");
+										cell.innerHTML = data[i][`${eachColumn}`]
+				
+									}
+				
+									cell.innerHTML = data[i][`${eachColumn}`]
+								}
+							}else{
+
+								if((columns[j]===(eachColumn))){
+		
+									cell.classList.add("remaining");
+									cell.innerHTML = data[i][`${eachColumn}`]
+								}
+
+							}
+
+						}
+						else{
+							if((columns[j]===(eachColumn))){
+		
+								cell.classList.add("remaining");
+								cell.innerHTML = data[i][`${eachColumn}`]
+		
+		
+							}
+						}
+					}
+				}
+			}
+
+			}
+		
+			
 		}
 	}
 })
