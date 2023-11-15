@@ -51,25 +51,20 @@ validate: function(frm) {
         }
     });
     frappe.call({
-        method: "frappe.client.get_value",
+        method: 'hyde_app.api.get_latest_job_offer_date',   
         args: {
-            doctype: "Job Offer",
-            filters: {
-                job_applicant: frm.doc.job_applicant
-            },
-            fieldname: 'offer_date'
+            'job_applicant': frm.doc.job_applicant,
         },
-        callback: function(response) {
-    
-            if (!response.exc) {
-                var appointment = response.message.offer_date;
-                if (frm.doc.appointment_date < appointment) {
-                    frappe.msgprint(__("Appointment date can't be before offer date"));
-                    frappe.validated = false;
-                }
-            } 
-        }
-    });
+        callback: function (r) {
+            if (r.message) {
+                var offerDate = new Date(r.message);
+                var appointmentDate = new Date(frm.doc.appointment_date);
+                if (appointmentDate < offerDate) {
+                   frappe.msgprint(__("Appointment date can't be before offer date"));
+                         frappe.validated = false; }               
+                        }
+                    }
+                }); 
 },
 
 annexure_template:function(frm){
