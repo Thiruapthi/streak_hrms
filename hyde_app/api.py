@@ -170,56 +170,51 @@ def get_interviews(applicant_name):
 
 @frappe.whitelist()
 def send_appointment_email(doc, method):
-    applicant_data = frappe.get_value(
-        "Job Applicant",
-        {"name": doc.job_applicant},
-        ["email_id", "job_title", "applicant_name"],
-        as_dict=True
-    )
-    applicant_email = applicant_data.get("email_id")
-    applicant_name = applicant_data.get("applicant_name")
-    position = applicant_data.get("job_title")
-    ctc = doc.custom_ctc
+   applicant_data = frappe.get_value(
+       "Job Applicant",
+       {"name": doc.job_applicant},
+       ["email_id", "job_title", "applicant_name"],
+       as_dict=True
+   )
+   applicant_email = applicant_data.get("email_id")
+   applicant_name = applicant_data.get("applicant_name")
+   position = applicant_data.get("job_title")
 
-    # Email content for the candidate
-    email_content_candidate = f"""\
-        <p>Dear {applicant_name},</p>
-        <p>Greetings of the day!</p>
-        <p>Heartiest congratulations! We are pleased to offer you the position of {position} with Korecent Solutions Pvt. Ltd. at {ctc} CTC.</p>
-        <p>Please take the necessary action on the below enclosed link within the next 7 days:</p>
-        <button type="button" style="background-color: #4CAF50; color: #fff; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px; margin-right: 10px;" onclick="acceptOffer('{applicant_email}')">Accept</button>
-        <button type="button" style="background-color: #FF5733; color: #fff; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px;" onclick="rejectOffer('{applicant_email}')">Reject</button>
-        <p>Thanks and regards,</p>
-        <p>HR- Team KoreCent</p>
-    """
+   # Email content for the candidate
+   email_content_candidate = f"""\
+       <p>Dear {applicant_name},</p>
+       <p>Greetings of the day!</p>
+       <p>Heartiest congratulations! We are pleased to offer you the position of {position} with Korecent Solutions Pvt. Ltd.</p>
+       <p>Below enclosed is your appointment letter. Please let us know incase of any assistance.</p>
+       <p>Welcome aboard !</p>
+       <p>Thanks and regards,</p>
+       <p>HR- Team KoreCent</p>
+   """
+   # Email content for the interviewer
+   email_content_interviewer = f"""\
+       <p>Dear Interviewer,</p>
+       <p>Greetings! We have sent the appointment letter to the candidate, {applicant_name} ({applicant_email}), for the position of {position} with Korecent Solutions Pvt. Ltd.</p>
+       <p>If you have any additional feedback or instructions, please feel free to share.</p>
+       <p>Thanks and regards,</p>
+       <p>HR- Team KoreCent</p>
+   """
+   # Send email to the candidate
+   frappe.sendmail(
+       recipients=applicant_email,
+       cc=frappe.get_doc('HRSettings').hr_email_id,
+       subject='Job Offer Notification',
+       message=email_content_candidate,
+       attachments=[{"file_url": doc.custom_appointment_letter}],
+       now=True
+   )
+   # Send email to the interviewer
+   frappe.sendmail(
+       recipients=[doc.custom_interviewer_email],
+       subject='Candidate Status Update',
+       message=email_content_interviewer,
+       now=True
+   )
 
-    # Email content for the interviewer
-    email_content_interviewer = f"""\
-        <p>Dear Interviewer,</p>
-        <p>Greetings! We have sent the appointment letter to the candidate, {applicant_name} ({applicant_email}), for the position of {position} with Korecent Solutions Pvt. Ltd.</p>
-        <p>If you have any additional feedback or instructions, please feel free to share.</p>
-        <p>Thanks and regards,</p>
-        <p>HR- Team KoreCent</p>
-    """
-
-    # Send email to the candidate
-    frappe.sendmail(
-        recipients=applicant_email,
-        cc=doc.custom_hr_email_cc,
-        subject='Job Offer Notification',
-        message=email_content_candidate,
-        now=True
-    )
-
-    # Send email to the interviewer
-    frappe.sendmail(
-        recipients=[doc.custom_interviewer_email],
-        subject='Candidate Status Update',
-        message=email_content_interviewer,
-        now=True
-    )
-
-import frappe
 @frappe.whitelist()
 def get_latest_interview(job_applicant):
     sql = """

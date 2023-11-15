@@ -13,6 +13,7 @@ app_license = "MIT"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/hyde_app/css/hyde_app.css"
 # app_include_js = "/assets/hyde_app/js/hyde_app.js"
+app_include_js = "/assets/refaccionaria_mia/js/attach.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/hyde_app/css/hyde_app.css"
