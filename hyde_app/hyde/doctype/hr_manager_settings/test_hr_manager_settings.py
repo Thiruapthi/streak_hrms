@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestHRSettings(FrappeTestCase):
+class TestHRManagerSettings(FrappeTestCase):
 	pass
