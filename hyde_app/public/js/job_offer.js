@@ -23,27 +23,20 @@ frappe.ui.form.on('Job Offer', {
     },
     validate: function(frm) {
         frappe.call({
-            method: "frappe.client.get_value",
+            method: 'hyde_app.api.get_latest_interview_date',   
             args: {
-                doctype: "Interview",
-                filters: {
-                    name: frm.doc.job_applicant,
-                },
-                fieldname: 'scheduled_on'
+                'job_applicant': frm.doc.job_applicant,
             },
-            callback: function (response) {
-                if (!response.exc) {
-                    var interviewdate = response.message.scheduled_on;
-                    if (frm.doc.offer_date < interviewdate) {
-                        // console.log("Appointment Date is before Offer Date");
-                        frappe.msgprint(__("Offer date can't be before interview date"));
-                        frappe.validated = false;
-                    }
-                } else {
-                    console.error('Error fetching applicant status: ' + response.exc);
-                }
-            }
-        });
+            callback: function (r) {
+                if (r.message) {
+                    var interviewDate = new Date(r.message);
+                    var offerDate = new Date(frm.doc.offer_date);
+                    if (offerDate < interviewDate) {
+                       frappe.msgprint(__("Offer date can't be before interview date"));
+                             frappe.validated = false; }               
+                            }
+                        }
+                    }); 
 
         frappe.call({
             method: "frappe.client.get_value",

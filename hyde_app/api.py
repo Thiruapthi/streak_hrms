@@ -475,3 +475,31 @@ def send_compensatory_leave_request(doc, method):
 @frappe.whitelist()
 def get_job_opening_rounds(job_title):
     return frappe.get_doc("Job Opening",job_title)
+
+@frappe.whitelist()
+def get_latest_interview_date(job_applicant):
+    values = {'name': job_applicant}
+    data = frappe.db.sql("""
+       SELECT scheduled_on
+       FROM `tabInterview`
+       WHERE job_applicant = %(name)s
+       ORDER BY scheduled_on DESC limit 1
+   """, values=values, as_dict=0)
+    if data:
+       return data[0][0]
+    else:
+        return None
+    
+@frappe.whitelist()
+def get_latest_job_offer_date(job_applicant):
+    values = {'name': job_applicant}
+    data = frappe.db.sql("""
+       SELECT offer_date
+       FROM `tabJob Offer`
+       WHERE job_applicant = %(name)s
+       ORDER BY offer_date DESC limit 1
+   """, values=values, as_dict=0)
+    if data:
+        return data[0][0]
+    else:
+       return None
