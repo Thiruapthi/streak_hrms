@@ -1,22 +1,27 @@
 table, th, td {
     border: 1px solid rgb(146, 145, 145);
     padding:8px;
-  }
+    padding-left:10px;
+    box-sizing: content-box;
+}
+
+  th,td {
+    white-space: nowrap;
+}
 
   th{
       color:rgb(123, 17, 165);
-      width:200px;
-  }
+}
 
   .page_content{
       overflow:auto;
-  }
+}
 
   .heading-1{
       font-size:24px;
       padding-bottom: 20px;
       font-family: sans-serif;
-  }
+}
 
   .heading-without-login{
     display: flex;
@@ -53,4 +58,24 @@ table, th, td {
     outline: none;
     border-color: #007BFF;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.present{
+    color:darkgreen;
+}
+.leave{
+    color:blue;
+}
+.half_day{
+    color:orange;
+}
+
+.holiday{
+    color:black;
+}
+.absent{
+    color:red;
+}
+.remaining{
+    color:black;
 }
