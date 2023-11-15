@@ -201,7 +201,7 @@ def send_appointment_email(doc, method):
    # Send email to the candidate
    frappe.sendmail(
        recipients=applicant_email,
-       cc=frappe.get_doc('HRSettings').hr_email_id,
+       cc=frappe.get_doc('HR Manager Settings').hr_email_id,
        subject='Job Offer Notification',
        message=email_content_candidate,
        attachments=[{"file_url": doc.custom_appointment_letter}],
@@ -260,7 +260,7 @@ def notify_hr_on_interview_update(doc, method):
               all_rounds_cleared = False
 
       if all_rounds_cleared:
-          recipient_email = frappe.get_doc('HRSettings').hr_email_id
+          recipient_email = frappe.get_doc('HR Manager Settings').hr_email_id
           subject = 'Job Offer Approval'
           message =    message = f'''\
                 <p>Dear HR Team,</p>
@@ -302,7 +302,7 @@ def send_Job_offer_email(doc,method):
       # Send email to the candidate
     frappe.sendmail(
         recipients=applicant_email,
-        cc=frappe.get_doc('HRSettings').hr_email_id,
+        cc=frappe.get_doc('HR Manager Settings').hr_email_id,
         subject='Job Offer Notification',
         message=email_content_candidate,
         now=True
@@ -349,7 +349,7 @@ def accept_offer(name):
             """
     frappe.sendmail(
             recipients = applicant_email,
-            cc=frappe.get_doc('HRSettings').hr_email_id,
+            cc=frappe.get_doc('HR Manager Settings').hr_email_id,
             subject = subject,
             message=email_content,
             attachments=attachments,
@@ -394,14 +394,14 @@ def reject_offer(name):
             """
     frappe.sendmail(
       recipients=applicant_email,
-      cc=frappe.get_doc('HRSettings').hr_email_id,
+      cc=frappe.get_doc('HR Manager Settings').hr_email_id,
       subject='Job Offer Rejected',
       message=email_content,
       now = True
     )
 
     email_content = f"""
-        <p>Dear {frappe.get_doc('HRSettings').hr_manager_name},</p>
+        <p>Dear {frappe.get_doc('HR Manager Settings').hr_manager_name},</p>
         <p>Greetings of the day!</p>
         <p>We want to inform you that the {job_offer.job_applicant} who was offered the {job_position} position with Korecent Solutions Pvt. Ltd has rejected the job offer. An email has been sent to them seeking their availability to address their concerns.</p>
         <p>Kindly plan to connect with them accordingly.</p>
@@ -410,7 +410,7 @@ def reject_offer(name):
             """
     frappe.sendmail(
       recipients=applicant_email,
-      cc=frappe.get_doc('HRSettings').hr_email_id,
+      cc=frappe.get_doc('HR Manager Settings').hr_email_id,
       subject='Job Offer Rejected',
       message=email_content,
       now = True
