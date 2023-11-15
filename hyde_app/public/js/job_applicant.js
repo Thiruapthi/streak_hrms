@@ -1,5 +1,6 @@
 frappe.ui.form.on("Job Applicant", {
   refresh: function (frm) {
+    if (!frm.is_new()) {
     frappe.call({
 			method: "hrms.hr.doctype.job_applicant.job_applicant.get_interview_details",
 			args: {
@@ -33,17 +34,33 @@ frappe.ui.form.on("Job Applicant", {
         }
 			}
 		});
-
-    frm.add_custom_button('Applicant History', function(){
+  }
+    function getJobApplications(email, callback) {
       frappe.call({
-        args: {email:frm.doc.email_id},
+        args: { email: email },
         method: "hyde_app.api.get_job_applications",
-        callback: function(r) {
+        callback: callback
+      });
+    }
+    
+    if (!frm.is_new()) {
+      frm.add_custom_button('Applicant History', function () {
+        getJobApplications(frm.doc.email_id, function (r) {
           if (r.message) {
             showJobApplications(r.message);
-        }  }
-    });
-    });
+          }
+        });
+      });
+    
+      getJobApplications(frm.doc.email_id, function (r) {
+        if (r.message && r.message.length > 1) {
+          $("button:contains('Applicant History')").show();
+        } else {
+          $("button:contains('Applicant History')").hide();
+        }
+      });
+    }
+    
     
     cur_frm.events.create_dialog = async function (frm) {
     var interviewRoundsList=[]
