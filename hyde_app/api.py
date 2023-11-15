@@ -2,13 +2,13 @@ import frappe
 
 @frappe.whitelist()
 def update_applicant_status_interview(applicant_name, status):
-    try:
-        applicant = frappe.get_doc("Job Applicant", applicant_name)
+    applicant_id = frappe.get_value("Job Applicant", {"applicant_name": applicant_name}, "name")
+    if applicant_id:
+        applicant = frappe.get_doc("Job Applicant", applicant_id)
         applicant.status = status
         applicant.save()
-        applicant.reload()
         frappe.db.commit()
-    except:
+    else:
         pass
         # frappe.msgprint(f"Job Applicant '{applicant_name}' not found.")
 
