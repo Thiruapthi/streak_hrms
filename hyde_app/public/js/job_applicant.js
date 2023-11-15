@@ -1,5 +1,39 @@
 frappe.ui.form.on("Job Applicant", {
   refresh: function (frm) {
+    frappe.call({
+			method: "hrms.hr.doctype.job_applicant.job_applicant.get_interview_details",
+			args: {
+				job_applicant: frm.doc.name
+			},
+			callback: function(r) {
+				if (r.message) {
+          $('.table thead tr').append('<th style="width: 10%"  class="text-left">Interpretation</th>');
+          $('.table tbody tr').each(function() {
+              var id = $(this).find('td:nth-child(1)').text().trim();
+              var interviewData = r.message.interviews[id];  
+              if (interviewData) {
+                  var rating = interviewData.average_rating;
+                  var result = 'Unknown';  
+                  if (rating >= 0 && rating < 1.5) {
+                      result = 'Not Acceptable';
+                  } else if (rating >= 1.5 && rating < 2.5) {
+                      result = 'Poor';
+                  } else if (rating >= 2.5 && rating < 3.5) {
+                      result = 'Average';
+                  } else if (rating >= 3.5 && rating < 4.5) {
+                      result = 'Good';
+                  } else if (rating >= 4.5 && rating <= 5) {
+                      result = 'Exceptional';
+                  }
+                  $(this).append('<td style="width: 10%"  class="text-left">' + result + '</td>');
+              } else {
+                  $(this).append('<td style="width: 10%" class="text-left">No data available</td>');
+              }
+          });
+        }
+			}
+		});
+
     frm.add_custom_button('Applicant History', function(){
       frappe.call({
         args: {email:frm.doc.email_id},
