@@ -1,18 +1,18 @@
 [
  {
   "default_value": null,
-  "doc_type": "Interview Feedback",
+  "doc_type": "Job Applicant",
   "docstatus": 0,
   "doctype": "Property Setter",
   "doctype_or_field": "DocField",
-  "field_name": "result",
+  "field_name": "phone_number",
   "is_system_generated": 0,
-  "modified": "2023-11-03 12:48:19.221294",
+  "modified": "2023-11-15 16:29:52.484187",
   "module": null,
-  "name": "Interview Feedback-result-options",
-  "property": "options",
-  "property_type": "Select",
+  "name": "Job Applicant-phone_number-reqd",
+  "property": "reqd",
+  "property_type": "Check",
   "row_name": null,
-  "value": "Cleared\nRejected\nUnder Review"
+  "value": "1"
  }
 ]

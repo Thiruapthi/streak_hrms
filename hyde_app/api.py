@@ -37,37 +37,6 @@ def Interview_Rounds(job_titles):
     
     return source_data
 
-
-@frappe.whitelist(allow_guest=True)
-def job_applicant_contact(email,mobile,name):
-    contact = frappe.get_list("Contact", filters={"email_id": email})
-    c= frappe.new_doc("Contact")
-    # print(c,"c\n\n\n\n\n\n\n\n")
-    # Update or create the `Csontact` document
-    if not contact:
-        # print(contact,"\n\n\n\n\n\n\n\n")
-        # print(c,"c\n\n\n\n\n\n\n\n")
-        c.first_name = name
-        c.email_id=email
-
-    if mobile:
-        # print(mobile,"wokring\n\n\n\n\n")
-        c.first_name = name
-        c.append("phone_nos", {
-            "phone": mobile,
-            "is_primary_mobile_no": 1
-        })
-
-    # # Add email_id to the email_ids child table
-        c.append("email_ids", {
-            "email_id": email,
-            "is_primary": 1
-        })
-
-    # Save the `Contact` document
-    c.save()
-    frappe.db.commit()
-
 @frappe.whitelist()
 def get_user_details(user):
     user_list = frappe.get_list(
@@ -505,13 +474,10 @@ def get_latest_job_offer_date(job_applicant):
        return None
 
 
-import frappe
 
 @frappe.whitelist()
 def create_or_check_contact(email, mobile, name):
-    print(email, mobile, name,'\n\n\n\n\n\n')
     contact =frappe.db.exists({"doctype": "Contact", "email_id":email})
-    print(contact) 
     if contact:
         return 'exists' 
     else:

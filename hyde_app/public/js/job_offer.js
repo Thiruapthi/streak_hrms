@@ -22,6 +22,13 @@ frappe.ui.form.on('Job Offer', {
         });
     },
     validate: function(frm) {
+        var offerDate = new Date(frm.doc.offer_date);
+        var tentativeStartDate = new Date(frm.doc.custom_tentative_start_date);
+        if ( tentativeStartDate < offerDate) {
+            frappe.msgprint(__("The <b>	Tentative Start Date</b> cannot be earlier than the offer date."));
+            frappe.validated = false;
+        }
+
         frappe.call({
             method: 'hyde_app.api.get_latest_interview_date',   
             args: {
