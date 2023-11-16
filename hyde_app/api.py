@@ -503,3 +503,25 @@ def get_latest_job_offer_date(job_applicant):
         return data[0][0]
     else:
        return None
+
+
+import frappe
+
+@frappe.whitelist()
+def create_or_check_contact(email, mobile, name):
+    print(email, mobile, name,'\n\n\n\n\n\n')
+    contact =frappe.db.exists({"doctype": "Contact", "email_id":email})
+    print(contact) 
+    if contact:
+        return 'exists' 
+    else:
+        new_contact = frappe.get_doc({
+            "doctype": "Contact",
+            "first_name": name,
+            "email_ids": [{"email_id":email,"is_primary":1}],
+                        "phone_nos": [{"phone":mobile,"is_primary":1}],
+
+        })
+        new_contact.insert()
+        frappe.db.commit()
+        return 'created' 
