@@ -1,16 +1,29 @@
 frappe.ui.form.on('Employee',{
-    after_save : function(frm){
+    after_save: function (frm) {
         let applicantName = frm.doc.employee_name
         let newStatus = 'Applicant Onboarded'
+        let applicantId = '';
         frappe.call({
-            method: 'hyde_app.api.update_applicant_status_interview',
+            method: 'hyde_app.api.get_job_applicant_id',
             args: {
                 'applicant_name': applicantName,
-                'status': newStatus
-            },callback: function (r) {
-                location.reload();
+            }, callback: function (r) {
+                applicantId = r.message
             }
-    })
+        })
+        setTimeout(function() {
+        if (applicantId!==undefined){
+            frappe.call({
+                method: 'hyde_app.api.update_applicant_status_interview',
+                args: {
+                    'applicant_name': applicantId,
+                    'status': newStatus
+                }, callback: function (r) {
+                    location.reload();
+                }
+            })
+        }
+        }, 1000);
     },
     validate: function(frm) {
         frappe.call({
