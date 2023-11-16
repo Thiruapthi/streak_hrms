@@ -209,24 +209,33 @@ frappe.ui.form.on("Job Applicant", {
   },
 
   validate(frm) {
-    // frm.set_value("status", "Interview Pending");
-    if (!frm.doc.contact_created) {
       frappe.call({
-        method: 'hyde_app.api.job_applicant_contact',  // Replace with your method and module name
+        method: 'hyde_app.api.create_or_check_contact',  
         args: {
-          'email': frm.doc.email_id,  // Pass any relevant arguments
+          'email': frm.doc.email_id,  
           'mobile': frm.doc.phone_number,
           'name': frm.doc.applicant_name
         },
         callback: function (r) {
-          cur_frm.refresh_fields('rounds')
-          frm.doc.contact_created = 1
-          frm.save()
+            if (r.message === 'created') {
+                frappe.show_alert({
+                    message: __('New contact created!'),
+                    indicator: 'green'
+                }, 5);
+            } else if (r.message === 'exists') {
+                frappe.show_alert({
+                    message: __('Contact already exists!'),
+                    indicator: 'orange'
+                }, 5);
+            } else {
+                frappe.show_alert({
+                    message: __('Error creating or checking contact.'),
+                    indicator: 'red'
+                }, 5);
+            }
         }
       });
     }
-    
-	}
 })
 
 
