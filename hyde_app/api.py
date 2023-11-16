@@ -2,16 +2,20 @@ import frappe
 
 @frappe.whitelist()
 def update_applicant_status_interview(applicant_name, status):
-    applicant_id = frappe.get_value("Job Applicant", {"applicant_name": applicant_name}, "name")
-    if applicant_id:
-        applicant = frappe.get_doc("Job Applicant", applicant_id)
+    # This function Written for five Js Functions(ap_letter.js, employee_onboarding.js, employee.js, interview.js, job_offer.js,)
+    try:
+        applicant = frappe.get_doc("Job Applicant", applicant_name)
         applicant.status = status
         applicant.save()
+        applicant.reload()
         frappe.db.commit()
-    else:
-        pass
-        # frappe.msgprint(f"Job Applicant '{applicant_name}' not found.")
+    except frappe.DoesNotExistError:
+        frappe.msgprint(f"Job Applicant '{applicant_name}' not found.")
 
+@frappe.whitelist()
+def get_job_applicant_id(applicant_name):
+    job_applicant_id = frappe.get_value("Job Applicant", {"applicant_name": applicant_name}, "name")
+    return job_applicant_id
 
 @frappe.whitelist()
 def get_annexure_template_details(template):
