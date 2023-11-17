@@ -495,3 +495,28 @@ def create_or_check_contact(email, mobile, name):
         new_contact.insert()
         frappe.db.commit()
         return 'created' 
+    
+
+@frappe.whitelist()
+def get_interviewer_details(job_applicant):
+    interview_details = frappe.db.get_all(
+        "Interview",
+        filters={"job_applicant": job_applicant, "docstatus": ["!=", 2]},
+        fields=["name"],
+    )
+
+    interviewer_details_list = []
+    for interview in interview_details:
+        filters = {
+            "parent": interview["name"],
+            "parenttype": "Interview",
+        }
+        interviewer_details = frappe.get_list(
+            "Interview Detail",
+            fields=["interviewer", "custom_interviewer_name"],
+            filters=filters,
+        )
+        interview["interviewer_details"] = interviewer_details
+        interviewer_details_list.append(interview)
+
+    return interviewer_details_list
