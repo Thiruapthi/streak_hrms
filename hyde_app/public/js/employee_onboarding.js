@@ -27,15 +27,15 @@ frappe.ui.form.on('Employee Onboarding', {
             args: {
                 doctype: "Appointment Letter",
                 filters: {
-                    name: frm.doc.job_applicant,
+                    job_applicant: frm.doc.job_applicant,
                 },
                 fieldname: 'appointment_date'
             },
             callback: function (response) {
                 if (!response.exc) {
                     var appointmentdate = response.message.appointment_date;
-                    if (frm.doc.date_of_joining < appointmentdate) {
-                        frappe.msgprint(__("Date of Joining can't be before offer date"));
+                    if (frm.doc.date_of_joining != appointmentdate) {
+                        frappe.msgprint(__("Date of joining mismatch with the date in the appointment letter"));
                         frappe.validated = false;
                     }
                 } else {
