@@ -571,7 +571,7 @@ def send_job_applicant_creation_email(doc,method):
         Dear HR,<br><br>
         Greetings of the day!<br><br>
         We want to inform you that a new job application has been submitted for the { doc.job_title } .<br>
-        The name of the candidate is { doc.applicant_name } and his resume {doc.resume_link} has been attached for your reference along with the website link : {"http://170.64.172.193/" }<br><br>
+        The name of the candidate is { doc.applicant_name } and his <a href={doc.resume_link}> resume </a> has been attached for your reference along with the website link : {"http://170.64.172.193/" }<br><br>
         Kindly do the needful.<br>
         Thanks and regards HR- Team KoreCent
         """
