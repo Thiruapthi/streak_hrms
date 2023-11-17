@@ -529,17 +529,6 @@ def create_or_check_contact(email, mobile, name):
         return 'created' 
     
 
-@frappe.whitelist()  
-def check_all_interviews_cleared(job_applicant):
-    interviews = frappe.get_all("Interview", filters={"job_applicant": job_applicant}, fields=["status"])
-    if not interviews:
-        return "No interviews found"
-    for interview in interviews:
-        if interview.get("status") != "Cleared":
-            return "Not all interviews are cleared"
-    return "All interviews are cleared"
-
-
 @frappe.whitelist()
 def get_interviewer_details(job_applicant):
     interview_details = frappe.db.get_all(
@@ -648,3 +637,40 @@ def send_email_on_interview_scheduled(doc,method):
         
     except:
         pass
+
+
+@frappe.whitelist()
+def get_job_applicant_for_offer(job_applicant):
+    job_applicant_details = frappe.get_list(
+            "Job Applicant",
+            fields=["name","email_id","job_title"],
+            filters = {
+                "email_id":job_applicant,               
+            }
+        )
+    
+    job_interview_details = frappe.get_list(
+            "Interview",
+            fields=["name","interview_round","job_applicant","job_opening","status"],
+            filters = {
+                "job_applicant":job_applicant
+                
+            }
+        )
+    
+    candidate_interview_rounds = [entry['interview_round'] for entry in job_interview_details]
+    unique_candidate_interview_rounds = set(candidate_interview_rounds)
+    unique_candidate_interview_rounds = sorted(unique_candidate_interview_rounds)
+    
+    job_title = job_applicant_details[0].job_title
+
+    values = {'name':job_title}
+    source_data = frappe.db.sql("""SELECT  ir.interview_rounds FROM `tabJob Opening` jo JOIN `tabInterview Rounds` ir ON jo.name = ir.parent WHERE     jo.name = %(name)s ORDER BY ir.idx""",values = values,as_dict=True   )
+    
+    job_interview_rounds = [entry['interview_rounds'] for entry in source_data]
+    unique_job_interview_rounds = set(job_interview_rounds)
+    unique_job_interview_rounds = sorted(unique_job_interview_rounds)
+
+    rounds_check = len(unique_candidate_interview_rounds) == len(unique_job_interview_rounds)
+    
+    return 1 if rounds_check else 0, job_interview_details

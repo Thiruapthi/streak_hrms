@@ -23,27 +23,33 @@ frappe.ui.form.on('Job Offer', {
     },
     validate: function(frm) {
         frappe.call({
-            method: 'hyde_app.api.check_all_interviews_cleared',
+            method: 'hyde_app.api.get_job_applicant_for_offer',   
             args: {
                 'job_applicant': frm.doc.job_applicant,
             },
-            callback: function(r) {
-                if (r.message) {
-                    var message = r.message;
-                    console.log("Server response:", message);
+            callback: function (r) {
+                var roundsCheck = r.message[0] === 1;
+                            if(roundsCheck===false){
+                                frappe.msgprint("You need to clear all interview rounds")
+                                frappe.validated = false;
+                            }
+                            else{
 
-                    if (message === "All interviews are cleared") {
-                        console.log("All interviews cleared.");
-                    } else if (message === "Not all interviews are cleared") {
-                        frappe.validated = false;
-                        frappe.msgprint('Candidate did not clear all interviews.');
-                    } else if (message === "No interviews found") {
-                        frappe.validated = false;
-                        frappe.msgprint('No interviews found for the candidate.');
-                    }
-                }
-            }
-                    }); 
+                                var allRoundsCleared = r.message[1].every(function (round) {
+                                    return round.status === 'Cleared';
+                                });
+
+                                if (allRoundsCleared) {
+                                    frappe.validated = true;
+                                }
+                                else{
+                                    frappe.msgprint("You need to clear all interview rounds");
+                                    frappe.validated = false;
+                                }
+                                
+                            }
+                        }
+                    });
                     
         var offerDate = new Date(frm.doc.offer_date);
         var tentativeStartDate = new Date(frm.doc.custom_tentative_start_date);
