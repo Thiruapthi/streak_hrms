@@ -26,6 +26,7 @@ frappe.ui.form.on('Employee',{
         }, 1000);
     },
     validate: function(frm) {
+        if (frm.doc.job_applicant){
         frappe.call({
             method: "frappe.client.get_value",
             args: {
@@ -47,5 +48,6 @@ frappe.ui.form.on('Employee',{
                 }
             }
         });
+    }
     }
 })

@@ -119,42 +119,42 @@ def change_interview_status(interview_id,interviewer_list):
 
 @frappe.whitelist(allow_guest=True)
 def get_job_applications(email):
-   job_applications = frappe.get_all(
+    job_applications = frappe.get_all(
        'Job Applicant',
-       filters={
+    filters={
            'email_id': email
        },
-       fields=['name', 'job_title', 'status', 'applicant_name', 'applicant_rating']
+    fields=['name', 'job_title', 'status', 'applicant_name', 'applicant_rating']
         )
-   for application in job_applications:
-       application['interviews'] = get_interviews(application['name'])
-   return job_applications
+    for application in job_applications:
+        application['interviews'] = get_interviews(application['name'])
+    return job_applications
 
 
 def get_interviews(applicant_name):
-   interviews = frappe.get_all(
+    interviews = frappe.get_all(
        'Interview Feedback',
        filters={
            'job_applicant': applicant_name
        },
-       fields=['interview_round', "interviewer",'result','feedback']
+    fields=['interview_round', "interviewer",'result','feedback']
    )
-   return interviews
+    return interviews
 
 @frappe.whitelist()
 def send_appointment_email(doc, method):
-   applicant_data = frappe.get_value(
+    applicant_data = frappe.get_value(
        "Job Applicant",
        {"name": doc.job_applicant},
        ["email_id", "job_title", "applicant_name"],
        as_dict=True
    )
-   applicant_email = applicant_data.get("email_id")
-   applicant_name = applicant_data.get("applicant_name")
-   position = applicant_data.get("job_title")
+    applicant_email = applicant_data.get("email_id")
+    applicant_name = applicant_data.get("applicant_name")
+    position = applicant_data.get("job_title")
 
    # Email content for the candidate
-   email_content_candidate = f"""\
+    email_content_candidate = f"""\
        <p>Dear {applicant_name},</p>
        <p>Greetings of the day!</p>
        <p>Heartiest congratulations! We are pleased to offer you the position of {position} with Korecent Solutions Pvt. Ltd.</p>
@@ -164,7 +164,7 @@ def send_appointment_email(doc, method):
        <p>HR- Team KoreCent</p>
    """
    # Email content for the interviewer
-   email_content_interviewer = f"""\
+    email_content_interviewer = f"""\
        <p>Dear Interviewer,</p>
        <p>Greetings! We have sent the appointment letter to the candidate, {applicant_name} ({applicant_email}), for the position of {position} with Korecent Solutions Pvt. Ltd.</p>
        <p>If you have any additional feedback or instructions, please feel free to share.</p>
@@ -172,7 +172,7 @@ def send_appointment_email(doc, method):
        <p>HR- Team KoreCent</p>
    """
    # Send email to the candidate
-   frappe.sendmail(
+    frappe.sendmail(
        recipients=applicant_email,
        cc=frappe.get_doc('HR Manager Settings').hr_email_id,
        subject='Job Offer Notification',
@@ -181,7 +181,7 @@ def send_appointment_email(doc, method):
        now=True
    )
    # Send email to the interviewer
-   frappe.sendmail(
+    frappe.sendmail(
        recipients=[doc.custom_interviewer_email],
        subject='Candidate Status Update',
        message=email_content_interviewer,
@@ -209,11 +209,11 @@ def get_latest_interview(job_applicant):
 
 @frappe.whitelist()
 def notify_hr_on_interview_update(doc, method):
-  if  doc.status =='Cleared':
-      job_opening = frappe.get_doc("Job Opening", doc.job_opening)
-      all_rounds_cleared = True
-      for i in job_opening.custom_round:
-          sql_query = f"""
+    if  doc.status =='Cleared':
+        job_opening = frappe.get_doc("Job Opening", doc.job_opening)
+        all_rounds_cleared = True
+        for i in job_opening.custom_round:
+            sql_query = f"""
               SELECT
                   *
               FROM
@@ -225,28 +225,28 @@ def notify_hr_on_interview_update(doc, method):
                   `creation` DESC
               LIMIT 1
           """
-          interview_record = frappe.db.sql(sql_query, (doc.job_applicant, i.interview_rounds), as_dict=True)
-          if interview_record:
-              if interview_record[0].status != "Cleared":
-                  all_rounds_cleared = False
-          else:
-              all_rounds_cleared = False
+            interview_record = frappe.db.sql(sql_query, (doc.job_applicant, i.interview_rounds), as_dict=True)
+            if interview_record:
+                if interview_record[0].status != "Cleared":
+                    all_rounds_cleared = False
+            else:
+                all_rounds_cleared = False
 
-      if all_rounds_cleared:
-          recipient_email = frappe.get_doc('HR Manager Settings').hr_email_id
-          subject = 'Job Offer Approval'
-          message =    message = f'''\
+        if all_rounds_cleared:
+            recipient_email = frappe.get_doc('HR Manager Settings').hr_email_id
+            subject = 'Job Offer Approval'
+            message =    message = f'''\
                 <p>Dear HR Team,</p>
                 <p>Greetings! We would like to inform you that the job applicant, {doc.job_applicant}, has successfully cleared all interview rounds for the position of {doc.job_opening} with Korecent Solutions Pvt. Ltd.</p>
                 <p>The applicant is now ready for the job offer release. Please proceed with the necessary steps to prepare and send the job offer.</p>
                 <p>Thanks and regards,</p>
                 <p>Automated Notification System</p>
             '''
-          frappe.sendmail(
-          recipients=[recipient_email],
-          subject=subject,
-          message=message,
-          now=True,
+            frappe.sendmail(
+                recipients=[recipient_email],
+                subject=subject,
+                message=message,
+                now=True,
           )
 
 def send_custom_email(recipients, subject, message, attachments=None, cc_recipients=None):
