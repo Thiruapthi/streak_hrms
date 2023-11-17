@@ -22,6 +22,29 @@ frappe.ui.form.on('Job Offer', {
         });
     },
     validate: function(frm) {
+        frappe.call({
+            method: 'hyde_app.api.check_all_interviews_cleared',
+            args: {
+                'job_applicant': frm.doc.job_applicant,
+            },
+            callback: function(r) {
+                if (r.message) {
+                    var message = r.message;
+                    console.log("Server response:", message);
+
+                    if (message === "All interviews are cleared") {
+                        console.log("All interviews cleared.");
+                    } else if (message === "Not all interviews are cleared") {
+                        frappe.validated = false;
+                        frappe.msgprint('Candidate did not clear all interviews.');
+                    } else if (message === "No interviews found") {
+                        frappe.validated = false;
+                        frappe.msgprint('No interviews found for the candidate.');
+                    }
+                }
+            }
+                    }); 
+                    
         var offerDate = new Date(frm.doc.offer_date);
         var tentativeStartDate = new Date(frm.doc.custom_tentative_start_date);
         if ( tentativeStartDate < offerDate) {

@@ -13,19 +13,25 @@ frappe.ui.form.on("Job Applicant", {
               var id = $(this).find('td:nth-child(1)').text().trim();
               var interviewData = r.message.interviews[id];  
               if (interviewData) {
-                  var rating = interviewData.average_rating;
-                  var result = 'Unknown';  
-                  if (rating >= 0 && rating < 1.5) {
-                      result = 'Not Acceptable';
-                  } else if (rating >= 1.5 && rating < 2.5) {
-                      result = 'Poor';
-                  } else if (rating >= 2.5 && rating < 3.5) {
-                      result = 'Average';
-                  } else if (rating >= 3.5 && rating < 4.5) {
-                      result = 'Good';
-                  } else if (rating >= 4.5 && rating <= 5) {
-                      result = 'Exceptional';
-                  }
+                var rating = interviewData.average_rating;
+                var status = interviewData.status;
+                var result = '';
+        
+                if (rating === 0 || status === "Pending") {
+                    result = ''; 
+                } else {
+                    if (rating >= 0 && rating < 1.5) {
+                        result = 'Not Acceptable';
+                    } else if (rating >= 1.5 && rating < 2.5) {
+                        result = 'Poor';
+                    } else if (rating >= 2.5 && rating < 3.5) {
+                        result = 'Average';
+                    } else if (rating >= 3.5 && rating < 4.5) {
+                        result = 'Good';
+                    } else if (rating >= 4.5 && rating <= 5) {
+                        result = 'Exceptional';
+                    }
+                }
                   $(this).append('<td style="width: 10%"  class="text-left">' + result + '</td>');
               } else {
                   $(this).append('<td style="width: 10%" class="text-left">No data available</td>');

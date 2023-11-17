@@ -249,6 +249,22 @@ def notify_hr_on_interview_update(doc, method):
           now=True,
           )
 
+def send_custom_email(recipients, subject, message, attachments=None, cc_recipients=None):
+    email_args = {
+        "recipients": recipients,
+        "subject": subject,
+        "message": message,
+        "attachments": attachments,
+        "now": True
+    }
+
+    if cc_recipients:
+        email_args["cc"] = cc_recipients
+    if attachments:
+        email_args["attachments"] = attachments
+
+    frappe.sendmail(**email_args)
+
 @frappe.whitelist()
 def send_Job_offer_email(doc,method):
     applicant_data = frappe.get_value(
@@ -267,19 +283,35 @@ def send_Job_offer_email(doc,method):
         <p>Greetings of the day!</p>
         <p>Heartiest congratulations! We are pleased to offer you the position of {position} with Korecent Solutions Pvt. Ltd. at {ctc} CTC.</p>
         <p>Please take the necessary action on the below enclosed link within the next 7 days:</p>
+        <p>Below enclosed is your detailed job offer pdf.</p>
         <a href="{frappe.utils.get_url()}/api/method/hyde_app.api.accept_offer?name={doc.name}" onclick="this.style.pointerEvents = 'none'; this.style.background = '#ccc';" style="background-color: #4CAF50; color: #fff; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px; margin-right: 10px;">Accept</a>
         <a href="{frappe.utils.get_url()}/api/method/hyde_app.api.reject_offer?name={doc.name}" onclick="this.style.pointerEvents = 'none'; this.style.background = '#ccc';" style="background-color: #FF5733; color: #fff; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px;">Reject</a>
         <p>Thanks and regards,</p>
         <p>HR- Team KoreCent</p>
     """
-      # Send email to the candidate
-    frappe.sendmail(
-        recipients=applicant_email,
-        cc=frappe.get_doc('HR Manager Settings').hr_email_id,
-        subject='Job Offer Notification',
-        message=email_content_candidate,
-        now=True
-    )
+    send_custom_email(recipients=applicant_email,
+                       subject='Job Offer Notification', 
+                       message=email_content_candidate,
+                       attachments=[{"file_url": doc.custom_offer_letter}],
+                       cc_recipients=frappe.get_doc('HR Manager Settings').hr_email_id)
+
+    # Email content for notifying HR about the person who released the job offer
+    released_by = frappe.session.user  
+    user_fullname = frappe.get_value("User", released_by, "username")
+    email_content_hr_released_by = f"""\
+    <p>Dear {frappe.get_doc('HR Manager Settings').hr_manager_name}</p>
+    <p>This is to inform you that the job offer for the position of {position} to {applicant_name} has been released.</p>
+    <p>The offer was extended by: {user_fullname} ({released_by})</p>
+    <p>Kindly take note of this action in your records.</p>
+    <br>
+    <br>
+    <p>Auto-generated mail.</p>
+    <p>Thank you.</p>
+    """
+    send_custom_email(recipients=frappe.get_doc('HR Manager Settings').hr_email_id,
+                      subject='Job Offer Released to Applicant - Action Update', message=email_content_hr_released_by,
+                      attachments=None,
+                      cc_recipients=None)
 
 
 @frappe.whitelist(allow_guest=True)
@@ -496,6 +528,17 @@ def create_or_check_contact(email, mobile, name):
         frappe.db.commit()
         return 'created' 
     
+
+@frappe.whitelist()  
+def check_all_interviews_cleared(job_applicant):
+    interviews = frappe.get_all("Interview", filters={"job_applicant": job_applicant}, fields=["status"])
+    if not interviews:
+        return "No interviews found"
+    for interview in interviews:
+        if interview.get("status") != "Cleared":
+            return "Not all interviews are cleared"
+    return "All interviews are cleared"
+
 
 @frappe.whitelist()
 def get_interviewer_details(job_applicant):
