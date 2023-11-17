@@ -143,6 +143,7 @@ doc_events = {
 },
  "Interview": {
        "on_update": "hyde_app.api.notify_hr_on_interview_update",
+       "after_insert": "hyde_app.api.send_email_on_interview_scheduled"
    }
    ,
  "Appointment Letter": {
@@ -153,10 +154,12 @@ doc_events = {
    },
    "Job Offer": {
        "after_insert": "hyde_app.api.send_Job_offer_email",
-   }
+   },
+   "Job Applicant":{
+       "after_insert": "hyde_app.api.send_job_applicant_creation_email"
+    }
 }
-
-# Scheduled Tasks
+   # Scheduled Tasks
 # ---------------
 
 # scheduler_events = {
