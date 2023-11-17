@@ -563,3 +563,88 @@ def get_interviewer_details(job_applicant):
         interviewer_details_list.append(interview)
 
     return interviewer_details_list
+
+
+@frappe.whitelist()
+def send_job_applicant_creation_email(doc,method):
+    job_applicant_creation= f"""\
+        Dear HR,<br><br>
+        Greetings of the day!<br><br>
+        We want to inform you that a new job application has been submitted for the { doc.job_title } .<br>
+        The name of the candidate is { doc.applicant_name } and his resume {doc.resume_link} has been attached for your reference along with the website link : {"http://170.64.172.193/" }<br><br>
+        Kindly do the needful.<br>
+        Thanks and regards HR- Team KoreCent
+        """
+    frappe.sendmail(
+        recipients=frappe.get_doc('HR Manager Settings').hr_email_id,
+        subject='new Job Applicant Created Notification',
+        message=job_applicant_creation,
+        attachments=[{"file_url": doc.resume_attachment}],
+        now=True
+    )
+    
+@frappe.whitelist()
+def send_email_on_interview_scheduled(doc,method):
+    try:
+        # getting attachments from job applocant--------------------
+        attachments ,applicant_name= frappe.db.get_value('Job Applicant', {'name': doc.job_applicant}, ['resume_attachment','applicant_name'])
+        # sending email on creation of interview to interviewer-------------------
+        email_interviewer = f"""\
+            <p>Dear {doc.interview_details[0].custom_interviewer_name}, </p>
+            
+            <p>Greetings of the day! </p>
+            
+            <p>An interview has been scheduled for {doc.designation} on {doc.scheduled_on} at {doc.from_time}. Candidate name is {doc.custom_job_applicant_name}.</p> <p>It will be a { doc.interview_round }.</p>
+            
+            <p>Below enclosed is the resume for your <a href={doc.resume_link}> reference </a>.</p>
+            {f"<p>Interview Link: {doc.custom_interview_link}</p>" if doc.custom_interview_type == "Online" else f"<p>Address: {doc.custom_address}</p>"}
+            
+            <p>Please ensure your availability for the interview, and in case of any rescheduling, let us know 1 day in advance.</p>
+            
+            <div style='padding: 20px; text-align: center;'>
+            <p style='font-size: 18px; margin-bottom: 20px;'>We value your feedback!</p>
+            <a href='/app/interview-feedback/view/list?interview={doc.name}' 
+            style='background-color: #007BFF; color: #fff; text-decoration: none; display: inline-block; padding: 15px 30px; border-radius: 5px; font-size: 16px;'>
+            Provide Feedback
+            </a>
+            </div>
+            
+            <p>Thanks and regards</p>
+            <p>HR- Team KoreCent</p>
+        """
+        
+        # sending email on creation of interview to job applicant-------------------
+        
+        job_applicant_email=f"""\
+            <p>Dear { applicant_name },</p>
+
+            <p>Greetings of the day!</p>
+
+            <p>We are pleased to inform you that your interview has been scheduled for { doc.designation } on { doc.scheduled_on } at { doc.from_time }.</p><p>It will be a { doc.interview_round }.</p>
+            {f"<p>Interview Link: {doc.custom_interview_link}</p>" if doc.custom_interview_type == "Online" else f"<p>Address: {doc.custom_address}</p>"}
+
+            <p>Wishing you the best for your interview.</p>
+
+            <p>Thanks and regards,</p>
+            <p>HR-Team KoreCent</p>"""
+
+        frappe.sendmail(
+            recipients=doc.interview_details[0].interviewer,
+            cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+            subject=f"Interview of {applicant_name} for {doc.designation} on {doc.scheduled_on}",
+            message=email_interviewer,
+            attachments=[{"file_url": attachments if attachments else ""}],
+            now=True
+        )
+        
+        
+        frappe.sendmail(
+            recipients=doc.job_applicant,
+            cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+            subject=f"Interview for {doc.designation} with KoreCent Solutions Pvt. Ltd  on {doc.scheduled_on}.",
+            message=job_applicant_email,
+            now=True
+        )
+        
+    except:
+        pass
