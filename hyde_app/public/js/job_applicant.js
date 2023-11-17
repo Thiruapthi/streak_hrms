@@ -34,6 +34,32 @@ frappe.ui.form.on("Job Applicant", {
         }
 			}
 		});
+
+    frappe.call({
+      method: 'hyde_app.api.get_interviewer_details',
+      args: {
+          job_applicant: frm.doc.name
+      },
+      callback: function (r) {
+        if (r.message) {
+          $('.table thead tr').append('<th style="width: 20%" class="text-left">Interviewers</th>');  // Add Interviewers column header
+          $('.table tbody tr').each(function () {
+              var id = $(this).find('td:nth-child(1)').text().trim();
+              var interviewData = r.message.find(data => data.name === id);
+              if (interviewData) {
+                  var interviewerNames = '';
+                  for (var i = 0; i < interviewData.interviewer_details.length; i++) {
+                      interviewerNames += interviewData.interviewer_details[i].custom_interviewer_name + '<br>';
+                  }
+                  $(this).append('<td style="width: 20%" class="text-left">' + interviewerNames + '</td>');  // Add Interviewers column
+              } else {
+                  $(this).append('<td style="width: 20%" class="text-left">No data available</td>');  // Add Interviewers column
+              }
+          });
+      }
+      }
+  });
+  
   }
     function getJobApplications(email, callback) {
       frappe.call({
