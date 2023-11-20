@@ -1,4 +1,5 @@
 import frappe
+from datetime import datetime, timedelta
 
 @frappe.whitelist()
 def update_applicant_status_interview(applicant_name, status):
@@ -334,7 +335,7 @@ def accept_offer(name):
     email_content = f"""
         <p>Dear {job_offer.applicant_name},</p>
         <p>Greetings of the day!</p>
-        <p>Heartiest congratulations! We are pleased to have you with Korecent Solutions Pvt. Ltd. as a {job_position}. Below enclosed is your detailed job offer PDF.</p>
+        <p>Heartiest congratulations! We are pleased to have you with Korecent Solutions Pvt. Ltd. as a {job_position}.</p>
         <p>The tentative start date will be {job_offer.custom_tentative_start_date}. Please let us know in case you have another date of joining at the earliest so that we can start with the further process accordingly.</p>
         <p>Some of these details would need to be verified; you are requested to submit scanned copies of the documents mentioned below within 3 days of this offer or your joining, whichever is earlier:</p>
         <ul>
@@ -367,7 +368,7 @@ def accept_offer(name):
         </head>
         <body>
             <h1>Thanks for accepting the offer!</h1>
-            <p>You will receive the offer letter soon.</p>
+            <p>You will receive the Appointment letter soon.</p>
         </body>
         </html>
         """
@@ -408,7 +409,7 @@ def reject_offer(name):
     email_content = f"""
         <p>Dear {frappe.get_doc('HR Manager Settings').hr_manager_name},</p>
         <p>Greetings of the day!</p>
-        <p>We want to inform you that the {job_offer.job_applicant} who was offered the {job_position} position with Korecent Solutions Pvt. Ltd has rejected the job offer. An email has been sent to them seeking their availability to address their concerns.</p>
+        <p>We want to inform you that the {job_offer.applicant_name}({job_offer.job_applicant}) who was offered the {job_position} position with Korecent Solutions Pvt. Ltd has rejected the job offer. An email has been sent to them seeking their availability to address their concerns.</p>
         <p>Kindly plan to connect with them accordingly.</p>
         <p>Thanks and regards,</p>
         <p>HR- Team KoreCent</p>
@@ -674,3 +675,55 @@ def get_job_applicant_for_offer(job_applicant):
     rounds_check = len(unique_candidate_interview_rounds) == len(unique_job_interview_rounds)
     
     return 1 if rounds_check else 0, job_interview_details
+
+def send_reminder_email(applicant_email, subject, message):
+    frappe.sendmail(
+        recipients=applicant_email,
+        cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+        subject=subject,
+        message=message,
+        now=True
+    )
+
+def get_rejected_job_offers_created(days_ago, closing=False):
+    today = datetime.now().date()
+    target_date = today - timedelta(days=days_ago)
+    start_time = datetime.combine(target_date, datetime.min.time())
+    end_time = datetime.combine(target_date, datetime.max.time())
+    filters = [
+        ["creation", ">", start_time],
+        ["creation", "<", end_time],
+        ["status", "=", "Awaiting Response"]
+    ]
+
+    rejected_job_offers = frappe.get_all("Job Offer", filters=filters)
+
+    for job_offer in rejected_job_offers:
+        doc = frappe.get_doc("Job Offer", job_offer.name)
+        if not closing:
+            subject = "Reminder: Take Action on Job Offer"
+            message = (
+                f"<p>Dear {doc.applicant_name},</p>"
+                "<p>This is a gentle reminder regarding the job offer we extended to you. "
+                "<p>Please take a moment to review the offer and provide your response at your earliest convenience."
+                "<p>Thank you.<br>Best regards,<br>Team KoreCent"
+            )
+        else:
+            subject = "Closing of Job Opening"
+            message = (
+                f"<p>Dear {doc.applicant_name},</p>"
+                "<p>We hope this message finds you well.</p>"
+                "<p>Despite our previous attempts to reach out regarding the job offer, "
+                "we have not received a response from your end. Regrettably, we assume "
+                "you might not be interested at this time. Consequently, we will be closing "
+                "the opening for the position.</p>"
+                "<p>We appreciate your interest and wish you the very best in your future endeavors.</p>"
+                "<p>Thank you.<br>Best regards,<br>Team KoreCent</p>"
+            )
+        send_reminder_email(doc.applicant_email, subject, message)
+
+@frappe.whitelist(allow_guest=True)
+def execute_job_offer_workflow():
+    get_rejected_job_offers_created(2)
+    get_rejected_job_offers_created(5)
+    get_rejected_job_offers_created(7, closing=True)
