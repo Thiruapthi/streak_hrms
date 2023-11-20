@@ -249,6 +249,37 @@ def notify_hr_on_interview_update(doc, method):
                 message=message,
                 now=True,
           )
+    if (
+        doc.status == "Rejected"
+        and not doc.custom_rejection_email_sent
+    ):
+        applicant_data = frappe.get_value(
+            "Job Applicant",
+            {"name": doc.job_applicant},
+            ["email_id", "job_title", "applicant_name"],
+            as_dict=True
+            )
+        applicant_email = applicant_data.get("email_id")
+        applicant_name = applicant_data.get("applicant_name")
+        subject ="Your Application Status with KoreCent Solutions Pvt Ltd."
+        email_content_for_rejection_after_interview = (
+            f"<p>Dear {applicant_name},</p>"
+            "<p>Greetings of the day!</p>"
+            "<p>Thank you for completing the interview process with KoreCent Solutions Pvt Ltd. We appreciate your time and effort.</p>"
+            "<p>Unfortunately, we regret to inform you that we will not be proceeding with your application at this time as our current requirements do not fully align with your skills.</p>"
+            "<p>We encourage you to continue reviewing our careers site and apply for positions that match your interests.</p>"
+            "<p>Wishing you all the very best.</p>"
+            "<p>Thanks and regards,<br>HR - Team KoreCent</p>"
+        )
+        frappe.sendmail(
+        recipients=applicant_email,
+        subject=subject,
+        message=email_content_for_rejection_after_interview,
+        now=True
+        )
+
+        doc.custom_rejection_email_sent = 1
+        doc.save(ignore_permissions=True) 
 
 def send_custom_email(recipients, subject, message, attachments=None, cc_recipients=None):
     email_args = {
@@ -572,7 +603,52 @@ def send_job_applicant_creation_email(doc,method):
         attachments=[{"file_url": doc.resume_attachment}],
         now=True
     )
-    
+    subject = f"Job application received for {doc.job_title} with KoreCent Solutions Pvt Ltd."
+    email_content_for_successful_application = (
+        f"<p>Dear {doc.applicant_name},</p>"
+        "<p>Greetings of the day!</p>"
+        "<p>Thank you for your interest in KoreCent Solutions Pvt Ltd. We have received your application "
+        f"for {doc.job_title}. Currently, we are reviewing your application and will get back to you "
+        "in case you are selected for further hiring processes.</p>"
+        "<p>Wishing you all the very best.</p>"
+        "<p>Thanks and regards,<br>HR - Team KoreCent</p>"
+    )
+    frappe.sendmail(
+        recipients=doc.email_id,
+        subject=subject,
+        message=email_content_for_successful_application,
+        now=True
+    )
+
+@frappe.whitelist()
+def send_rejection_email_to_job_applicant_if_not_sent(doc, method):
+    if (
+        doc.status == "Rejected"
+        and not doc.custom_rejection_email_sent
+    ):
+        send_email_to_applicant(doc)
+        doc.custom_rejection_email_sent = 1
+        doc.save(ignore_permissions=True)
+
+def send_email_to_applicant(doc):
+    subject = f"Job application received for {doc.job_title} with KoreCent Solutions Pvt Ltd."
+    email_content_for_rejection_application = (
+        f"<p>Dear {doc.applicant_name},</p>"
+        "<p>Greetings of the day!</p>"
+        f"<p>Thank you for your interest in KoreCent Solutions Pvt Ltd. We have received your application for {doc.job_title}. "
+        "After reviewing your application, we appreciate your skills; however, our current requirements do not fully align with your skills at this time.</p>"
+        "<p>We encourage you to continue reviewing our careers site and apply for positions that match your interests.</p>"
+        "<p>Wishing you all the very best.</p>"
+        "<p>Thanks and regards,<br>HR - Team KoreCent</p>"
+    )
+    frappe.sendmail(
+        recipients=doc.email_id,
+        subject=subject,
+        message=email_content_for_rejection_application,
+        now=True
+    )
+
+
 @frappe.whitelist()
 def send_email_on_interview_scheduled(doc,method):
     try:
@@ -712,13 +788,9 @@ def get_rejected_job_offers_created(days_ago, closing=False):
             subject = "Closing of Job Opening"
             message = (
                 f"<p>Dear {doc.applicant_name},</p>"
-                "<p>We hope this message finds you well.</p>"
-                "<p>Despite our previous attempts to reach out regarding the job offer, "
-                "we have not received a response from your end. Regrettably, we assume "
-                "you might not be interested at this time. Consequently, we will be closing "
-                "the opening for the position.</p>"
-                "<p>We appreciate your interest and wish you the very best in your future endeavors.</p>"
-                "<p>Thank you.<br>Best regards,<br>Team KoreCent</p>"
+                "<p>Thank you for your completing the interview process KoreCent Solutions Pvt ltd. You have a commendable background and we appreciate you giving us the opportunity to learn more about you. Unfortunately since you have not taken any necessary action after releasing your  job offer, unfortunately we will not be moving forward with your application.</p>"
+                "<p>We encourage you to continue to review our careers site and apply for the positions that interests you.</p>"
+                "<p>Wishing you all the very best.<br>Thanks and regards,<br>HR- Team KoreCent</p>"
             )
         send_reminder_email(doc.applicant_email, subject, message)
 
