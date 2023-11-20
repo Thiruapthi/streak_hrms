@@ -567,7 +567,7 @@ def send_job_applicant_creation_email(doc,method):
         """
     frappe.sendmail(
         recipients=frappe.get_doc('HR Manager Settings').hr_email_id,
-        subject='new Job Applicant Created Notification',
+        subject='New job Applicant created notification',
         message=job_applicant_creation,
         attachments=[{"file_url": doc.resume_attachment}],
         now=True
