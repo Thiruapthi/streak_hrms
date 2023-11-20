@@ -641,21 +641,20 @@ def send_email_on_interview_scheduled(doc,method):
 
 
 @frappe.whitelist()
-def get_job_applicant_for_offer(job_applicant):
+def get_job_applicant_for_offer(job_applicant_email,job_applicant_id):
     job_applicant_details = frappe.get_list(
             "Job Applicant",
-            fields=["name","email_id","job_title"],
+            fields=["job_title"],
             filters = {
-                "email_id":job_applicant,               
+                "email_id":job_applicant_email,               
             }
         )
     
     job_interview_details = frappe.get_list(
             "Interview",
-            fields=["name","interview_round","job_applicant","job_opening","status"],
+            fields=["name","interview_round","status"],
             filters = {
-                "job_applicant":job_applicant
-                
+                "job_applicant":job_applicant_id    
             }
         )
     

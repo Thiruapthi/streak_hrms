@@ -25,7 +25,8 @@ frappe.ui.form.on('Job Offer', {
         frappe.call({
             method: 'hyde_app.api.get_job_applicant_for_offer',   
             args: {
-                'job_applicant': frm.doc.job_applicant,
+                'job_applicant_email': frm.doc.applicant_email,
+                'job_applicant_id': frm.doc.job_applicant
             },
             callback: function (r) {
                 var roundsCheck = r.message[0] === 1;
