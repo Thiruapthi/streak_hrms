@@ -156,7 +156,8 @@ doc_events = {
        "after_insert": "hyde_app.api.send_Job_offer_email",
    },
    "Job Applicant":{
-       "after_insert": "hyde_app.api.send_job_applicant_creation_email"
+       "after_insert": "hyde_app.api.send_job_applicant_creation_email",
+       "on_update": "hyde_app.api.send_rejection_email_to_job_applicant_if_not_sent"
     }
 }
    # Scheduled Tasks
