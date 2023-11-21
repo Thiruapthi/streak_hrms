@@ -571,7 +571,7 @@ def send_job_applicant_creation_email(doc,method):
         Dear HR,<br><br>
         Greetings of the day!<br><br>
         We want to inform you that a new job application has been submitted for the { doc.job_title } .<br>
-        The name of the candidate is { doc.applicant_name } and his <a href={doc.resume_link}> resume </a> has been attached for your reference along with the website link : {"https://kcs-ess.frappe.cloud/" }<br><br>
+        The name of the candidate is { doc.applicant_name } and his resume has been attached for your reference along with the website link : {"https://kcs-ess.frappe.cloud/" }<br><br>
         Kindly do the needful.<br>
         Thanks and regards HR- Team KoreCent
         """
@@ -596,7 +596,7 @@ def send_email_on_interview_scheduled(doc,method):
             
             <p>An interview has been scheduled for {doc.designation} on {doc.scheduled_on} at {doc.from_time}. Candidate name is {doc.custom_job_applicant_name}.</p> <p>It will be a { doc.interview_round }.</p>
             
-            <p>Below enclosed is the resume for your <a href={doc.resume_link}> reference </a>.</p>
+            <p>Below enclosed is the resume for your reference </a>.</p>
             {f"<p>Interview Link: {doc.custom_interview_link}</p>" if doc.custom_interview_type == "Online" else f"<p>Address: {doc.custom_address}</p>"}
             
             <p>Please ensure your availability for the interview, and in case of any rescheduling, let us know 1 day in advance.</p>
