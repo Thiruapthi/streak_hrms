@@ -716,41 +716,6 @@ def send_email_on_interview_scheduled(doc,method):
         pass
 
 
-@frappe.whitelist()
-def get_job_applicant_for_offer(job_applicant_email,job_applicant_id):
-    job_applicant_details = frappe.get_list(
-            "Job Applicant",
-            fields=["job_title"],
-            filters = {
-                "email_id":job_applicant_email,               
-            }
-        )
-    
-    job_interview_details = frappe.get_list(
-            "Interview",
-            fields=["name","interview_round","status"],
-            filters = {
-                "job_applicant":job_applicant_id    
-            }
-        )
-    
-    candidate_interview_rounds = [entry['interview_round'] for entry in job_interview_details]
-    unique_candidate_interview_rounds = set(candidate_interview_rounds)
-    unique_candidate_interview_rounds = sorted(unique_candidate_interview_rounds)
-    
-    job_title = job_applicant_details[0].job_title
-
-    values = {'name':job_title}
-    source_data = frappe.db.sql("""SELECT  ir.interview_rounds FROM `tabJob Opening` jo JOIN `tabInterview Rounds` ir ON jo.name = ir.parent WHERE     jo.name = %(name)s ORDER BY ir.idx""",values = values,as_dict=True   )
-    
-    job_interview_rounds = [entry['interview_rounds'] for entry in source_data]
-    unique_job_interview_rounds = set(job_interview_rounds)
-    unique_job_interview_rounds = sorted(unique_job_interview_rounds)
-
-    rounds_check = len(unique_candidate_interview_rounds) == len(unique_job_interview_rounds)
-    
-    return 1 if rounds_check else 0, job_interview_details
-
 def send_reminder_email(applicant_email, subject, message):
     frappe.sendmail(
         recipients=applicant_email,
@@ -798,3 +763,39 @@ def execute_job_offer_workflow():
     get_rejected_job_offers_created(2)
     get_rejected_job_offers_created(5)
     get_rejected_job_offers_created(7, closing=True)
+
+
+@frappe.whitelist(allow_guest=True)
+def restrict_to_create_job_offer(job_applicant_email,job_applicant_id):
+    job_applicant_details = frappe.get_list(
+            "Job Applicant",
+            fields=["job_title"],
+            filters = {
+                "email_id":job_applicant_email,               
+            }
+        )
+    
+    job_interview_details = frappe.get_list(
+            "Interview",
+            fields=["interview_round","status"],
+            filters = {
+                "job_applicant":job_applicant_id    
+            }
+        )
+    
+    candidate_interview_rounds = [entry['interview_round'] for entry in job_interview_details]
+    unique_candidate_interview_rounds = set(candidate_interview_rounds)
+    unique_candidate_interview_rounds = sorted(unique_candidate_interview_rounds)
+    
+    job_title = job_applicant_details[0].job_title
+
+    values = {'name':job_title}
+    source_data = frappe.db.sql("""SELECT  ir.interview_rounds FROM `tabJob Opening` jo JOIN `tabInterview Rounds` ir ON jo.name = ir.parent WHERE     jo.name = %(name)s ORDER BY ir.idx""",values = values,as_dict=True   )
+    
+    job_interview_rounds = [entry['interview_rounds'] for entry in source_data]
+    unique_job_interview_rounds = set(job_interview_rounds)
+    unique_job_interview_rounds = sorted(unique_job_interview_rounds)
+
+    rounds_check = len(unique_candidate_interview_rounds) == len(unique_job_interview_rounds)
+    
+    return 1 if rounds_check else 0, job_interview_details
