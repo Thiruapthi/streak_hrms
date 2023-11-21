@@ -139,7 +139,7 @@ doc_events = {
 #		"on_trash": "method"
 #	}
 "Sales Stage":{
-    "after_delete":"hyde_app.www.test.update_custom_select_field1"
+    "after_delete":"hyde_app.www.Kanban_Sales.update_custom_select_field"
 },
  "Interview": {
        "on_update": "hyde_app.api.notify_hr_on_interview_update",
