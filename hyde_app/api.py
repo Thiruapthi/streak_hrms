@@ -1,5 +1,6 @@
 import frappe
 from datetime import datetime, timedelta
+from hrms.hr.doctype.job_applicant.job_applicant import get_interview_details
 
 @frappe.whitelist()
 def update_applicant_status_interview(applicant_name, status):
@@ -210,6 +211,7 @@ def get_latest_interview(job_applicant):
 
 @frappe.whitelist()
 def notify_hr_on_interview_update(doc, method):
+    feedback = get_interview_details(doc.job_applicant)
     if  doc.status =='Cleared':
         job_opening = frappe.get_doc("Job Opening", doc.job_opening)
         all_rounds_cleared = True
@@ -236,10 +238,41 @@ def notify_hr_on_interview_update(doc, method):
         if all_rounds_cleared:
             recipient_email = frappe.get_doc('HR Manager Settings').hr_email_id
             subject = 'Job Offer Approval'
-            message =    message = f'''\
+
+            table_rows = ""
+            for name, interview_data in feedback['interviews'].items():
+                interviewers_list = frappe.get_list(
+                    "Interview Detail",
+                    filters={"parent": name, "parenttype": "Interview"},
+                    pluck="custom_interviewer_name"
+                )
+                table_rows += f"""
+                    <tr>
+                        <td style="padding:5px;">{interview_data['interview_round']}</td>
+                        <td style="padding:5px;">{interview_data['status']}</td>
+                        <td style="padding:5px;">{interview_data['average_rating']}</td>
+                        <td style="padding:5px;">{", ".join(interviewers_list)}</td>
+                    </tr>
+                """
+
+            message = f'''\
                 <p>Dear HR Team,</p>
-                <p>Greetings! We would like to inform you that the job applicant, {doc.job_applicant}, has successfully cleared all interview rounds for the position of {doc.job_opening} with Korecent Solutions Pvt. Ltd.</p>
-                <p>The applicant is now ready for the job offer release. Please proceed with the necessary steps to prepare and send the job offer.</p>
+                <p>Greetings! We would like to inform you that the job applicant, {doc.job_applicant}, has successfully cleared all interview process for the position of {doc.job_opening} with Korecent Solutions Pvt. Ltd.</p>
+                <p>Below enclosed are his interview round wise results:</p>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th style="padding:5px;">Interview Round</th>
+                            <th style="padding:5px;">Status</th>
+                            <th style="padding:5px;">Average Rating</th>
+                            <th style="padding:5px;">Interviewer Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {table_rows}
+                    </tbody>
+                </table>
+                <p>Please proceed with the necessary steps.<p>
                 <p>Thanks and regards,</p>
                 <p>Automated Notification System</p>
             '''
