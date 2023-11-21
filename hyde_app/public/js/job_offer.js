@@ -23,7 +23,7 @@ frappe.ui.form.on('Job Offer', {
     },
     validate: function(frm) {
         frappe.call({
-            method: 'hyde_app.api.get_job_applicant_for_offer',   
+            method: 'hyde_app.api.restrict_to_create_job_offer',
             args: {
                 'job_applicant_email': frm.doc.applicant_email,
                 'job_applicant_id': frm.doc.job_applicant
