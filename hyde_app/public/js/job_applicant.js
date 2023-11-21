@@ -1,72 +1,72 @@
 frappe.ui.form.on("Job Applicant", {
   refresh: function (frm) {
     if (!frm.is_new()) {
-    frappe.call({
-			method: "hrms.hr.doctype.job_applicant.job_applicant.get_interview_details",
-			args: {
-				job_applicant: frm.doc.name
-			},
-			callback: function(r) {
-				if (r.message) {
-          $('.table thead tr').append('<th style="width: 10%"  class="text-left">Interpretation</th>');
-          $('.table tbody tr').each(function() {
+      frappe.call({
+        method: "hrms.hr.doctype.job_applicant.job_applicant.get_interview_details",
+        args: {
+          job_applicant: frm.doc.name
+        },
+        callback: function (r) {
+          if (r.message) {
+            $('.table thead tr').append('<th style="width: 10%"  class="text-left">Interpretation</th>');
+            $('.table tbody tr').each(function () {
               var id = $(this).find('td:nth-child(1)').text().trim();
-              var interviewData = r.message.interviews[id];  
+              var interviewData = r.message.interviews[id];
               if (interviewData) {
                 var rating = interviewData.average_rating;
                 var status = interviewData.status;
                 var result = '';
-        
-                if (rating === 0 || status === "Pending") {
-                    result = ''; 
-                } else {
-                    if (rating >= 0 && rating < 1.5) {
-                        result = 'Not Acceptable';
-                    } else if (rating >= 1.5 && rating < 2.5) {
-                        result = 'Poor';
-                    } else if (rating >= 2.5 && rating < 3.5) {
-                        result = 'Average';
-                    } else if (rating >= 3.5 && rating < 4.5) {
-                        result = 'Good';
-                    } else if (rating >= 4.5 && rating <= 5) {
-                        result = 'Exceptional';
-                    }
-                }
-                  $(this).append('<td style="width: 10%"  class="text-left">' + result + '</td>');
-              } else {
-                  $(this).append('<td style="width: 10%" class="text-left">No data available</td>');
-              }
-          });
-        }
-			}
-		});
 
-    frappe.call({
-      method: 'hyde_app.api.get_interviewer_details',
-      args: {
+                if (rating === 0 || status === "Pending") {
+                  result = '';
+                } else {
+                  if (rating >= 0 && rating < 1.5) {
+                    result = 'Not Acceptable';
+                  } else if (rating >= 1.5 && rating < 2.5) {
+                    result = 'Poor';
+                  } else if (rating >= 2.5 && rating < 3.5) {
+                    result = 'Average';
+                  } else if (rating >= 3.5 && rating < 4.5) {
+                    result = 'Good';
+                  } else if (rating >= 4.5 && rating <= 5) {
+                    result = 'Exceptional';
+                  }
+                }
+                $(this).append('<td style="width: 10%"  class="text-left">' + result + '</td>');
+              } else {
+                $(this).append('<td style="width: 10%" class="text-left">No data available</td>');
+              }
+            });
+          }
+        }
+      });
+
+      frappe.call({
+        method: 'hyde_app.api.get_interviewer_details',
+        args: {
           job_applicant: frm.doc.name
-      },
-      callback: function (r) {
-        if (r.message) {
-          $('.table thead tr').append('<th style="width: 20%" class="text-left">Interviewers</th>');  // Add Interviewers column header
-          $('.table tbody tr').each(function () {
+        },
+        callback: function (r) {
+          if (r.message) {
+            $('.table thead tr').append('<th style="width: 20%" class="text-left">Interviewers</th>');  // Add Interviewers column header
+            $('.table tbody tr').each(function () {
               var id = $(this).find('td:nth-child(1)').text().trim();
               var interviewData = r.message.find(data => data.name === id);
               if (interviewData) {
-                  var interviewerNames = '';
-                  for (var i = 0; i < interviewData.interviewer_details.length; i++) {
-                      interviewerNames += interviewData.interviewer_details[i].custom_interviewer_name + '<br>';
-                  }
-                  $(this).append('<td style="width: 20%" class="text-left">' + interviewerNames + '</td>');  // Add Interviewers column
+                var interviewerNames = '';
+                for (var i = 0; i < interviewData.interviewer_details.length; i++) {
+                  interviewerNames += interviewData.interviewer_details[i].custom_interviewer_name + '<br>';
+                }
+                $(this).append('<td style="width: 20%" class="text-left">' + interviewerNames + '</td>');  // Add Interviewers column
               } else {
-                  $(this).append('<td style="width: 20%" class="text-left">No data available</td>');  // Add Interviewers column
+                $(this).append('<td style="width: 20%" class="text-left">No data available</td>');  // Add Interviewers column
               }
-          });
-      }
-      }
-  });
-  
-  }
+            });
+          }
+        }
+      });
+
+    }
     function getJobApplications(email, callback) {
       frappe.call({
         args: { email: email },
@@ -74,7 +74,7 @@ frappe.ui.form.on("Job Applicant", {
         callback: callback
       });
     }
-    
+
     if (!frm.is_new()) {
       frm.add_custom_button('Applicant History', function () {
         getJobApplications(frm.doc.email_id, function (r) {
@@ -83,7 +83,7 @@ frappe.ui.form.on("Job Applicant", {
           }
         });
       });
-    
+
       getJobApplications(frm.doc.email_id, function (r) {
         if (r.message && r.message.length > 1) {
           $("button:contains('Applicant History')").show();
@@ -92,19 +92,19 @@ frappe.ui.form.on("Job Applicant", {
         }
       });
     }
-    
-    
+
+
     cur_frm.events.create_dialog = async function (frm) {
-    var interviewRoundsList=[]
-    await frappe.call({
-      args:{job_title:frm.doc.job_title},
-      method: "hyde_app.api.get_job_opening_rounds",
-      callback: function(r) {
-        if (r.message) {
-           interviewRoundsList = r.message.custom_round.map(item => item.interview_rounds);
+      var interviewRoundsList = []
+      await frappe.call({
+        args: { job_title: frm.doc.job_title },
+        method: "hyde_app.api.get_job_opening_rounds",
+        callback: function (r) {
+          if (r.message) {
+            interviewRoundsList = r.message.custom_round.map(item => item.interview_rounds);
+          }
         }
-      }
-     })
+      })
       let d = new frappe.ui.Dialog({
         title: 'Enter Interview Round',
         fields: [
@@ -114,11 +114,11 @@ frappe.ui.form.on("Job Applicant", {
             fieldtype: 'Link',
             filters: {
               'name': ['in', interviewRoundsList]
-          },
+            },
             options: 'Interview Round'
           },
         ],
-        
+
 
         primary_action_label: 'Create Interview',
         primary_action(values) {
@@ -241,33 +241,33 @@ frappe.ui.form.on("Job Applicant", {
   },
 
   validate(frm) {
-      frappe.call({
-        method: 'hyde_app.api.create_or_check_contact',  
-        args: {
-          'email': frm.doc.email_id,  
-          'mobile': frm.doc.phone_number,
-          'name': frm.doc.applicant_name
-        },
-        callback: function (r) {
-            if (r.message === 'created') {
-                frappe.show_alert({
-                    message: __('New contact created!'),
-                    indicator: 'green'
-                }, 5);
-            } else if (r.message === 'exists') {
-                frappe.show_alert({
-                    message: __('Contact already exists!'),
-                    indicator: 'orange'
-                }, 5);
-            } else {
-                frappe.show_alert({
-                    message: __('Error creating or checking contact.'),
-                    indicator: 'red'
-                }, 5);
-            }
+    frappe.call({
+      method: 'hyde_app.api.create_or_check_contact',
+      args: {
+        'email': frm.doc.email_id,
+        'mobile': frm.doc.phone_number,
+        'name': frm.doc.applicant_name
+      },
+      callback: function (r) {
+        if (r.message === 'created') {
+          frappe.show_alert({
+            message: __('New contact created!'),
+            indicator: 'green'
+          }, 5);
+        } else if (r.message === 'exists') {
+          frappe.show_alert({
+            message: __('Contact already exists!'),
+            indicator: 'orange'
+          }, 5);
+        } else {
+          frappe.show_alert({
+            message: __('Error creating or checking contact.'),
+            indicator: 'red'
+          }, 5);
         }
-      });
-    }
+      }
+    });
+  }
 })
 
 
@@ -328,9 +328,8 @@ function createItemTable(data) {
           <td>${item.job_title}</td>
           <td>${item.status}</td>
           <td>${item.applicant_rating}</td>
-          <td><button class="show-interview-button btn btn-primary" data-target="${
-            item.name
-          }">Show</button></td>
+          <td><button class="show-interview-button btn btn-primary" data-target="${item.name
+      }">Show</button></td>
         </tr>
         <tr id="${item.name}" style="display: none;">
           <td colspan="6">
@@ -345,8 +344,8 @@ function createItemTable(data) {
               </thead>
               <tbody>
                 ${item.interviews
-                  .map(
-                    (interview) => `
+        .map(
+          (interview) => `
                       <tr>
                         <td>${interview.interview_round}</td>
                         <td>${interview.interviewer}</td>
@@ -354,8 +353,8 @@ function createItemTable(data) {
                         <td>${interview.feedback}</td>
                       </tr>
                     `
-                  )
-                  .join("")}
+        )
+        .join("")}
               </tbody>
             </table>
           </td>
