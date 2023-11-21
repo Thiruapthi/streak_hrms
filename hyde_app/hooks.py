@@ -139,7 +139,7 @@ doc_events = {
 #		"on_trash": "method"
 #	}
 "Sales Stage":{
-    "after_delete":"hyde_app.www.test.update_custom_select_field1"
+    "after_delete":"hyde_app.www.Kanban_Sales.update_custom_select_field"
 },
  "Interview": {
        "on_update": "hyde_app.api.notify_hr_on_interview_update",
@@ -156,7 +156,8 @@ doc_events = {
        "after_insert": "hyde_app.api.send_Job_offer_email",
    },
    "Job Applicant":{
-       "after_insert": "hyde_app.api.send_job_applicant_creation_email"
+       "after_insert": "hyde_app.api.send_job_applicant_creation_email",
+       "on_update": "hyde_app.api.send_rejection_email_to_job_applicant_if_not_sent"
     }
 }
    # Scheduled Tasks

@@ -1,5 +1,6 @@
 import frappe
 from datetime import datetime, timedelta
+from hrms.hr.doctype.job_applicant.job_applicant import get_interview_details
 
 @frappe.whitelist()
 def update_applicant_status_interview(applicant_name, status):
@@ -210,6 +211,7 @@ def get_latest_interview(job_applicant):
 
 @frappe.whitelist()
 def notify_hr_on_interview_update(doc, method):
+    feedback = get_interview_details(doc.job_applicant)
     if  doc.status =='Cleared':
         job_opening = frappe.get_doc("Job Opening", doc.job_opening)
         all_rounds_cleared = True
@@ -236,10 +238,41 @@ def notify_hr_on_interview_update(doc, method):
         if all_rounds_cleared:
             recipient_email = frappe.get_doc('HR Manager Settings').hr_email_id
             subject = 'Job Offer Approval'
-            message =    message = f'''\
+
+            table_rows = ""
+            for name, interview_data in feedback['interviews'].items():
+                interviewers_list = frappe.get_list(
+                    "Interview Detail",
+                    filters={"parent": name, "parenttype": "Interview"},
+                    pluck="custom_interviewer_name"
+                )
+                table_rows += f"""
+                    <tr>
+                        <td style="padding:5px;">{interview_data['interview_round']}</td>
+                        <td style="padding:5px;">{interview_data['status']}</td>
+                        <td style="padding:5px;">{interview_data['average_rating']}</td>
+                        <td style="padding:5px;">{", ".join(interviewers_list)}</td>
+                    </tr>
+                """
+
+            message = f'''\
                 <p>Dear HR Team,</p>
-                <p>Greetings! We would like to inform you that the job applicant, {doc.job_applicant}, has successfully cleared all interview rounds for the position of {doc.job_opening} with Korecent Solutions Pvt. Ltd.</p>
-                <p>The applicant is now ready for the job offer release. Please proceed with the necessary steps to prepare and send the job offer.</p>
+                <p>Greetings! We would like to inform you that the job applicant, {doc.job_applicant}, has successfully cleared all interview process for the position of {doc.job_opening} with Korecent Solutions Pvt. Ltd.</p>
+                <p>Below enclosed are his interview round wise results:</p>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th style="padding:5px;">Interview Round</th>
+                            <th style="padding:5px;">Status</th>
+                            <th style="padding:5px;">Average Rating</th>
+                            <th style="padding:5px;">Interviewer Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {table_rows}
+                    </tbody>
+                </table>
+                <p>Please proceed with the necessary steps.<p>
                 <p>Thanks and regards,</p>
                 <p>Automated Notification System</p>
             '''
@@ -249,6 +282,37 @@ def notify_hr_on_interview_update(doc, method):
                 message=message,
                 now=True,
           )
+    if (
+        doc.status == "Rejected"
+        and not doc.custom_rejection_email_sent
+    ):
+        applicant_data = frappe.get_value(
+            "Job Applicant",
+            {"name": doc.job_applicant},
+            ["email_id", "job_title", "applicant_name"],
+            as_dict=True
+            )
+        applicant_email = applicant_data.get("email_id")
+        applicant_name = applicant_data.get("applicant_name")
+        subject ="Your Application Status with KoreCent Solutions Pvt Ltd."
+        email_content_after_interview_rejection = (
+            f"<p>Dear {applicant_name},</p>"
+            "<p>Greetings of the day!</p>"
+            "<p>Thank you for completing the interview process with KoreCent Solutions Pvt Ltd. We acknowledge your commendable background and appreciate the opportunity to learn more about you.</p>"
+            "<p>Unfortunately, we will not be moving forward with your application at this time as our current requirements do not align with your skills.</p>"
+            "<p>We have your details in our database and will reach out to you in case a suitable opening arises in our organization.</p>"
+            "<p>Wishing you all the very best.</p>"
+            "<p>Thanks and regards,<br>HR - Team KoreCent</p>"
+)
+        frappe.sendmail(
+        recipients=applicant_email,
+        subject=subject,
+        message=email_content_after_interview_rejection,
+        now=True
+        )
+
+        doc.custom_rejection_email_sent = 1
+        doc.save(ignore_permissions=True) 
 
 def send_custom_email(recipients, subject, message, attachments=None, cc_recipients=None):
     email_args = {
@@ -561,18 +625,64 @@ def send_job_applicant_creation_email(doc,method):
         Dear HR,<br><br>
         Greetings of the day!<br><br>
         We want to inform you that a new job application has been submitted for the { doc.job_title } .<br>
-        The name of the candidate is { doc.applicant_name } and his <a href={doc.resume_link}> resume </a> has been attached for your reference along with the website link : {"http://170.64.172.193/" }<br><br>
+        The name of the candidate is { doc.applicant_name } and his resume has been attached for your reference along with the website link : {"https://kcs-ess.frappe.cloud/" }<br><br>
         Kindly do the needful.<br>
         Thanks and regards HR- Team KoreCent
         """
     frappe.sendmail(
         recipients=frappe.get_doc('HR Manager Settings').hr_email_id,
-        subject='new Job Applicant Created Notification',
+        subject='New job Applicant created notification',
         message=job_applicant_creation,
         attachments=[{"file_url": doc.resume_attachment}],
         now=True
     )
-    
+    subject = f"Job application received for {doc.job_title} with KoreCent Solutions Pvt Ltd."
+    email_content_for_successful_application = (
+        f"<p>Dear {doc.applicant_name},</p>"
+        "<p>Greetings of the day!</p>"
+        "<p>Thank you for your interest in KoreCent Solutions Pvt Ltd. We have received your application "
+        f"for {doc.job_title}. Currently, we are reviewing your application and will get back to you "
+        "in case you are selected for further hiring processes.</p>"
+        "<p>Wishing you all the very best.</p>"
+        "<p>Thanks and regards,<br>HR - Team KoreCent</p>"
+    )
+    frappe.sendmail(
+        recipients=doc.email_id,
+        subject=subject,
+        message=email_content_for_successful_application,
+        now=True
+    )
+
+@frappe.whitelist()
+def send_rejection_email_to_job_applicant_if_not_sent(doc, method):
+    if (
+        doc.status == "Rejected"
+        and not doc.custom_rejection_email_sent
+    ):
+        send_email_to_applicant(doc)
+        doc.custom_rejection_email_sent = 1
+        doc.save(ignore_permissions=True)
+
+def send_email_to_applicant(doc):
+    subject = f"Job application received for {doc.job_title} with KoreCent Solutions Pvt Ltd."
+    email_content_for_rejection_application = (
+    f"<p>Dear {doc.applicant_name},</p>"
+    "<p>Greetings of the day!</p>"
+    f"<p>Thank you for your interest in KoreCent Solutions Pvt Ltd. We have received your application for {doc.job_title}. "
+    "Upon carefully reviewing your application, it is evident that your skills at the time and our requirements are not in line. We express our gratitude to you for considering KoreCent Solutions, and wish you good luck ahead.</p>"
+    "<p>We have your details in our database and will get back to you in case we have a suitable opening in our organization.</p>"
+    "<p>Wishing you all the very best.</p>"
+    "<p>Thanks and regards,<br>HR - Team KoreCent</p>"
+)
+
+    frappe.sendmail(
+        recipients=doc.email_id,
+        subject=subject,
+        message=email_content_for_rejection_application,
+        now=True
+    )
+
+
 @frappe.whitelist()
 def send_email_on_interview_scheduled(doc,method):
     try:
@@ -586,14 +696,14 @@ def send_email_on_interview_scheduled(doc,method):
             
             <p>An interview has been scheduled for {doc.designation} on {doc.scheduled_on} at {doc.from_time}. Candidate name is {doc.custom_job_applicant_name}.</p> <p>It will be a { doc.interview_round }.</p>
             
-            <p>Below enclosed is the resume for your <a href={doc.resume_link}> reference </a>.</p>
+            <p>Below enclosed is the resume for your reference </a>.</p>
             {f"<p>Interview Link: {doc.custom_interview_link}</p>" if doc.custom_interview_type == "Online" else f"<p>Address: {doc.custom_address}</p>"}
             
             <p>Please ensure your availability for the interview, and in case of any rescheduling, let us know 1 day in advance.</p>
             
             <div style='padding: 20px; text-align: center;'>
             <p style='font-size: 18px; margin-bottom: 20px;'>We value your feedback!</p>
-            <a href='/app/interview-feedback/view/list?interview={doc.name}' 
+            <a href='https://kcs-ess.frappe.cloud/app/interview-feedback/view/list?interview={doc.name}' 
             style='background-color: #007BFF; color: #fff; text-decoration: none; display: inline-block; padding: 15px 30px; border-radius: 5px; font-size: 16px;'>
             Provide Feedback
             </a>
@@ -640,42 +750,6 @@ def send_email_on_interview_scheduled(doc,method):
         pass
 
 
-@frappe.whitelist()
-def get_job_applicant_for_offer(job_applicant):
-    job_applicant_details = frappe.get_list(
-            "Job Applicant",
-            fields=["name","email_id","job_title"],
-            filters = {
-                "email_id":job_applicant,               
-            }
-        )
-    
-    job_interview_details = frappe.get_list(
-            "Interview",
-            fields=["name","interview_round","job_applicant","job_opening","status"],
-            filters = {
-                "job_applicant":job_applicant
-                
-            }
-        )
-    
-    candidate_interview_rounds = [entry['interview_round'] for entry in job_interview_details]
-    unique_candidate_interview_rounds = set(candidate_interview_rounds)
-    unique_candidate_interview_rounds = sorted(unique_candidate_interview_rounds)
-    
-    job_title = job_applicant_details[0].job_title
-
-    values = {'name':job_title}
-    source_data = frappe.db.sql("""SELECT  ir.interview_rounds FROM `tabJob Opening` jo JOIN `tabInterview Rounds` ir ON jo.name = ir.parent WHERE     jo.name = %(name)s ORDER BY ir.idx""",values = values,as_dict=True   )
-    
-    job_interview_rounds = [entry['interview_rounds'] for entry in source_data]
-    unique_job_interview_rounds = set(job_interview_rounds)
-    unique_job_interview_rounds = sorted(unique_job_interview_rounds)
-
-    rounds_check = len(unique_candidate_interview_rounds) == len(unique_job_interview_rounds)
-    
-    return 1 if rounds_check else 0, job_interview_details
-
 def send_reminder_email(applicant_email, subject, message):
     frappe.sendmail(
         recipients=applicant_email,
@@ -700,25 +774,35 @@ def get_rejected_job_offers_created(days_ago, closing=False):
 
     for job_offer in rejected_job_offers:
         doc = frappe.get_doc("Job Offer", job_offer.name)
-        if not closing:
-            subject = "Reminder: Take Action on Job Offer"
-            message = (
-                f"<p>Dear {doc.applicant_name},</p>"
-                "<p>This is a gentle reminder regarding the job offer we extended to you. "
-                "<p>Please take a moment to review the offer and provide your response at your earliest convenience."
-                "<p>Thank you.<br>Best regards,<br>Team KoreCent"
+        applicant_data = frappe.get_value(
+            "Job Applicant",
+            {"name": doc.job_applicant},
+            [ "job_title"],
+            as_dict=True
             )
+        position = applicant_data.get("job_title")
+
+        if not closing:
+            subject = f"Job offer {position} with KoreCent Solutions Pvt Ltd."
+            message = f"""\
+        <p>Dear {doc.applicant_name},</p>
+        <p>Greetings of the day!</p>
+        <p>Heartiest congratulations! We are pleased to offer you the position of {position} with Korecent Solutions Pvt. Ltd. at {doc.custom_ctc} CTC.</p>
+        <p>Please take the necessary action on the below enclosed link within the next 7 days:</p>
+        <p>Below enclosed is your detailed job offer pdf.</p>
+        <a href="{frappe.utils.get_url()}/api/method/hyde_app.api.accept_offer?name={doc.name}" onclick="this.style.pointerEvents = 'none'; this.style.background = '#ccc';" style="background-color: #4CAF50; color: #fff; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px; margin-right: 10px;">Accept</a>
+        <a href="{frappe.utils.get_url()}/api/method/hyde_app.api.reject_offer?name={doc.name}" onclick="this.style.pointerEvents = 'none'; this.style.background = '#ccc';" style="background-color: #FF5733; color: #fff; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px;">Reject</a>
+        <p>Thanks and regards,</p>
+        <p>HR- Team KoreCent</p>
+        """
+            
         else:
             subject = "Closing of Job Opening"
             message = (
                 f"<p>Dear {doc.applicant_name},</p>"
-                "<p>We hope this message finds you well.</p>"
-                "<p>Despite our previous attempts to reach out regarding the job offer, "
-                "we have not received a response from your end. Regrettably, we assume "
-                "you might not be interested at this time. Consequently, we will be closing "
-                "the opening for the position.</p>"
-                "<p>We appreciate your interest and wish you the very best in your future endeavors.</p>"
-                "<p>Thank you.<br>Best regards,<br>Team KoreCent</p>"
+                "<p>Thank you for your completing the interview process KoreCent Solutions Pvt ltd. You have a commendable background and we appreciate you giving us the opportunity to learn more about you. Unfortunately since you have not taken any necessary action after releasing your  job offer, unfortunately we will not be moving forward with your application.</p>"
+                "<p>We encourage you to continue to review our careers site and apply for the positions that interests you.</p>"
+                "<p>Wishing you all the very best.<br>Thanks and regards,<br>HR- Team KoreCent</p>"
             )
         send_reminder_email(doc.applicant_email, subject, message)
 
@@ -727,3 +811,39 @@ def execute_job_offer_workflow():
     get_rejected_job_offers_created(2)
     get_rejected_job_offers_created(5)
     get_rejected_job_offers_created(7, closing=True)
+
+
+@frappe.whitelist(allow_guest=True)
+def restrict_to_create_job_offer(job_applicant_email,job_applicant_id):
+    job_applicant_details = frappe.get_list(
+            "Job Applicant",
+            fields=["job_title"],
+            filters = {
+                "email_id":job_applicant_email,               
+            }
+        )
+    
+    job_interview_details = frappe.get_list(
+            "Interview",
+            fields=["interview_round","status"],
+            filters = {
+                "job_applicant":job_applicant_id    
+            }
+        )
+    
+    candidate_interview_rounds = [entry['interview_round'] for entry in job_interview_details]
+    unique_candidate_interview_rounds = set(candidate_interview_rounds)
+    unique_candidate_interview_rounds = sorted(unique_candidate_interview_rounds)
+    
+    job_title = job_applicant_details[0].job_title
+
+    values = {'name':job_title}
+    source_data = frappe.db.sql("""SELECT  ir.interview_rounds FROM `tabJob Opening` jo JOIN `tabInterview Rounds` ir ON jo.name = ir.parent WHERE     jo.name = %(name)s ORDER BY ir.idx""",values = values,as_dict=True   )
+    
+    job_interview_rounds = [entry['interview_rounds'] for entry in source_data]
+    unique_job_interview_rounds = set(job_interview_rounds)
+    unique_job_interview_rounds = sorted(unique_job_interview_rounds)
+
+    rounds_check = len(unique_candidate_interview_rounds) == len(unique_job_interview_rounds)
+    
+    return 1 if rounds_check else 0, job_interview_details
