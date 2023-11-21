@@ -571,7 +571,7 @@ def send_job_applicant_creation_email(doc,method):
         Dear HR,<br><br>
         Greetings of the day!<br><br>
         We want to inform you that a new job application has been submitted for the { doc.job_title } .<br>
-        The name of the candidate is { doc.applicant_name } and his <a href={doc.resume_link}> resume </a> has been attached for your reference along with the website link : {"http://170.64.172.193/" }<br><br>
+        The name of the candidate is { doc.applicant_name } and his <a href={doc.resume_link}> resume </a> has been attached for your reference along with the website link : {"https://kcs-ess.frappe.cloud/" }<br><br>
         Kindly do the needful.<br>
         Thanks and regards HR- Team KoreCent
         """
@@ -603,7 +603,7 @@ def send_email_on_interview_scheduled(doc,method):
             
             <div style='padding: 20px; text-align: center;'>
             <p style='font-size: 18px; margin-bottom: 20px;'>We value your feedback!</p>
-            <a href='/app/interview-feedback/view/list?interview={doc.name}' 
+            <a href='https://kcs-ess.frappe.cloud/app/interview-feedback/view/list?interview={doc.name}' 
             style='background-color: #007BFF; color: #fff; text-decoration: none; display: inline-block; padding: 15px 30px; border-radius: 5px; font-size: 16px;'>
             Provide Feedback
             </a>
