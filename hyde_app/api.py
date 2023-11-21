@@ -262,19 +262,19 @@ def notify_hr_on_interview_update(doc, method):
         applicant_email = applicant_data.get("email_id")
         applicant_name = applicant_data.get("applicant_name")
         subject ="Your Application Status with KoreCent Solutions Pvt Ltd."
-        email_content_for_rejection_after_interview = (
+        email_content_after_interview_rejection = (
             f"<p>Dear {applicant_name},</p>"
             "<p>Greetings of the day!</p>"
-            "<p>Thank you for completing the interview process with KoreCent Solutions Pvt Ltd. We appreciate your time and effort.</p>"
-            "<p>Unfortunately, we regret to inform you that we will not be proceeding with your application at this time as our current requirements do not fully align with your skills.</p>"
-            "<p>We encourage you to continue reviewing our careers site and apply for positions that match your interests.</p>"
+            "<p>Thank you for completing the interview process with KoreCent Solutions Pvt Ltd. We acknowledge your commendable background and appreciate the opportunity to learn more about you.</p>"
+            "<p>Unfortunately, we will not be moving forward with your application at this time as our current requirements do not align with your skills.</p>"
+            "<p>We have your details in our database and will reach out to you in case a suitable opening arises in our organization.</p>"
             "<p>Wishing you all the very best.</p>"
             "<p>Thanks and regards,<br>HR - Team KoreCent</p>"
-        )
+)
         frappe.sendmail(
         recipients=applicant_email,
         subject=subject,
-        message=email_content_for_rejection_after_interview,
+        message=email_content_after_interview_rejection,
         now=True
         )
 
@@ -633,14 +633,15 @@ def send_rejection_email_to_job_applicant_if_not_sent(doc, method):
 def send_email_to_applicant(doc):
     subject = f"Job application received for {doc.job_title} with KoreCent Solutions Pvt Ltd."
     email_content_for_rejection_application = (
-        f"<p>Dear {doc.applicant_name},</p>"
-        "<p>Greetings of the day!</p>"
-        f"<p>Thank you for your interest in KoreCent Solutions Pvt Ltd. We have received your application for {doc.job_title}. "
-        "After reviewing your application, we appreciate your skills; however, our current requirements do not fully align with your skills at this time.</p>"
-        "<p>We encourage you to continue reviewing our careers site and apply for positions that match your interests.</p>"
-        "<p>Wishing you all the very best.</p>"
-        "<p>Thanks and regards,<br>HR - Team KoreCent</p>"
-    )
+    f"<p>Dear {doc.applicant_name},</p>"
+    "<p>Greetings of the day!</p>"
+    f"<p>Thank you for your interest in KoreCent Solutions Pvt Ltd. We have received your application for {doc.job_title}. "
+    "Upon carefully reviewing your application, it is evident that your skills at the time and our requirements are not in line. We express our gratitude to you for considering KoreCent Solutions, and wish you good luck ahead.</p>"
+    "<p>We have your details in our database and will get back to you in case we have a suitable opening in our organization.</p>"
+    "<p>Wishing you all the very best.</p>"
+    "<p>Thanks and regards,<br>HR - Team KoreCent</p>"
+)
+
     frappe.sendmail(
         recipients=doc.email_id,
         subject=subject,
@@ -740,14 +741,28 @@ def get_rejected_job_offers_created(days_ago, closing=False):
 
     for job_offer in rejected_job_offers:
         doc = frappe.get_doc("Job Offer", job_offer.name)
-        if not closing:
-            subject = "Reminder: Take Action on Job Offer"
-            message = (
-                f"<p>Dear {doc.applicant_name},</p>"
-                "<p>This is a gentle reminder regarding the job offer we extended to you. "
-                "<p>Please take a moment to review the offer and provide your response at your earliest convenience."
-                "<p>Thank you.<br>Best regards,<br>Team KoreCent"
+        applicant_data = frappe.get_value(
+            "Job Applicant",
+            {"name": doc.job_applicant},
+            [ "job_title"],
+            as_dict=True
             )
+        position = applicant_data.get("job_title")
+
+        if not closing:
+            subject = f"Job offer {position} with KoreCent Solutions Pvt Ltd."
+            message = f"""\
+        <p>Dear {doc.applicant_name},</p>
+        <p>Greetings of the day!</p>
+        <p>Heartiest congratulations! We are pleased to offer you the position of {position} with Korecent Solutions Pvt. Ltd. at {doc.custom_ctc} CTC.</p>
+        <p>Please take the necessary action on the below enclosed link within the next 7 days:</p>
+        <p>Below enclosed is your detailed job offer pdf.</p>
+        <a href="{frappe.utils.get_url()}/api/method/hyde_app.api.accept_offer?name={doc.name}" onclick="this.style.pointerEvents = 'none'; this.style.background = '#ccc';" style="background-color: #4CAF50; color: #fff; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px; margin-right: 10px;">Accept</a>
+        <a href="{frappe.utils.get_url()}/api/method/hyde_app.api.reject_offer?name={doc.name}" onclick="this.style.pointerEvents = 'none'; this.style.background = '#ccc';" style="background-color: #FF5733; color: #fff; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px;">Reject</a>
+        <p>Thanks and regards,</p>
+        <p>HR- Team KoreCent</p>
+        """
+            
         else:
             subject = "Closing of Job Opening"
             message = (
