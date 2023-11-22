@@ -214,7 +214,7 @@ frappe.ui.form.on("Job Applicant", {
     }
 
   },
-  before_save(frm) {
+  job_title(frm) {
     frappe.call({
       method: 'hyde_app.api.Interview_Rounds',
       args: {

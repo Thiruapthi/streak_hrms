@@ -38,9 +38,7 @@ def get_annexure_template_details(template):
 
 @frappe.whitelist()
 def Interview_Rounds(job_titles):
-    values = {'job_title':job_titles}
-    source_data = frappe.db.sql("""SELECT  ir.interview_rounds FROM `tabJob Opening` jo JOIN `tabInterview Rounds` ir ON jo.name = ir.parent WHERE     jo.job_title = %(job_title)s""",values = values,as_dict=True   )
-    
+    source_data = frappe.db.sql("""SELECT interview_rounds FROM `tabInterview Rounds` WHERE parent = '{0}' """.format(job_titles),as_dict=True)
     return source_data
 
 @frappe.whitelist()
