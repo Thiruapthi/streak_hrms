@@ -38,9 +38,7 @@ def get_annexure_template_details(template):
 
 @frappe.whitelist()
 def Interview_Rounds(job_titles):
-    values = {'job_title':job_titles}
-    source_data = frappe.db.sql("""SELECT  ir.interview_rounds FROM `tabJob Opening` jo JOIN `tabInterview Rounds` ir ON jo.name = ir.parent WHERE     jo.job_title = %(job_title)s""",values = values,as_dict=True   )
-    
+    source_data = frappe.db.sql("""SELECT interview_rounds FROM `tabInterview Rounds` WHERE parent = '{0}' """.format(job_titles),as_dict=True)
     return source_data
 
 @frappe.whitelist()
@@ -627,7 +625,8 @@ def send_job_applicant_creation_email(doc,method):
         We want to inform you that a new job application has been submitted for the { doc.job_title } .<br>
         The name of the candidate is { doc.applicant_name } and his resume has been attached for your reference along with the website link : {"https://kcs-ess.frappe.cloud/" }<br><br>
         Kindly do the needful.<br>
-        Thanks and regards HR- Team KoreCent
+        Thanks and regards <br>
+        HR- Team KoreCent
         """
     frappe.sendmail(
         recipients=frappe.get_doc('HR Manager Settings').hr_email_id,
@@ -644,7 +643,8 @@ def send_job_applicant_creation_email(doc,method):
         f"for {doc.job_title}. Currently, we are reviewing your application and will get back to you "
         "in case you are selected for further hiring processes.</p>"
         "<p>Wishing you all the very best.</p>"
-        "<p>Thanks and regards,<br>HR - Team KoreCent</p>"
+        "<p>Thanks and regards,<br></p>"
+        "<p>HR - Team KoreCent</p>"
     )
     frappe.sendmail(
         recipients=doc.email_id,
