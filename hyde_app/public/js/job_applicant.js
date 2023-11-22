@@ -214,26 +214,20 @@ frappe.ui.form.on("Job Applicant", {
     }
 
   },
-  after_save(frm) {
-    // frm.set_value("status", "Interview Pending");
+  before_save(frm) {
     frappe.call({
-      method: 'hyde_app.api.Interview_Rounds',  // Replace with your method and module name
+      method: 'hyde_app.api.Interview_Rounds',
       args: {
         'job_titles': frm.doc.job_title,
-        'doc': frm.doc  // Pass any relevant arguments
       },
       callback: function (r) {
-        if (!frm.doc.custom_rounds || frm.doc.custom_rounds.length === 0) {
-          for (let i = 0; i < r.message.length; i++) {
-            let row = frm.add_child('custom_rounds', {
-              interview_rounds: r.message[i].interview_rounds,
-              qty: 2
-            });
-          }
-          frm.refresh_field('items');
-          cur_frm.refresh_fields('rounds')
-          frm.save()
+        cur_frm.clear_table('custom_rounds')
+        for (let i = 0; i < r.message.length; i++) {
+          frm.add_child('custom_rounds', {
+            interview_rounds: r.message[i].interview_rounds,
+          });
         }
+        cur_frm.refresh_fields('custom_rounds')
 
       }
     });
