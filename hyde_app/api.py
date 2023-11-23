@@ -224,7 +224,7 @@ def notify_hr_on_interview_update(doc, method):
 
         if all_rounds_cleared:
             recipient_email = frappe.get_doc('HR Manager Settings').hr_email_id
-            subject = 'Job Offer Approval'
+            subject = 'Completion of the interview process'
 
             table_rows = ""
             for name, interview_data in feedback['interviews'].items():
