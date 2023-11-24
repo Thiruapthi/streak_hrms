@@ -244,7 +244,7 @@ def notify_hr_on_interview_update(doc, method):
 
             message = f'''\
                 <p>Dear HR Team,</p>
-                <p>Greetings! We would like to inform you that the job applicant, {doc.job_applicant}, has successfully cleared all interview process for the position of {doc.job_opening} with Korecent Solutions Pvt. Ltd.</p>
+                <p>Greetings! We would like to inform you that the job applicant, {doc.custom_job_applicant_name}, has successfully cleared all interview process for the position of {doc.job_opening} with Korecent Solutions Pvt. Ltd.</p>
                 <p>Below enclosed are his interview round wise results:</p>
                 <table border="1">
                     <thead>
