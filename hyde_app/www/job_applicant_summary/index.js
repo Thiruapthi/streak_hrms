@@ -32,7 +32,15 @@ frappe.ready(function () {
           "hyde_app.www.job_applicant_summary.index.get_job_applicant_summary",
         args: { positions: jobApplicant.value },
         callback: function (response) {
-          render_summary(response.message);
+          response
+            ? render_summary(response.message)
+            : frappe.show_alert(
+                {
+                  message: __(`<b>There is no specific information with this position <span class="openings">${jobApplicant.value}<span></b>`),
+                  indicator: "red",
+                },
+                5
+              );
         },
       });
     }
