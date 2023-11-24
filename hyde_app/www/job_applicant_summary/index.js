@@ -16,7 +16,6 @@ frappe.ready(function () {
   // Event listener for Job Opening selection change
   jobApplicant.addEventListener("change", function () {
     if (!jobApplicant.value) {
-      console.log(jobApplicant.value, "jobApplicant.value if stat");
       // Hide the table and show the initial message when no Job Opening is selected
       $(".job-applicant-table").css({ display: "none" });
       jobApplicantSummaryContainer.innerHTML +=
@@ -24,7 +23,6 @@ frappe.ready(function () {
         empty_text_on_page_load +
         "</p>";
     } else {
-      console.log(jobApplicant.value, "jobApplicant.value else stat");
       jobApplicantSummaryContainer.style.display = "";
       // Fetch and render Job Applicant summary based on selected Job Opening
       frappe.call({
@@ -32,15 +30,17 @@ frappe.ready(function () {
           "hyde_app.www.job_applicant_summary.index.get_job_applicant_summary",
         args: { positions: jobApplicant.value },
         callback: function (response) {
-          response
-            ? render_summary(response.message)
-            : frappe.show_alert(
-                {
-                  message: __(`<b>There is no specific information with this position <span class="openings">${jobApplicant.value}<span></b>`),
-                  indicator: "red",
-                },
-                5
-              );
+          if (response.message.data == "no data found") {
+            $(".job-applicant-table").css({ display: "none" });
+            frappe.show_alert({
+              message: __(`<b>There is no specific information with this position <span class="openings">${jobApplicant.value}</span></b>`),
+              indicator: "red",
+            }, 5);
+
+          } else {
+            render_summary(response.message);
+
+          }
         },
       });
     }
