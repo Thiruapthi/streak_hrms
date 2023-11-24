@@ -38,7 +38,7 @@ def get_annexure_template_details(template):
 
 @frappe.whitelist()
 def Interview_Rounds(job_titles):
-    source_data = frappe.db.sql("""SELECT interview_rounds FROM `tabInterview Rounds` WHERE parent = '{0}' """.format(job_titles),as_dict=True)
+    source_data = frappe.db.sql("""SELECT interview_rounds FROM `tabInterview Rounds` WHERE parent = '{0}' ORDER BY idx """.format(job_titles),as_dict=True)
     return source_data
 
 @frappe.whitelist()
@@ -127,19 +127,8 @@ def get_job_applications(email):
     fields=['name', 'job_title', 'status', 'applicant_name', 'applicant_rating']
         )
     for application in job_applications:
-        application['interviews'] = get_interviews(application['name'])
+        application['interview_summary'] = get_interview_details(application['name'])
     return job_applications
-
-
-def get_interviews(applicant_name):
-    interviews = frappe.get_all(
-       'Interview Feedback',
-       filters={
-           'job_applicant': applicant_name
-       },
-    fields=['interview_round', "interviewer",'result','feedback']
-   )
-    return interviews
 
 @frappe.whitelist()
 def send_appointment_email(doc, method):
@@ -235,7 +224,7 @@ def notify_hr_on_interview_update(doc, method):
 
         if all_rounds_cleared:
             recipient_email = frappe.get_doc('HR Manager Settings').hr_email_id
-            subject = 'Job Offer Approval'
+            subject = 'Completion of the interview process'
 
             table_rows = ""
             for name, interview_data in feedback['interviews'].items():
@@ -847,3 +836,19 @@ def restrict_to_create_job_offer(job_applicant_email,job_applicant_id):
     rounds_check = len(unique_candidate_interview_rounds) == len(unique_job_interview_rounds)
     
     return 1 if rounds_check else 0, job_interview_details
+
+@frappe.whitelist()
+def get_interview_feedback(interview_name):
+    # Fetch records for the specific interview with child table data
+    interview_feedback_records = frappe.get_list(
+        "Interview Feedback",
+        filters={"interview": interview_name},
+        fields=["name"],
+    )
+    # Fetch each record separately using get_doc
+    feedback_docs = []
+    for record in interview_feedback_records:
+        feedback_doc = frappe.get_doc("Interview Feedback", record.name)
+        feedback_docs.append(feedback_doc)
+
+    return feedback_docs
