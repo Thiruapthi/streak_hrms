@@ -301,193 +301,6 @@ def notify_hr_on_interview_update(doc, method):
         doc.custom_rejection_email_sent = 1
         doc.save(ignore_permissions=True) 
 
-def send_custom_email(recipients, subject, message, attachments=None, cc_recipients=None):
-    email_args = {
-        "recipients": recipients,
-        "subject": subject,
-        "message": message,
-        "attachments": attachments,
-        "now": True
-    }
-
-    if cc_recipients:
-        email_args["cc"] = cc_recipients
-    if attachments:
-        email_args["attachments"] = attachments
-
-    frappe.sendmail(**email_args)
-
-@frappe.whitelist()
-def send_Job_offer_email(doc,method):
-    applicant_data = frappe.get_value(
-        "Job Applicant",
-        {"name": doc.job_applicant},
-        ["email_id", "job_title", "applicant_name"],
-        as_dict=True
-    )
-    applicant_email = applicant_data.get("email_id")
-    applicant_name = applicant_data.get("applicant_name")
-    position = applicant_data.get("job_title")
-    ctc = doc.custom_ctc
-    # Email content for the candidate
-    email_content_candidate = f"""\
-        <p>Dear {applicant_name},</p>
-        <p>Greetings of the day!</p>
-        <p>Heartiest congratulations! We are pleased to offer you the position of {position} with Korecent Solutions Pvt. Ltd. at {ctc} CTC.</p>
-        <p>Please take the necessary action on the below enclosed link within the next 7 days:</p>
-        <p>Below enclosed is your detailed job offer pdf.</p>
-        <a href="{frappe.utils.get_url()}/api/method/hyde_app.api.accept_offer?name={doc.name}" onclick="this.style.pointerEvents = 'none'; this.style.background = '#ccc';" style="background-color: #4CAF50; color: #fff; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px; margin-right: 10px;">Accept</a>
-        <a href="{frappe.utils.get_url()}/api/method/hyde_app.api.reject_offer?name={doc.name}" onclick="this.style.pointerEvents = 'none'; this.style.background = '#ccc';" style="background-color: #FF5733; color: #fff; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px;">Reject</a>
-        <p>Thanks and regards,</p>
-        <p>HR- Team KoreCent</p>
-    """
-    send_custom_email(recipients=applicant_email,
-                       subject='Job Offer Notification', 
-                       message=email_content_candidate,
-                       attachments=[{"file_url": doc.custom_offer_letter}],
-                       cc_recipients=frappe.get_doc('HR Manager Settings').hr_email_id)
-
-    # Email content for notifying HR about the person who released the job offer
-    released_by = frappe.session.user  
-    user_fullname = frappe.get_value("User", released_by, "username")
-    email_content_hr_released_by = f"""\
-    <p>Dear {frappe.get_doc('HR Manager Settings').hr_manager_name}</p>
-    <p>This is to inform you that the job offer for the position of {position} to {applicant_name} has been released.</p>
-    <p>The offer was extended by: {user_fullname} ({released_by})</p>
-    <p>Kindly take note of this action in your records.</p>
-    <br>
-    <br>
-    <p>Auto-generated mail.</p>
-    <p>Thank you.</p>
-    """
-    send_custom_email(recipients=frappe.get_doc('HR Manager Settings').hr_email_id,
-                      subject='Job Offer Released to Applicant - Action Update', message=email_content_hr_released_by,
-                      attachments=None,
-                      cc_recipients=None)
-
-
-@frappe.whitelist(allow_guest=True)
-def accept_offer(name):
-    job_offer = frappe.get_doc("Job Offer", name)
-    job_offer.status = "Accepted"
-    job_offer.save()
-    frappe.db.commit()
-    attachments = frappe.get_all("File", filters={"attached_to_doctype": "Job Offer", "attached_to_name": name}, fields=["file_url"])
-    applicant_data = frappe.get_value(
-        "Job Applicant",
-        {"name": job_offer.job_applicant},
-        ["email_id",'job_title'],
-        as_dict=True
-    )
-    applicant_email = applicant_data.get("email_id")
-    job_position = applicant_data.get("job_title")
-
-    subject = 'Job Offer Accepted'
-    email_content = f"""
-        <p>Dear {job_offer.applicant_name},</p>
-        <p>Greetings of the day!</p>
-        <p>Heartiest congratulations! We are pleased to have you with Korecent Solutions Pvt. Ltd. as a {job_position}.</p>
-        <p>The tentative start date will be {job_offer.custom_tentative_start_date}. Please let us know in case you have another date of joining at the earliest so that we can start with the further process accordingly.</p>
-        <p>Some of these details would need to be verified; you are requested to submit scanned copies of the documents mentioned below within 3 days of this offer or your joining, whichever is earlier:</p>
-        <ul>
-            <li>Copy of graduation/post-graduation certificate</li>
-            <li>Govt. photo ID card (e.g., Adhar Card)</li>
-            <li>PAN number</li>
-            <li>Relieving/Experience letter from your previous organization (when you receive it)</li>
-            <li>Last drawn salary slip</li>
-            <li>Scan of the latest passport size photo</li>
-            <li>Emergency contact numbers</li>
-            <li>Permanent residence address and correspondence (if different from the current)</li>
-        </ul>
-        <p>Also, as discussed, we have a "bring your own device" policy.</p>
-        <p>We look forward to welcoming you to our team and working together to achieve great things.</p>
-        <p>Thanks and regards,</p>
-        <p>HR- Team KoreCent</p>
-            """
-    frappe.sendmail(
-            recipients = applicant_email,
-            cc=frappe.get_doc('HR Manager Settings').hr_email_id,
-            subject = subject,
-            message=email_content,
-            attachments=attachments,
-            now = True
-        )
-    page_content = """
-        <html>
-        <head>
-            <title>Offer Accepted</title>
-        </head>
-        <body>
-            <h1>Thanks for accepting the offer!</h1>
-            <p>You will receive the Appointment letter soon.</p>
-        </body>
-        </html>
-        """
-    return frappe.respond_as_web_page("Offer Accepted", page_content)
-
-
-@frappe.whitelist(allow_guest=True)
-def reject_offer(name):
-    job_offer = frappe.get_doc("Job Offer", name)
-    job_offer.status = "Rejected"
-    job_offer.save()
-    frappe.db.commit()
-    applicant_data = frappe.get_value(
-        "Job Applicant",
-        {"name": job_offer.job_applicant},
-        ["email_id","job_title"],
-        as_dict=True
-    )
-    applicant_email = applicant_data.get("email_id")
-    job_position = applicant_data.get("job_title")
-
-
-    email_content = f"""
-        <p>Dear {job_offer.applicant_name},</p>
-        <p>Greetings of the day!</p>
-        <p>We are sorry to know that you have decided to decline the job offer. We want to reach out in order to address your concerns and feedback. Kindly let us know your availability so that we can plan a call accordingly.</p>
-        <p>Thanks and regards,</p>
-        <p>HR- Team KoreCent</p>
-            """
-    frappe.sendmail(
-      recipients=applicant_email,
-      cc=frappe.get_doc('HR Manager Settings').hr_email_id,
-      subject='Job Offer Rejected',
-      message=email_content,
-      now = True
-    )
-
-    email_content = f"""
-        <p>Dear {frappe.get_doc('HR Manager Settings').hr_manager_name},</p>
-        <p>Greetings of the day!</p>
-        <p>We want to inform you that the {job_offer.applicant_name}({job_offer.job_applicant}) who was offered the {job_position} position with Korecent Solutions Pvt. Ltd has rejected the job offer. An email has been sent to them seeking their availability to address their concerns.</p>
-        <p>Kindly plan to connect with them accordingly.</p>
-        <p>Thanks and regards,</p>
-        <p>HR- Team KoreCent</p>
-            """
-    frappe.sendmail(
-      recipients=applicant_email,
-      cc=frappe.get_doc('HR Manager Settings').hr_email_id,
-      subject='Job Offer Rejected',
-      message=email_content,
-      now = True
-    )
-    page_content = """
-    <html>
-    <head>
-        <title>Offer Rejected</title>
-    </head>
-    <body>
-        <h1>Offer Rejected</h1>
-        <p>Thank you for considering our offer. If you change your mind, please feel free to contact us.</p>
-    </body>
-    </html>
-    """
-    return frappe.respond_as_web_page("Offer Rejected", page_content)
-
- 
-
-
 @frappe.whitelist()
 def send_compensatory_leave_request(doc, method):
     if doc.workflow_state == "Approved":
@@ -852,3 +665,170 @@ def get_interview_feedback(interview_name):
         feedback_docs.append(feedback_doc)
 
     return feedback_docs
+
+# =========================  code for sending mail from job offer to its accept or reject state ======================== >>
+
+def get_applicant_data(applicant_name):
+    applicant_data = frappe.get_value("Job Applicant",filters={"name": applicant_name},fieldname=["email_id", "job_title", "applicant_name"],as_dict=True)
+    return (applicant_data.get("email_id"),applicant_data.get("applicant_name"),applicant_data.get("job_title"))
+
+@frappe.whitelist()
+def send_Job_offer_email(doc, method):
+    applicant_email, applicant_name, position = get_applicant_data(doc.job_applicant)
+    # Send job offer notification to applicant and HR in CC
+    frappe.sendmail(recipients=applicant_email,
+                       subject='Job Offer Notification', 
+                       message=prepare_email_content_job_offer(applicant_name, position, doc.custom_ctc, doc.name),
+                       attachments=[{"file_url": doc.custom_offer_letter}],
+                       cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+                       now=True)
+
+    #email for HR notification about the job offer release
+    frappe.sendmail(recipients=frappe.get_doc('HR Manager Settings').hr_email_id,
+                      subject='Job Offer Released to Applicant - Action Update',
+                      message=prepare_email_content_job_offer_hr(position,applicant_name),
+                      now=True)
+
+@frappe.whitelist(allow_guest=True)
+def accept_offer(name):
+    """
+    Handles the process when a candidate accepts a job offer.
+    Retrieves the job offer document, updates its status to 'Accepted',
+    sends an acceptance email to the candidate, and generates a response page.
+    """
+    job_offer = frappe.get_doc("Job Offer", name)
+    if job_offer.status in ("Accepted", "Rejected"):
+        return handle_already_accepted_or_rejected(job_offer.status)
+
+    job_offer.status = "Accepted"
+    job_offer.save(ignore_permissions=True)
+    frappe.db.commit()
+
+    applicant_email, applicant_name, position = get_applicant_data(job_offer.job_applicant)
+    # Send acceptance email to the candidate and HR in CC
+    frappe.sendmail(recipients=applicant_email,
+                      subject='Job Offer Accepted',
+                      message=prepare_acceptance_email(position,job_offer),
+                      cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+                      now=True)
+    return frappe.respond_as_web_page("Offer Accepted", "<h1>Thanks for accepting the offer!</h1><p>You will receive the Appointment letter soon.</p>")
+
+@frappe.whitelist(allow_guest=True)
+def reject_offer(name):
+    """
+    Manages the process when a candidate rejects a job offer.
+    Retrieves the job offer document, updates its status to 'Rejected',
+    sends a rejection email to the candidate and HR, and generates a response page.
+    """
+    job_offer = frappe.get_doc("Job Offer", name)
+    if job_offer.status in ("Accepted", "Rejected"):
+        return handle_already_accepted_or_rejected(job_offer.status)
+    
+    job_offer.status = "Rejected"
+    job_offer.save(ignore_permissions=True)
+    frappe.db.commit()
+
+    applicant_email, applicant_name, position = get_applicant_data(job_offer.job_applicant)
+
+    # Send rejection email to the candidate and HR
+    frappe.sendmail(
+      recipients=applicant_email,
+      cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+      subject='Job Offer Rejected',
+      message=prepare_rejection_email(job_offer.applicant_name),
+      now = True
+    )
+    frappe.sendmail(
+      recipients=applicant_email,
+      cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+      subject='Job Offer Rejected',
+      message=prepare_rejection_email_hr(job_offer.applicant_name,job_offer.job_applicant,position),
+      now = True
+    )
+
+    return frappe.respond_as_web_page("Offer Rejected", "<h1>Offer Rejected</h1> <p>Thank you for considering our offer. If you change your mind, please feel free to contact us.</p>")
+
+
+# <============================= Start of Functions to prepare email content =============================>
+
+def prepare_email_content_job_offer(applicant_name, position, ctc, doc_name):
+    return f"""\
+        <p>Dear {applicant_name},</p>
+        <p>Greetings of the day!</p>
+        <p>Heartiest congratulations! We are pleased to offer you the position of {position} with Korecent Solutions Pvt. Ltd. at {ctc} CTC.</p>
+        <p>Please take the necessary action on the below enclosed link within the next 7 days:</p>
+        <p>Below enclosed is your detailed job offer pdf.</p>
+        <a href="{frappe.utils.get_url()}/api/method/hyde_app.api.accept_offer?name={doc_name}" onclick="this.style.pointerEvents = 'none'; this.style.background = '#ccc';" style="background-color: #4CAF50; color: #fff; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px; margin-right: 10px;">Accept</a>
+        <a href="{frappe.utils.get_url()}/api/method/hyde_app.api.reject_offer?name={doc_name}" onclick="this.style.pointerEvents = 'none'; this.style.background = '#ccc';" style="background-color: #FF5733; color: #fff; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px;">Reject</a>
+        <p>Thanks and regards,</p>
+        <p>HR- Team KoreCent</p>
+        """ 
+
+def prepare_email_content_job_offer_hr(position,applicant_name):
+    released_by = frappe.session.user  
+    user_fullname = frappe.get_value("User", released_by, "username")
+    return f"""\
+        <p>Dear {frappe.get_doc('HR Manager Settings').hr_manager_name}</p>
+        <p>This is to inform you that the job offer for the position of {position} to {applicant_name} has been released.</p>
+        <p>The offer was extended by: {user_fullname} ({released_by})</p>
+        <p>Kindly take note of this action in your records.</p><br><br>
+        <p>Auto-generated mail.</p>
+        <p>Thank you.</p>
+        """ 
+
+def handle_already_accepted_or_rejected(status):
+    if status == "Accepted":
+        return frappe.respond_as_web_page("Offer Already Accepted", "<h1>The offer has already been accepted.</h1>")
+    elif status == "Rejected":
+        return frappe.respond_as_web_page("Offer Already Rejected", "<h1>The offer has already been rejected.</h1>")
+
+def prepare_response_page(title, message):
+    page_content = f"""
+    
+            <h1>{message}</h1>
+       
+        """
+    return frappe.respond_as_web_page(title, page_content)
+
+def prepare_acceptance_email(job_position,job_offer):
+    return  f"""
+        <p>Dear {job_offer.applicant_name},</p>
+        <p>Greetings of the day!</p>
+        <p>Heartiest congratulations! We are pleased to have you with Korecent Solutions Pvt. Ltd. as a {job_position}.</p>
+        <p>The tentative start date will be {job_offer.custom_tentative_start_date}. Please let us know in case you have another date of joining at the earliest so that we can start with the further process accordingly.</p>
+        <p>Some of these details would need to be verified; you are requested to submit scanned copies of the documents mentioned below within 3 days of this offer or your joining, whichever is earlier:</p>
+        <ul>
+            <li>Copy of graduation/post-graduation certificate</li>
+            <li>Govt. photo ID card (e.g., Adhar Card)</li>
+            <li>PAN number</li>
+            <li>Relieving/Experience letter from your previous organization (when you receive it)</li>
+            <li>Last drawn salary slip</li>
+            <li>Scan of the latest passport size photo</li>
+            <li>Emergency contact numbers</li>
+            <li>Permanent residence address and correspondence (if different from the current)</li>
+        </ul>
+        <p>Also, as discussed, we have a "bring your own device" policy.</p>
+        <p>We look forward to welcoming you to our team and working together to achieve great things.</p>
+        <p>Thanks and regards,</p>
+        <p>HR- Team KoreCent</p>
+        """
+
+def prepare_rejection_email(applicant_name):
+    return f"""
+        <p>Dear {applicant_name},</p>
+        <p>Greetings of the day!</p>
+        <p>We are sorry to know that you have decided to decline the job offer. We want to reach out in order to address your concerns and feedback. Kindly let us know your availability so that we can plan a call accordingly.</p>
+        <p>Thanks and regards,</p>
+        <p>HR- Team KoreCent</p>
+        """
+def prepare_rejection_email_hr(applicant_name,job_applicant,job_position):
+    return f"""
+        <p>Dear {frappe.get_doc('HR Manager Settings').hr_manager_name},</p>
+        <p>Greetings of the day!</p>
+        <p>We want to inform you that the {applicant_name}({job_applicant}) who was offered the {job_position} position with Korecent Solutions Pvt. Ltd has rejected the job offer. An email has been sent to them seeking their availability to address their concerns.</p>
+        <p>Kindly plan to connect with them accordingly.</p>
+        <p>Thanks and regards,</p>
+        <p>HR- Team KoreCent</p>
+        """
+# <============================= End of Functions to prepare email content =============================>
+# ========================= End code for sending mail from job offer to its accept or reject state ======================== >>
