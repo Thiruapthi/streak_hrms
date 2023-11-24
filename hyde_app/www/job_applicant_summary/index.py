@@ -16,13 +16,16 @@ def get_job_applicant_summary(positions):
     for applicant in applicants:
         rounds_cleared = get_rounds_cleared(applicant["name"])
         applicant["rounds_cleared"] = rounds_cleared
-
-    # Store the results in the dictionary
-    result["rounds"] = {
-        "applicants": applicants,
-        "round_names": round_names
-    }
-
+        
+    if applicants and round_names: 
+        # Store the results in the dictionary
+        result["positions"] = positions
+        result["rounds"] = {
+            "applicants": applicants,
+            "round_names": round_names
+        }
+    else:
+        result["data"]="no data found"
     return result
 
 def get_round_names(job_opening_name):
