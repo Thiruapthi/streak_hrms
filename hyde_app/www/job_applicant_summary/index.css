@@ -40,17 +40,15 @@
 }
 
 .openings {
-  color: blue;
+  color: lightcoral;
 }
 
 h2 {
-  -webkit-background-clip: text;
   color: #0000ff;
   display: inline-block;
 }
 
 h4 {
-  -webkit-background-clip: text;
   color: blue;
   display: inline;
   font-size: 1.5rem;

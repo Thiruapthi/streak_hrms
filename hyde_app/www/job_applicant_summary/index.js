@@ -30,15 +30,15 @@ frappe.ready(function () {
           "hyde_app.www.job_applicant_summary.index.get_job_applicant_summary",
         args: { positions: jobApplicant.value },
         callback: function (response) {
-          if (response.message.data == "no data found") {
+          if (response.message.data == "No data found") {
             $(".job-applicant-table").css({ display: "none" });
             frappe.show_alert({
-              message: __(`<b>There is no specific information with this position <span class="openings">${jobApplicant.value}</span></b>`),
+              message: __(`<b>There is no specific information with position name <span class="openings">${jobApplicant.value}</span></b>`),
               indicator: "red",
             }, 5);
 
           } else {
-            render_summary(response.message);
+            render_summary(response.message, jobApplicant.value);
 
           }
         },
@@ -82,45 +82,48 @@ function get_live_job_openings(
 }
 
 // Function to render the Job Applicant summary table
-function render_summary(data) {
-  console.table(data, "data");
+function render_summary(data, positions) {
+  console.log(data, "data");
   var container = $("#job-applicant-summary-container");
 
   if (
     data &&
-    data.positions &&
-    data.rounds &&
-    data.rounds.round_names &&
-    data.rounds.applicants
+    data.interview_details &&
+    data.interview_details.round_names &&
+    data.interview_details.applicants
   ) {
     var html = '<table class="job-applicant-table">';
     html +=
       "<thead><tr><th>Position</th><th>Applicant Name</th><th>Status</th>";
 
     // Dynamic columns based on round names
-    data.rounds.round_names.forEach(function (roundName) {
+    data.interview_details.round_names.forEach(function (roundName) {
       html += "<th>" + roundName + "</th>";
     });
 
     html += "</tr></thead>";
     html += "<tbody>";
 
-    // Loop through positions and applicants
-    data.positions.forEach(function (position) {
-      data.rounds.applicants.forEach(function (applicant) {
-        html += "<tr>";
-        html += `<td>${position.name} </td>`;
-        html += `<td> <a href='/app/job-applicant/${applicant.name}'</a> ${applicant.applicant_name} </td>`;
-        html += `<td>${applicant.status}  </td>`;
+    data.interview_details.applicants.forEach(function (applicant) {
+      html += "<tr>";
+      html += `<td>${positions} </td>`;
+      html += `<td> <a href='/app/job-applicant/${applicant.name}'</a> ${applicant.applicant_name} </td>`;
+      html += `<td>${applicant.status}  </td>`;
 
-        // Dynamic columns based on round names
-        data.rounds.round_names.forEach(function (roundName) {
-          var roundColor = getroundsColor(applicant.rounds_cleared);
-          html += `<td><span class='${roundColor}'>${applicant.rounds_cleared}</span></td>`;
-        });
+      // Dynamic columns based on round names
+      data.interview_details.round_names.forEach(function (roundName) {
+        var roundCleared = Array.isArray(applicant.rounds_cleared)
+          ? applicant.rounds_cleared.find(entry => entry.interview_round === roundName)
+          : applicant.rounds_cleared && applicant.rounds_cleared.interview_round === roundName
+            ? applicant.rounds_cleared
+            : null;
 
-        html += "</tr>";
+        var roundColor = roundCleared ? getroundsColor(roundCleared.status) : '';
+        var status = roundCleared ? roundCleared.status : 'N.A';
+        html += `<td><span class='${roundColor}'>${status}</span></td>`;
       });
+
+      html += "</tr>";
     });
 
     html += "</tbody></table>";
@@ -129,6 +132,7 @@ function render_summary(data) {
     console.error("Data or positions are undefined:", data);
   }
 }
+
 
 // Function to get the color based on rounds cleared status
 function getroundsColor(rounds_cleared) {
