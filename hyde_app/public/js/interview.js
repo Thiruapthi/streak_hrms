@@ -1,5 +1,5 @@
 frappe.ui.form.on('Interview', {
-    after_save(frm) {
+    refresh(frm) {
         let applicantName = frm.doc.job_applicant;  // Get the name of the saved applicant
         let newStatus// Specify the new status
         if (frm.doc.status === "Cleared") {
@@ -18,7 +18,7 @@ frappe.ui.form.on('Interview', {
                 'status': newStatus
             },
             callback: function (r) {
-                location.reload();
+                // location.reload();
             }
         });
     },

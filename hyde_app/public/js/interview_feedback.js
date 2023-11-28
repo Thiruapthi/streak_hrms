@@ -19,11 +19,11 @@ validate(frm) {
     },
 
     after_save(frm) {
-      var interview = frm.doc.interview
       frappe.call({
           method: 'hyde_app.api.get_interviewers_list',
           args: {
-            'interview': interview
+            'interview': frm.doc.interview,
+            'result':frm.doc.result
           }
         });
   }
