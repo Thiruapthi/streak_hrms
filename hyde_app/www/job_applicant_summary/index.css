@@ -47,7 +47,9 @@ h2 {
   color: #0000ff;
   display: inline-block;
 }
-
+h5{
+  text-align: center;
+}
 h4 {
   color: blue;
   display: inline;
