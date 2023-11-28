@@ -83,16 +83,19 @@ def get_interviewers_list(interview,result):
         if not status:
             interview_doc.status = "Under Review"
             interview_doc.save(ignore_permissions=True)
+            interview_doc.reload()
             frappe.db.commit()
             return
         for i in status:
             if i[0] != result:
                 interview_doc.status = "Under Review"
                 interview_doc.save(ignore_permissions=True)
+                interview_doc.reload()
                 frappe.db.commit()
                 return
     interview_doc.status =result
     interview_doc.save(ignore_permissions=True)
+    interview_doc.reload()
     frappe.db.commit()
     return        
 
