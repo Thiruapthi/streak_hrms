@@ -4,28 +4,19 @@ import frappe
 def get_job_applicant_summary(positions):
     result = {}
 
-    # Fetch job openings
-    positions = frappe.get_all("Job Opening", fields=["name"], filters={"name": positions})
-    result["positions"] = positions
-
-    # Get round names for the specified job opening
-    round_names = get_round_names(positions[0]["name"]) if positions else []
-
     # Fetch job applicants and their round statuses
-    applicants = frappe.get_list("Job Applicant", filters={"job_title": positions[0]["name"]}, fields=["name", "applicant_name", "status"])
+    applicants = frappe.get_list("Job Applicant", filters={"job_title": positions}, fields=["name", "applicant_name", "status"])
     for applicant in applicants:
         rounds_cleared = get_rounds_cleared(applicant["name"])
         applicant["rounds_cleared"] = rounds_cleared
         
-    if applicants and round_names: 
-        # Store the results in the dictionary
-        result["positions"] = positions
-        result["rounds"] = {
+    if applicants: 
+        result["interview_details"] = {
             "applicants": applicants,
-            "round_names": round_names
+            "round_names": get_round_names(positions) if positions else []
         }
     else:
-        result["data"]="no data found"
+        result["data"]="No data found"
     return result
 
 def get_round_names(job_opening_name):
@@ -35,10 +26,10 @@ def get_round_names(job_opening_name):
 
 def get_rounds_cleared(job_applicant):
     # Fetch the status of the interview for the specified job applicant
-    interview = frappe.get_all("Interview", filters={"job_applicant": job_applicant}, fields=["status"])
-    
+    interview = frappe.get_all("Interview", filters={"job_applicant": job_applicant}, fields=["status","interview_round"])
+
     if interview:
-        return interview[0].status
+        return interview
     return None 
 
 @frappe.whitelist()
