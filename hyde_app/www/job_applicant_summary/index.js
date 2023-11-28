@@ -4,14 +4,14 @@ frappe.ready(function () {
 
   // Initial message when no Job Opening is selected
   const emptyTextOnPageLoad = `<b><h5>Please select the <span class="openings">Job Opening</span> Filters for checking status of <span class="openings">Job Applicant</span></h5></b>`;
-
+  jobApplicantSummaryContainer.html(`<p>${emptyTextOnPageLoad}</p>`)
   // Function to fetch live Job Openings and populate the dropdown
   function getLiveJobOpenings() {
     frappe.call({
       method: "hyde_app.www.job_applicant_summary.index.get_job_openings",
       callback: function (response) {
         const jobOpenings = response.message;
-        jo_filter.html(`<option value="">Select Job Opening</option>${jobOpenings.map(o => `<option value="${o.name}">${o.name}</option>`).join('')}`);
+        jo_filter.html(`<option value="">Select Job Opening</option>${jobOpenings.map(jo => `<option value="${jo.name}">${jo.name}</option>`).join('')}`);
       },
     });
   }
@@ -22,8 +22,7 @@ frappe.ready(function () {
 
     if (!selectedJobOpening) {
       // Hide the table and show the initial message when no Job Opening is selected
-      $(".job-applicant-table").hide();
-      jobApplicantSummaryContainer.html(`<p style="text-align: center; font-weight: bold;">${emptyTextOnPageLoad}</p>`);
+      jobApplicantSummaryContainer.html(`<p style="text-align: center; font-weight: bold;">${emptyTextOnPageLoad}</p>`)
     } else {
       // Fetch and render Job Applicant summary based on selected Job Opening
       frappe.call({
@@ -37,7 +36,7 @@ frappe.ready(function () {
               indicator: "red",
             }, 5);
           } else {
-            renderSummary(response.message, selectedJobOpening);
+            renderSummary(response.message, selectedJobOpening,jobApplicantSummaryContainer);
           }
         },
       });
@@ -49,8 +48,7 @@ frappe.ready(function () {
 });
 
 // Function to render the Job Applicant summary table
-function renderSummary(data, positions) {
-  const container = $("#job-applicant-summary-container");
+function renderSummary(data, positions,jobApplicantSummaryContainer) {
   const { interview_details } = data;
 
   if (interview_details && interview_details.round_names && interview_details.applicants) {
@@ -85,7 +83,7 @@ function renderSummary(data, positions) {
         </tbody>
       </table>`;
 
-    container.html(html).show();
+      jobApplicantSummaryContainer.html(html)
   } else {
     console.error("Data or positions are undefined:", data);
   }
