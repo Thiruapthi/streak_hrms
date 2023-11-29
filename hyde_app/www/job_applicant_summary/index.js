@@ -65,7 +65,7 @@ function renderSummary(data, positions,jobApplicantSummaryContainer) {
         <tbody>
           ${interview_details.applicants.map(applicant => `
             <tr>
-              <td>${positions}</td>
+              <td><a href='app/job-opening/${positions}'>${positions}</td>
               <td><a href='/app/job-applicant/${applicant.name}'>${applicant.applicant_name}</a></td>
               <td>${applicant.status}</td>
               ${interview_details.round_names.map(roundName => {
