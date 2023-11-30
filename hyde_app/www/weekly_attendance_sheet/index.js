@@ -1,6 +1,6 @@
-frappe.ready(function(){
+frappe.ready(function () {
 
-	if(frappe.session.user === "Guest"){
+	if (frappe.session.user === "Guest") {
 		const heading = document.getElementById("heading")
 		const filtersContainer = document.getElementById("filters-container")
 		heading.textContent = "You can't see the Report without Login"
@@ -9,7 +9,7 @@ frappe.ready(function(){
 		
 
 	}
-	else{
+	else {
 
 		function displayTableWithData(columns, data, present_date, previous_date) {
 			var table = document.getElementById("data-table");
@@ -22,7 +22,7 @@ frappe.ready(function(){
 			}
 
 
-			if (data.length>=1){
+			if (data.length >= 1) {
 
 				// Add table header columns dynamically
 			var thead = table.createTHead();
@@ -33,81 +33,81 @@ frappe.ready(function(){
 				row.appendChild(th);
 			}
 				// Add table body rows dynamically																						
-			var tbody = table.createTBody();
-			for (var i = 0; i < data.length; i++) {
+				var tbody = table.createTBody();
+				for (var i = 0; i < data.length; i++) {
 
-				var row = tbody.insertRow();
-				for (var j = 0; j < columns.length; j++) {
-					var cell = row.insertCell(j);
-		
-					for(var eachColumn in data[i]){
+					var row = tbody.insertRow();
+					for (var j = 0; j < columns.length; j++) {
+						var cell = row.insertCell(j);
 
-						if (columns[j].includes(" ")){
-							var num = columns[j].split(" ")[0];
-							if (!isNaN(num)){
-								if(eachColumn===num){
-									if(data[i][`${eachColumn}`]==="P" || data[i][`${eachColumn}`]==="WFH"){
-							
-										cell.classList.add("present");
+						for (var eachColumn in data[i]) {
+
+							if (columns[j].includes(" ")) {
+								var num = columns[j].split(" ")[0];
+								if (!isNaN(num)) {
+									if (eachColumn === num) {
+										if (data[i][`${eachColumn}`] === "P" || data[i][`${eachColumn}`] === "WFH") {
+
+											cell.classList.add("present");
+											cell.innerHTML = data[i][`${eachColumn}`]
+
+										} else if (data[i][`${eachColumn}`] === "L") {
+
+											cell.classList.add("leave");
+											cell.innerHTML = data[i][`${eachColumn}`]
+
+										} else if (data[i][`${eachColumn}`] === "HD") {
+
+											cell.classList.add("half_day");
+											cell.innerHTML = data[i][`${eachColumn}`]
+
+										} else if (data[i][`${eachColumn}`] === "H") {
+
+											cell.classList.add("holiday");
+											cell.innerHTML = data[i][`${eachColumn}`]
+
+										} else if (data[i][`${eachColumn}`] === "A") {
+
+											cell.classList.add("absent");
+											cell.innerHTML = data[i][`${eachColumn}`]
+
+										}
+
 										cell.innerHTML = data[i][`${eachColumn}`]
-				
-									}else if(data[i][`${eachColumn}`]==="L"){
-				
-										cell.classList.add("leave");
-										cell.innerHTML = data[i][`${eachColumn}`]
-				
-									}else if(data[i][`${eachColumn}`]==="HD"){
-				
-										cell.classList.add("half_day");
-										cell.innerHTML = data[i][`${eachColumn}`]
-				
-									}else if(data[i][`${eachColumn}`]==="H"){
-				
-										cell.classList.add("holiday");
-										cell.innerHTML = data[i][`${eachColumn}`]
-				
-									}else if(data[i][`${eachColumn}`]==="A"){
-				
-										cell.classList.add("absent");
-										cell.innerHTML = data[i][`${eachColumn}`]
-				
 									}
-				
-									cell.innerHTML = data[i][`${eachColumn}`]
-								}
-							}else{
+								} else {
+									
+									if ((columns[j] === (eachColumn))) {
 
-								if((columns[j]===(eachColumn))){
-		
-									cell.classList.add("remaining");
-									cell.innerHTML = data[i][`${eachColumn}`]
+										cell.classList.add("remaining");
+										cell.innerHTML = data[i][`${eachColumn}`]
+									}
+
 								}
 
 							}
+							else {
+								if ((columns[j] === (eachColumn))) {
 
-						}
-						else{
-							if((columns[j]===(eachColumn))){
-		
-								cell.classList.add("remaining");
-								cell.innerHTML = data[i][`${eachColumn}`]
-		
-		
+									cell.classList.add("remaining");
+									cell.innerHTML = data[i][`${eachColumn}`]
+
+
+								}
 							}
 						}
 					}
 				}
-			}
 
 			}
-		
-			
+
+
 		}
 
 
 		var defaultCompany = 'Korecent Solutions';
 		var defaultEmployee = '';
-		
+
 		frappe.call({
 			method: "hyde_app.www.weekly_attendance_sheet.index.get_employees",
 			callback: function (r) {
@@ -136,16 +136,16 @@ frappe.ready(function(){
 					companyEl.appendChild(option);
 				}
 
-		    var companyEl = document.getElementById('company');
-		    companyEl.value = defaultCompany;
+				var companyEl = document.getElementById('company');
+				companyEl.value = defaultCompany;
 			}
-		})		
+		})
 
 		frappe.call({
 
 			method: "hyde_app.www.weekly_attendance_sheet.index.get_weekly_report",
 			args: {
-				
+
 				'employee': defaultEmployee,
 				'company': defaultCompany
 
@@ -155,12 +155,12 @@ frappe.ready(function(){
 				var columns = r.message[0];
 				var data = r.message[1];
 				var present_date = r.message[2]
-				var previous_date = r.message[3]							
+				var previous_date = r.message[3]
 				displayTableWithData(columns, data, present_date, previous_date)
-		
+
 			}
 		});
-		
+
 		document.getElementById('company').addEventListener('change', applyFilter);
 
 		let employeeEl = document.getElementById("employee")
@@ -171,7 +171,7 @@ frappe.ready(function(){
 
 				let employeeVal = document.getElementById('employee').value;
 				let companyVal = document.getElementById('company').value;
-				
+
 				frappe.call({
 					method: "hyde_app.www.weekly_attendance_sheet.index.get_weekly_report",
 					args: {
@@ -182,7 +182,7 @@ frappe.ready(function(){
 						var columns = r.message[0];
 						var data = r.message[1];
 						var present_date = r.message[2]
-						var previous_date = r.message[3]  					
+						var previous_date = r.message[3]
 						displayTableWithData(columns, data, present_date, previous_date)
 					}
 				});
@@ -195,10 +195,10 @@ frappe.ready(function(){
 		function fetchCompanyName() {
 
 			frappe.call({
-				method:"hyde_app.www.weekly_attendance_sheet.index.get_employees",
+				method: "hyde_app.www.weekly_attendance_sheet.index.get_employees",
 				callback: function (r) {
 					var employeeList = r.message
-					
+
 					for (let eachEmployeeItem of employeeList) {
 						if (eachEmployeeItem.name === employeeEl.value) {
 							let company = eachEmployeeItem.company
