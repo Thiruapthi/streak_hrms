@@ -1,4 +1,15 @@
 frappe.ui.form.on('Interview', {
+    refresh: function (frm) {
+        if (frm.doc.job_applicant) {
+            frappe.db.get_doc("Job Applicant", frm.doc.job_applicant)
+                .then((name) => {
+                    frm.set_value('custom_exam_portal_link', `https://kcs-ess.frappe.cloud/exam-portal?job_applicant=${name.applicant_name}&applicant_email=${frm.doc.job_applicant}`)
+                });
+
+        }
+
+
+    },
     after_save(frm) {
         let applicantName = frm.doc.job_applicant;  // Get the name of the saved applicant
         let newStatus// Specify the new status
