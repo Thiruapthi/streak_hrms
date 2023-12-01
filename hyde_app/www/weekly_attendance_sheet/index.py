@@ -2,35 +2,31 @@ import frappe
 import json
 from datetime import date, timedelta
 from collections import defaultdict
-from hrms.hr.report.monthly_attendance_sheet.monthly_attendance_sheet import execute
 
 @frappe.whitelist(allow_guest=True)
 def get_weekly_report(company,employee):
     current_date = date.today()
-    previous_date = (current_date + timedelta(days=-6))
-    dates = previous_date + timedelta(days=-1)
+    start_date = current_date - timedelta(days=current_date.weekday())
+    end_date = start_date + timedelta(days=4)
 
     columns = ["Employee", "Employee Name"]
 
-    while dates < current_date:
-        dates = dates + timedelta(days=+1)
-        day_name = dates.strftime('%a')
-        day = int((dates.strftime("%Y-%m-%d")).split("-")[2])
-
-        columns.append(str(day) + " " + day_name)
+    for day in range(5):
+        current_day = start_date + timedelta(days=day)
+        dateVal = current_day.strftime("%d %a").lstrip("0")
+        columns.append(dateVal)
     
     records = []
     if employee=="":
-        records.extend(list(frappe.db.sql(f"""SELECT employee,employee_name,docstatus,status,attendance_date,company FROM `tabAttendance` WHERE company='{company}' AND attendance_date BETWEEN '{previous_date}' AND '{current_date}' ORDER BY attendance_date ASC """)))
+        records.extend(list(frappe.db.sql(f"""SELECT employee,employee_name,docstatus,status,attendance_date,company FROM `tabAttendance` WHERE company='{company}' AND attendance_date BETWEEN '{start_date}' AND '{end_date}' ORDER BY attendance_date ASC """)))
     else:
-        records.extend(list(frappe.db.sql(f"""SELECT employee,employee_name,docstatus,status,attendance_date,company FROM `tabAttendance` WHERE company='{company}' AND employee = '{employee}' AND attendance_date BETWEEN '{previous_date}' AND '{current_date}' ORDER BY attendance_date ASC """)))
+        records.extend(list(frappe.db.sql(f"""SELECT employee,employee_name,docstatus,status,attendance_date,company FROM `tabAttendance` WHERE company='{company}' AND employee = '{employee}' AND attendance_date BETWEEN '{start_date}' AND '{end_date}' ORDER BY attendance_date ASC """)))
 
     # Group records by employee ID
     employee_records = defaultdict(lambda: defaultdict(str))
     for record in records:
         employee_id, employee_name,docstatus, status, attendance_date, _ = record
         day = attendance_date.day
-        print(record)
         if docstatus==2:
             status = ""
             employee_records[employee_id]['Employee Name'] = employee_name
@@ -57,8 +53,8 @@ def get_weekly_report(company,employee):
              
     # Fill missing dates with empty strings
     for employee_attendance in employee_records.values():
-        for day in range((current_date - previous_date).days + 1):
-            date_to_check = previous_date + timedelta(days=day)
+        for day in range((start_date - end_date).days + 1):
+            date_to_check = start_date + timedelta(days=day)
             day = date_to_check.day
             if day not in employee_attendance:
                 employee_attendance[day] = ""
@@ -74,7 +70,7 @@ def get_weekly_report(company,employee):
         }
         formatted_data.append(formatted_record)
 
-    return  columns,formatted_data, current_date, previous_date
+    return  columns,formatted_data, end_date, start_date
 
 @frappe.whitelist(allow_guest=True)
 def get_employees():

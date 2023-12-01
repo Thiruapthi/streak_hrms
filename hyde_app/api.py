@@ -78,6 +78,7 @@ def get_interviewers_list(interview,result):
     """
     interviewr_details = frappe.db.sql(sql, (interview,), as_dict=False)
     interview_doc = frappe.get_doc("Interview",interview)
+    applicant_id = interview_doc.job_applicant
     for interviewer in interviewr_details:
         status = frappe.db.get_list('Interview Feedback',filters={'interview': interview,"interviewer":interviewer[0]},fields=['result'],as_list=True)
         if not status:
@@ -85,6 +86,7 @@ def get_interviewers_list(interview,result):
             interview_doc.save(ignore_permissions=True)
             interview_doc.reload()
             frappe.db.commit()
+            update_applicant_status_interview(applicant_id, "Interview Scheduled")
             return
         for i in status:
             if i[0] != result:
@@ -92,11 +94,20 @@ def get_interviewers_list(interview,result):
                 interview_doc.save(ignore_permissions=True)
                 interview_doc.reload()
                 frappe.db.commit()
+                update_applicant_status_interview(applicant_id, "Interview Scheduled")
                 return
+            
+    if result == "Cleared":
+        update_applicant_status_interview(applicant_id, "Job Offer Pending")
+    elif result == "Rejected":
+        update_applicant_status_interview(applicant_id, "Rejected")
+    elif result == "Under Review":
+        update_applicant_status_interview(applicant_id, "Interview Scheduled")
+
     interview_doc.status =result
     interview_doc.save(ignore_permissions=True)
     interview_doc.reload()
-    frappe.db.commit()
+    frappe.db.commit()    
     return        
 
 @frappe.whitelist(allow_guest=True)
@@ -404,13 +415,17 @@ def send_Job_offer_email(doc, method):
 @frappe.whitelist(allow_guest=True)
 def accept_offer(name):
     job_offer = frappe.get_doc("Job Offer", name)
+    applicant_id = job_offer.job_applicant
     if job_offer.status in ("Accepted", "Rejected"):
         return handle_already_accepted_or_rejected(job_offer.status)
 
     job_offer.status = "Accepted"
     job_offer.save(ignore_permissions=True)
+    job_offer.reload()
     frappe.db.commit()
 
+    update_applicant_status_interview(applicant_id, "Job Offer Accepted")
+   
     applicant_email, applicant_name, position = get_applicant_data(job_offer.job_applicant)
     # Send acceptance email to the candidate and HR in CC
     frappe.sendmail(recipients=applicant_email,
@@ -424,13 +439,17 @@ def accept_offer(name):
 @frappe.whitelist(allow_guest=True)
 def reject_offer(name):
     job_offer = frappe.get_doc("Job Offer", name)
+    applicant_id = job_offer.job_applicant
     if job_offer.status in ("Accepted", "Rejected"):
         return handle_already_accepted_or_rejected(job_offer.status)
     
     job_offer.status = "Rejected"
     job_offer.save(ignore_permissions=True)
+    job_offer.reload()
     frappe.db.commit()
 
+    update_applicant_status_interview(applicant_id, "Job Offer Rejected")
+   
     applicant_email, applicant_name, position = get_applicant_data(job_offer.job_applicant)
     # Send rejection email to the candidate and HR
     frappe.sendmail(
