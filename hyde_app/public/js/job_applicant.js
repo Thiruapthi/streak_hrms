@@ -17,10 +17,10 @@ frappe.ui.form.on("Job Applicant", {
                 var status = interviewData.status;
                 var result = '';
 
-                if (rating === 0 || status === "Pending") {
+                if (rating === 0 ||rating<0.5 || status === "Pending") {
                   result = '';
                 } else {
-                  if (rating >= 0 && rating < 1.5) {
+                  if (rating >= 0.5 && rating < 1.5) {
                     result = 'Not Acceptable';
                   } else if (rating >= 1.5 && rating < 2.5) {
                     result = 'Poor';
@@ -292,6 +292,19 @@ function displayJobApplications(data) {
       updateStatusIndicators();
       // Hide interview details (eye icon) if no interviews exist
       hideNoInterviewDetails(data);
+      
+      $(".interview_rating").each(function() {
+        var rating = parseFloat($(this).text());
+        var status = $(this).closest('tr').find('.status-indicator').text().trim();
+        var result = '';
+        if (rating !== 0 && status !== "Pending") {
+          result = Math.round(rating);
+          if (rating < 0.5) {
+            result = '';
+          }
+        }      
+        $(this).text(result);
+      });
   }, 500);
 }
 
@@ -344,7 +357,7 @@ function createJobApplicationTable(data) {
                   <td>${interview["interview_round"]}</td>
                     <td>${frappe.datetime.str_to_user(interview["scheduled_on"])}</td>
                     <td><span class="indicator-pill whitespace-nowrap white status-indicator">${interview["status"]}</span></td>
-                    <td>${interview["average_rating"]}</td>
+                    <td class='interview_rating'>${interview["average_rating"]}</td>
                     <td style="display: flex;text-align: center;align-items: center;justify-content: space-around;">
                     <p class="open-new-tab" data-value="/app/interview/${interview["name"]}"  style="margin: 0; font-size: 20px; cursor: pointer;">&#8594;</p>
                     </td>
