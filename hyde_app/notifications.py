@@ -142,6 +142,7 @@ def prepare_email_content_on_interview_scheduled(doc):
             <p>An interview has been scheduled for {doc.designation} on {doc.scheduled_on} at {doc.from_time}. Candidate name is {doc.custom_job_applicant_name}.</p> <p>It will be a { doc.interview_round }.</p>            
             <p>Below enclosed is the resume for your reference </a>.</p>
             {f"<p>Interview Link: {doc.custom_interview_link}</p>" if doc.custom_interview_type == "Online" else f"<p>Address: {doc.custom_address}</p>"}
+            {f"<p>Apptitude round test portal link please share this link with the applicant once they join the interview link:<a href={doc.custom_exam_portal_link}>Apptitude Test Link</a></p>"if doc.interview_round=="Aptitude test" else ""}
             <p>Please ensure your availability for the interview, and in case of any rescheduling, let us know 1 day in advance.</p>
             <div style='padding: 20px; text-align: center;'>
             <p style='font-size: 18px; margin-bottom: 20px;'>We value your feedback!</p>
