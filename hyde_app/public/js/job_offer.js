@@ -40,10 +40,7 @@ frappe.ui.form.on('Job Offer', {
                         return round.status === 'Cleared';
                     });
 
-                    if (allRoundsCleared) {
-                        frappe.validated = true;
-                    }
-                    else {
+                    if (!allRoundsCleared) {
                         frappe.msgprint("You need to clear all interview rounds");
                         frappe.validated = false;
                     }
