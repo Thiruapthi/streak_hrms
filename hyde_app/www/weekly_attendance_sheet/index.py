@@ -5,7 +5,10 @@ from collections import defaultdict
 
 @frappe.whitelist(allow_guest=True)
 def get_weekly_report(company, employee, start_date_str=None, end_date_str=None):
+    frappe.log_error("start_date_str",start_date_str)
+    frappe.log_error("end_date_str",end_date_str)
     start_date, end_date = calculate_date_range(start_date_str, end_date_str)
+    
 
     columns = ["Employee", "Employee Name"] + [current_day.strftime(
         "%d %a").lstrip("0") for current_day in date_range(start_date, end_date)]
@@ -44,12 +47,14 @@ def date_range(start_date, end_date):
 def fetch_attendance_records(company, employee, start_date, end_date):
     sql_query = f"""SELECT employee, employee_name, docstatus, status, attendance_date, company
                    FROM `tabAttendance`
-                   WHERE company='{company}' AND attendance_date BETWEEN '{start_date}' AND '{end_date}'
-                   ORDER BY attendance_date ASC"""
+                   WHERE company='{company}' AND attendance_date BETWEEN '{start_date}' AND '{end_date}'"""
     if employee:
         sql_query += f" AND employee = '{employee}'"
+    
+    sql_query += " ORDER BY attendance_date ASC"
 
     return frappe.db.sql(sql_query)
+
 
 
 def group_records_by_employee(records):
