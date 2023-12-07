@@ -1,168 +1,277 @@
 frappe.ready(function () {
-    const isGuest = frappe.session.user === "Guest";
+    if (frappe.session.user === "Guest") {
+        const heading = document.getElementById("heading")
+        const filter = document.getElementById("filter")
+        const filterByEmployee = document.getElementById("filterByEmployee")
+        const filterByYear = document.getElementById("filterByYear")
+        const filterByCompany = document.getElementById("filterByCompany")
+        const applyFiltersButton = document.getElementById("applyFiltersButton")
 
-    if (isGuest) {
-        const heading = document.getElementById("heading");
-        const filter = document.getElementById("filter");
-        const filterByEmployee = document.getElementById("filterByEmployee");
-        const filterByYear = document.getElementById("filterByYear");
-        const filterByCompany = document.getElementById("filterByCompany");
-        const applyFiltersButton = document.getElementById("applyFiltersButton");
+        heading.textContent = "You can't see the Report without Login"
+        heading.classList.add("heading-without-login")
+        filter.classList.add("hide-filters")
+        filterByEmployee.classList.add("hide-filters")
+        filterByYear.classList.add("hide-filters")
+        filterByCompany.classList.add("hide-filters")
+        applyFiltersButton.classList.add("hide-filters")
 
-        heading.textContent = "You can't see the Report without Login";
-        heading.classList.add("heading-without-login");
-        [filter, filterByEmployee, filterByYear, filterByCompany, applyFiltersButton].forEach(el => el.classList.add("hide-filters"));
-    } else {
-        const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
-        document.getElementById('filter').value = currentMonth;
-        document.getElementById('filterByYear').value = new Date().getFullYear().toString();
+    }
+    else {
+
+        var currentMonth = new Date().getMonth() + 1; // Adding 1 to make it 1-12
+        var currentMonthStr = currentMonth.toString().padStart(2, '0');
+
+        let selectedMonth = document.getElementById('filter');
+        selectedMonth.value = currentMonthStr;
+
+        var currentYear = new Date().getFullYear()
+        var currentYearStr = currentYear.toString()
+
+        let selectedYear = document.getElementById('filterByYear');
+        selectedYear.value = currentYearStr;
+
 
         frappe.call({
             method: "hyde_app.www.monthly_attendance_sheet.index.get_employees",
             callback: function (r) {
-                populateDropdown("filterByEmployee", r.message);
+                var employeeList = r.message
+                var selectElement = document.getElementById("filterByEmployee");
+
+                for (var i = 0; i < employeeList.length; i++) {
+                    var option = document.createElement("option");
+                    option.value = employeeList[i].name;
+                    option.text = employeeList[i].name + ' - ' + employeeList[i].employee_name;
+                    selectElement.appendChild(option);
+                }
             }
-        });
+        })
 
         frappe.call({
             method: "hyde_app.www.monthly_attendance_sheet.index.get_company_list",
             callback: function (r) {
-                populateDropdown("filterByCompany", r.message);
-                document.getElementById('filterByCompany').value = "Korecent Solutions";
+                var employeeList = r.message
+                var selectElement = document.getElementById("filterByCompany");
+
+                for (var i = 0; i < employeeList.length; i++) {
+                    var option = document.createElement("option");
+                    option.value = employeeList[i].name;
+                    option.text = employeeList[i].name
+                    selectElement.appendChild(option);
+                }
+
+                let filterByCompany = document.getElementById('filterByCompany');
+                filterByCompany.value = "Korecent Solutions";
+            }
+        })
+
+        let defaultMonth = currentMonthStr;
+        let employee = 'None'
+        let defaultYear = currentYearStr;
+        var company = 'None';
+
+
+        frappe.call({
+
+            method: "hyde_app.www.monthly_attendance_sheet.index.get_monthly_report",
+            args: {
+                'employee': employee,
+                'company': company,
+                'year': defaultYear,
+                'month': defaultMonth
+            },
+
+            callback: function (r) {
+                var columns = r.message[0];
+                var data = r.message[1];
+                var present_date = r.message[2]
+                var previous_date = r.message[3]
+                displayTableWithData(columns, data, present_date, previous_date)
+
             }
         });
-
-        const defaultMonth = currentMonth;
-        const employee = 'None';
-        const defaultYear = new Date().getFullYear().toString();
-        const company = 'None';
-
-        fetchMonthlyReport(employee, company, defaultYear, defaultMonth);
 
         document.getElementById('filter').addEventListener('change', applyFilter);
         document.getElementById('filterByYear').addEventListener('change', applyFilter);
         document.getElementById('filterByCompany').addEventListener('change', applyFilter);
 
-        document.getElementById('filterByEmployee').addEventListener("change", () => {
-            fetchCompanyName();
-            setTimeout(applyFilter, 1000);
-        });
+        let selectedEmployee = document.getElementById("filterByEmployee")
 
-        function fetchMonthlyReport(employee, company, year, month) {
-            frappe.call({
-                method: "hyde_app.www.monthly_attendance_sheet.index.get_monthly_report",
-                args: { 'employee': employee, 'company': company, 'year': year, 'month': month },
-                callback: function (r) {
-                    const [columns, data, presentDate, previousDate] = r.message;
-                    displayTableWithData(columns, data, presentDate, previousDate);
-                }
-            });
-        }
+        selectedEmployee.addEventListener("change", () => {
+            fetchCompanyName()
+            setTimeout(() => {
 
-        function applyFilter() {
-            const selectedMonthVal = document.getElementById('filter').value;
-            const filterByEmployeeVal = document.getElementById('filterByEmployee').value;
-            const filterByYearVal = document.getElementById('filterByYear').value;
-            const filterByCompany = document.getElementById('filterByCompany').value;
+                let selectedMonthVal = document.getElementById('filter').value;
+                let filterByEmployeeVal = document.getElementById('filterByEmployee').value;
+                let filterByYearVal = document.getElementById('filterByYear').value;
+                let filterByCompany = document.getElementById('filterByCompany').value;
 
-            fetchMonthlyReport(filterByEmployeeVal, filterByCompany, filterByYearVal, selectedMonthVal);
-        }
+                frappe.call({
 
-        function displayTableWithData(columns, data, presentDate, previousDate) {
-            const table = document.getElementById("data-table");
-            clearTable(table);
+                    method: "hyde_app.www.monthly_attendance_sheet.index.get_monthly_report",
+                    args: {
+                        'employee': filterByEmployeeVal,
+                        'company': filterByCompany,
+                        'year': filterByYearVal,
+                        'month': selectedMonthVal
+                    },
 
-            if (data.length >= 1) {
-                createTableHeader(table, columns);
-                createTableBody(table, data, columns);
-            }
-        }
+                    callback: function (r) {
+                        var columns = r.message[0];
+                        var data = r.message[1];
+                        var present_date = r.message[2]
+                        var previous_date = r.message[3]
+                        displayTableWithData(columns, data, present_date, previous_date)
 
-        function populateDropdown(elementId, list) {
-            const selectElement = document.getElementById(elementId);
-            list.forEach(item => {
-                const option = document.createElement("option");
-                option.value = item.name;
-                option.text = item.name + ' - ' + item.employee_name || item.name;
-                selectElement.appendChild(option);
-            });
-        }
-
-        function clearTable(table) {
-            while (table.rows.length > 0) {
-                table.deleteRow(0);
-            }
-        }
-
-        function createTableHeader(table, columns) {
-            const thead = table.createTHead();
-            const row = thead.insertRow();
-            columns.forEach(column => {
-                const th = document.createElement("th");
-                th.innerHTML = column;
-                row.appendChild(th);
-            });
-        }
-
-        function createTableBody(table, data, columns) {
-            const tbody = table.createTBody();
-            data.forEach(rowData => {
-                const row = tbody.insertRow();
-                columns.forEach(column => {
-                    const cell = row.insertCell();
-                    for (const key in rowData) {
-                        if (column.includes(" ")) {
-                            const num = column.split(" ")[0];
-                            if (!isNaN(num) && key === num) {
-                                applyCellStyle(cell, rowData[key]);
-                            } else if (key === column) {
-                                applyCellStyle(cell, rowData[key]);
-                            }
-                        } else if (key === column) {
-                            applyCellStyle(cell, rowData[key]);
-                        }
                     }
                 });
-            });
-        }
 
-        function applyCellStyle(cell, value) {
-            const cellClass = getCellClass(value);
-            cell.classList.add(cellClass);
-            cell.innerHTML = value;
-        }
+            }, 1000);
 
-        function getCellClass(value) {
-            switch (value) {
-                case "P":
-                case "WFH":
-                    return "present";
-                case "L":
-                    return "leave";
-                case "HD":
-                    return "half_day";
-                case "H":
-                    return "holiday";
-                case "A":
-                    return "absent";
-                default:
-                    return "remaining";
-            }
-        }
+
+        })
 
         function fetchCompanyName() {
-            const selectedEmployeeVal = document.getElementById("filterByEmployee").value;
+
+
+            let selectedEmployeeVal = selectedEmployee.value
+
             frappe.call({
                 method: "hyde_app.www.monthly_attendance_sheet.index.get_employees",
                 callback: function (r) {
-                    const employeeList = r.message;
-                    employeeList.forEach(eachEmployeeItem => {
+                    var employeeList = r.message
+
+
+                    for (let eachEmployeeItem of employeeList) {
                         if (eachEmployeeItem.name === selectedEmployeeVal) {
-                            document.getElementById("filterByCompany").value = eachEmployeeItem.company;
+                            let company = eachEmployeeItem.company
+
+                            let selectedCompany = document.getElementById("filterByCompany")
+                            selectedCompany.value = company
                         }
-                    });
+                    }
+
+                }
+            })
+
+        }
+
+
+        function applyFilter() {
+
+            let selectedMonthVal = document.getElementById('filter').value;
+            let filterByEmployeeVal = document.getElementById('filterByEmployee').value;
+            let filterByYearVal = document.getElementById('filterByYear').value;
+            let filterByCompany = document.getElementById('filterByCompany').value;
+
+
+            frappe.call({
+
+                method: "hyde_app.www.monthly_attendance_sheet.index.get_monthly_report",
+                args: {
+                    'employee': filterByEmployeeVal,
+                    'company': filterByCompany,
+                    'year': filterByYearVal,
+                    'month': selectedMonthVal
+                },
+
+                callback: function (r) {
+                    var columns = r.message[0];
+                    var data = r.message[1];
+                    var present_date = r.message[2]
+                    var previous_date = r.message[3]
+                    displayTableWithData(columns, data, present_date, previous_date)
+
                 }
             });
         }
+
+
+        function displayTableWithData(columns, data, present_date, previous_date) {
+            var table = document.getElementById("data-table");
+            while (table.rows.length > 0) {
+                table.deleteRow(0); // Deletes the first row in the table
+            }
+
+            if (data.length >= 1) {
+
+                // Add table header columns dynamically
+                var thead = table.createTHead();
+                var row = thead.insertRow();
+                for (var i = 0; i < columns.length; i++) {
+                    var th = document.createElement("th");
+                    th.innerHTML = columns[i];
+                    row.appendChild(th);
+                }
+                // Add table body rows dynamically																						
+                var tbody = table.createTBody();
+                for (var i = 0; i < data.length; i++) {
+
+                    var row = tbody.insertRow();
+                    for (var j = 0; j < columns.length; j++) {
+                        var cell = row.insertCell(j);
+
+                        for (var eachColumn in data[i]) {
+
+                            if (columns[j].includes(" ")) {
+                                var num = columns[j].split(" ")[0];
+                                if (!isNaN(num)) {
+                                    if (eachColumn === num) {
+                                        if (data[i][`${eachColumn}`] === "P" || data[i][`${eachColumn}`] === "WFH") {
+
+                                            cell.classList.add("present");
+                                            cell.innerHTML = data[i][`${eachColumn}`]
+
+                                        } else if (data[i][`${eachColumn}`] === "L") {
+
+                                            cell.classList.add("leave");
+                                            cell.innerHTML = data[i][`${eachColumn}`]
+
+                                        } else if (data[i][`${eachColumn}`] === "HD") {
+
+                                            cell.classList.add("half_day");
+                                            cell.innerHTML = data[i][`${eachColumn}`]
+
+                                        } else if (data[i][`${eachColumn}`] === "H") {
+
+                                            cell.classList.add("holiday");
+                                            cell.innerHTML = data[i][`${eachColumn}`]
+
+                                        } else if (data[i][`${eachColumn}`] === "A") {
+
+                                            cell.classList.add("absent");
+                                            cell.innerHTML = data[i][`${eachColumn}`]
+
+                                        }
+
+                                        cell.innerHTML = data[i][`${eachColumn}`]
+                                    }
+                                } else {
+
+                                    if ((columns[j] === (eachColumn))) {
+
+                                        cell.classList.add("remaining");
+                                        cell.innerHTML = data[i][`${eachColumn}`]
+                                    }
+
+                                }
+
+                            }
+                            else {
+                                if ((columns[j] === (eachColumn))) {
+
+                                    cell.classList.add("remaining");
+                                    cell.innerHTML = data[i][`${eachColumn}`]
+
+
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+
+        }
     }
-});
+})
