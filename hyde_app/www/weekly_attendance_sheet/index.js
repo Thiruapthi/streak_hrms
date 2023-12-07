@@ -80,7 +80,7 @@ frappe.ready(function () {
 		});
 
 		// Fetch and display initial weekly report
-		fetchAndDisplayWeeklyReport(defaultEmployee, defaultCompany, start_date = "", end_date = "");
+		fetchAndDisplayWeeklyReport(defaultEmployee, defaultCompany, document.getElementById('start_date').value, document.getElementById('end_date').value);
 
 		// Event listener for company dropdown change
 		document.getElementById('company').addEventListener('change', applyFilter);
@@ -90,7 +90,7 @@ frappe.ready(function () {
 		employeeEl.addEventListener("change", () => {
 			fetchCompanyName();
 			setTimeout(() => {
-				fetchAndDisplayWeeklyReport(employeeEl.value, document.getElementById('company').value, start_date = "", end_date = "");
+				fetchAndDisplayWeeklyReport(employeeEl.value, document.getElementById('company').value, document.getElementById('start_date').value, document.getElementById('end_date').value);
 			}, 1000);
 		});
 
@@ -113,7 +113,9 @@ frappe.ready(function () {
 
 		// Function to apply filter
 		function applyFilter() {
-			fetchAndDisplayWeeklyReport(employeeEl.value, document.getElementById('company').value, start_date = "", end_date = "");
+			let start_date = document.getElementById('start_date').value;
+			let end_date = document.getElementById('end_date').value;
+			fetchAndDisplayWeeklyReport(employeeEl.value, document.getElementById('company').value, start_date , end_date);
 		}
 
 		// Function to handle cell styles based on data value
