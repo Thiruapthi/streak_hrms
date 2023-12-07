@@ -18,7 +18,7 @@ validate(frm) {
         }
     },
 
-    after_save(frm) {
+    on_submit: function(frm) {
       frappe.call({
           method: 'hyde_app.api.get_interviewers_list',
           args: {

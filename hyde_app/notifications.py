@@ -281,7 +281,7 @@ def get_rejected_job_offers_created(days_ago, closing=False):
             subject = "Closing of Job Opening"
             message = (
                 f"<p>Dear {doc.applicant_name},</p>"
-                "<p>Thank you for your completing the interview process KoreCent Solutions Pvt ltd. You have a commendable background and we appreciate you giving us the opportunity to learn more about you. Unfortunately since you have not taken any necessary action after releasing your  job offer, unfortunately we will not be moving forward with your application.</p>"
+                "<p>Thank you for your completing the interview process KoreCent Solutions Pvt ltd. You have a commendable background and we appreciate you giving us the opportunity to learn more about you. Unfortunately since you have not taken any necessary action after releasing your  job offer, we will not be moving forward with your application.</p>"
                 "<p>We encourage you to continue to review our careers site and apply for the positions that interests you.</p>"
                 "<p>Wishing you all the very best.<br>Thanks and regards,<br>HR- Team KoreCent</p>"
             )
