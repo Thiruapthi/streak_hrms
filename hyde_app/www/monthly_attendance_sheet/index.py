@@ -13,7 +13,11 @@ def get_monthly_report(company, employee, year, month):
 
     # Calculate the first and last day of the specified month and year
     first_day_of_month = date(year, month, 1)
-    last_day_of_month = date(year, month + 1, 1) - timedelta(days=1)
+    # Handle the case where the month is December (12)
+    if month == 12:
+        last_day_of_month = date(year + 1, 1, 1) - timedelta(days=1)
+    else:
+        last_day_of_month = date(year, month + 1, 1) - timedelta(days=1)
 
     columns = ["Employee", "Employee Name"]
 
