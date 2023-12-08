@@ -18,6 +18,24 @@ from hyde_app.notifications import (
     prepare_email_content_on_interview_scheduled_to_applicat,
     get_rejected_job_offers_created,
     content_for_hr_all_rounds_cleared)
+from frappe.utils import cstr, flt, get_datetime, get_link_to_form, getdate, nowtime
+
+def set_average_rating(self):
+    total_rating = 0
+    for entry in self.interview_details:
+        if entry.average_rating:
+            total_rating += entry.average_rating
+
+    average_rating_val = flt(
+        total_rating / len(self.interview_details) if len(self.interview_details) else 0
+    )
+    
+    average_rating_val = average_rating_val * 10
+    rounded_value = round(average_rating_val)
+    if rounded_value % 2 != 0:
+        rounded_value += 1
+    print(rounded_value /10)
+    self.average_rating = rounded_value / 10
 
 @frappe.whitelist()
 def update_applicant_status_interview(applicant_name, status):
