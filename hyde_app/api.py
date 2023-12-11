@@ -20,6 +20,18 @@ from hyde_app.notifications import (
     content_for_hr_all_rounds_cleared)
 from frappe.utils import cstr, flt, get_datetime, get_link_to_form, getdate, nowtime
 
+@frappe.whitelist()
+def get_total_score(email_id):
+    total_score=0
+    total_questions=0
+    lms_quiz = frappe.get_all("LMS Quiz Submission", filters={"member": email_id})
+    for submission in lms_quiz:
+        filter_value=submission.name
+        quiz_submission = frappe.get_doc("LMS Quiz Submission",filter_value)
+        total_score=total_score+int(quiz_submission.score)
+        total_questions=total_questions+len(quiz_submission.result)
+    return {"total_score":total_score,"total_questions":total_questions}
+    
 def set_average_rating(self):
     total_rating = 0
     for entry in self.interview_details:
