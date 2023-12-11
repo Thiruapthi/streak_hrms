@@ -1,0 +1,40 @@
+/* Add your custom styles here */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+td.present {
+  background-color: green;
+  color: white;
+}
+
+td.on-leave {
+  background-color: green;
+  color: white;
+}
+
+td.work-from-home {
+  background-color: green;
+  color: white;
+}
+
+td.half-day {
+  background-color: orange;
+  color: white;
+}
+
+td.absent {
+  background-color: red;
+  color: white;
+}
