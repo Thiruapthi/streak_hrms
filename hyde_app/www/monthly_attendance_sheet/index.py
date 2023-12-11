@@ -51,7 +51,7 @@ def get_monthly_report(company, employee, year, month):
         records.extend(list(frappe.db.sql(f"""SELECT att.employee, att.employee_name, att.docstatus, att.status, 
                                                  att.attendance_date, att.company, leave.leave_type
                                               FROM `tabAttendance` att
-                                              LEFT JOIN `tabLeave Application` leave 
+                                              LEFT JOIN `tabLeave Application` `leave` 
                                               ON att.employee = leave.employee
                                               AND att.attendance_date BETWEEN leave.from_date AND leave.to_date
                                               WHERE att.company='{company}' 
