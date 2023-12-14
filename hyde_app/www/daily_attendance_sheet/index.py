@@ -9,7 +9,7 @@ def get_daily_attendance_report(start_date_str=None):
         start_date = frappe.utils.getdate(start_date_str) if start_date_str else date.today()
 
         # Columns for the table
-        columns = ["Employee", "On Leave", "Present", "Work From Home", "Absent"]
+        columns = ["Employee", "On Leave", "Present", "Work From Home", "Half Day"]
 
         # Get all active employees
         employees = frappe.get_all('Employee', filters={'status': 'Active'}, fields=['name', 'employee_name'])
@@ -23,7 +23,7 @@ def get_daily_attendance_report(start_date_str=None):
             "On Leave": "",
             "Present": "",
             "Work From Home": "",
-            "Absent": ""
+            "Half Day": ""
         })
 
         for record in attendance_records:
