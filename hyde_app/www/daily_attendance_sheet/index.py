@@ -33,7 +33,7 @@ def get_daily_attendance_report(start_date_str=None):
             employee_details = next((emp for emp in employees if emp['name'] == employee_id), None)
 
             if employee_details:
-                employee_attendance[employee_id]['Employee'] = f"{employee_details['employee_name']} ({employee_details['name']})"
+                employee_attendance[employee_id]['Employee'] = f"{employee_details['employee_name']}"
                 if status == 'On Leave':
                     # If the employee is on leave, get the leave type
                     leave_type = get_leave_type(employee_id, start_date)
