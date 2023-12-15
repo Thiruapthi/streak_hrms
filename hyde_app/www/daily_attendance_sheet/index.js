@@ -1,8 +1,8 @@
 // Wait for the DOM to be fully loaded before executing the code
 document.addEventListener('DOMContentLoaded', function () {
     // Set the current date in the '.current_date' element using Frappe's utility
-    $('.current_date').val(frappe.datetime.get_today());
 
+    $('.current_date').val(formatDateString(frappe.datetime.get_today()));
     // Make an AJAX call to the server to get the daily attendance report
     frappe.call({
         method: "hyde_app.www.daily_attendance_sheet.index.get_daily_attendance_report",
@@ -158,4 +158,9 @@ function updatePaginationState(paginationContainer, activePage) {
             link.classList.add('active');
         }
     });
+}
+
+function formatDateString(dateString) {
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
 }
