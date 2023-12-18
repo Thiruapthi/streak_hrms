@@ -1,4 +1,4 @@
-import frappe
+import frappe,json
 from hrms.hr.doctype.job_applicant.job_applicant import get_interview_details
 from hyde_app.notifications import (
     prepare_email_content_job_offer,
@@ -499,3 +499,42 @@ def reject_offer(name):
     return frappe.respond_as_web_page("Offer Rejected", "<h1>Offer Rejected</h1> <p>Thank you for considering our offer. If you change your mind, please feel free to contact us.</p>")
 
 # ========================= End code for sending mail from job offer to its accept or reject state ======================== >>
+
+
+# overriding for leave application calender view not to get rejected leaves data
+
+@frappe.whitelist()
+def get_events(doctype, start, end, field_map, filters=None, fields=None):
+    field_map = frappe._dict(json.loads(field_map))
+    fields = frappe.parse_json(fields)
+    doc_meta = frappe.get_meta(doctype)
+
+    for d in doc_meta.fields:
+        if d.fieldtype == "Color":
+            field_map.update({"color": d.fieldname})
+
+    filters = json.loads(filters) if filters else []
+
+    if not fields:
+        fields = [field_map.start, field_map.end, field_map.title, "name"]
+
+    if field_map.color:
+        fields.append(field_map.color)
+
+    start_date = "ifnull(%s, '0001-01-01 00:00:00')" % field_map.start
+    end_date = "ifnull(%s, '2199-12-31 00:00:00')" % field_map.end
+
+    if doctype == "Leave Application":
+        filters += [
+            [doctype, start_date, "<=", end],
+            [doctype, end_date, ">=", start],
+            [doctype, 'status', "not in", "Rejected"],
+        ]
+    else:
+        filters += [
+            [doctype, start_date, "<=", end],
+            [doctype, end_date, ">=", start],
+        ]
+
+    fields = list({field for field in fields if field})
+    return frappe.get_list(doctype, fields=fields, filters=filters)
