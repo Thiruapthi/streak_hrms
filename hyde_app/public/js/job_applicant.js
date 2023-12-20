@@ -63,7 +63,8 @@ frappe.ui.form.on("Job Applicant", {
               })
             // Add Score column header
             $('.table thead tr').append('<th style="width: 20%" class="text-left">Score</th>');
-            $('.table tbody tr').each(function(index, element) {
+            setTimeout(function() {
+              $('.table tbody tr').each(function(index, element) {
                 var id = $(element).find('td:nth-child(1)').text().trim();               
                 frappe.call({
                     method: 'hyde_app.api.get_total_score',
@@ -84,6 +85,7 @@ frappe.ui.form.on("Job Applicant", {
                     }
                 });
               });
+            },1200)
           }
         }
       });
