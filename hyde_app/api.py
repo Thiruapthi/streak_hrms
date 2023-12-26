@@ -18,7 +18,7 @@ from hyde_app.notifications import (
     prepare_email_content_on_interview_scheduled_to_applicat,
     get_rejected_job_offers_created,
     content_for_hr_all_rounds_cleared)
-from frappe.utils import cstr, flt, get_datetime, get_link_to_form, getdate, nowtime
+from frappe.utils import cstr, flt, get_datetime, get_link_to_form, getdate, nowtime,add_days,formatdate
 
 @frappe.whitelist()
 def get_total_score(email_id):
@@ -538,3 +538,28 @@ def get_events(doctype, start, end, field_map, filters=None, fields=None):
 
     fields = list({field for field in fields if field})
     return frappe.get_list(doctype, fields=fields, filters=filters)
+
+
+
+# overriding standard function in __init__.py allowing attendance to mark if attendance_date is greater also 
+def mark_attendance_for_leave(self):
+    pass
+
+def mark_attendance_for_applied_leave(doc,method):
+    from_date=getdate(doc.from_date)
+    while from_date <= getdate(doc.to_date):
+        create_attendance_record(doc.employee, from_date,doc.leave_type,doc.half_day)
+        from_date = add_days(from_date, 1)
+    frappe.msgprint((f"Attendance has been marked from {formatdate(from_date, 'dd MMMM yyyy')} to {formatdate(doc.to_date,'dd MMMM yyyy')}"))
+
+def create_attendance_record(employee, attendance_date,leave_type,half_day):
+    attendance_doc = frappe.new_doc("Attendance")
+    attendance_doc.employee = employee
+    attendance_doc.attendance_date = attendance_date
+    if(half_day==1):
+        attendance_doc.status ="Half Day"
+    else:
+        attendance_doc.status = "Work From Home" if leave_type=="Work from Home" else "On Leave"
+    attendance_doc.leave_type=leave_type
+    attendance_doc.submit()
+
