@@ -561,5 +561,7 @@ def create_attendance_record(employee, attendance_date,leave_type,half_day):
     else:
         attendance_doc.status = "Work From Home" if leave_type=="Work from Home" else "On Leave"
     attendance_doc.leave_type=leave_type
+    attendance_doc.save(ignore_permissions=True)
     attendance_doc.submit()
+
 
