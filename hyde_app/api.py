@@ -1,4 +1,4 @@
-import frappe
+import frappe,json
 from hrms.hr.doctype.job_applicant.job_applicant import get_interview_details
 from hyde_app.notifications import (
     prepare_email_content_job_offer,
@@ -18,8 +18,20 @@ from hyde_app.notifications import (
     prepare_email_content_on_interview_scheduled_to_applicat,
     get_rejected_job_offers_created,
     content_for_hr_all_rounds_cleared)
-from frappe.utils import cstr, flt, get_datetime, get_link_to_form, getdate, nowtime
+from frappe.utils import cstr, flt, get_datetime, get_link_to_form, getdate, nowtime,add_days,formatdate
 
+@frappe.whitelist()
+def get_total_score(email_id):
+    total_score=0
+    total_questions=0
+    lms_quiz = frappe.get_all("LMS Quiz Submission", filters={"member": email_id})
+    for submission in lms_quiz:
+        filter_value=submission.name
+        quiz_submission = frappe.get_doc("LMS Quiz Submission",filter_value)
+        total_score=total_score+int(quiz_submission.score)
+        total_questions=total_questions+len(quiz_submission.result)
+    return {"total_score":total_score,"total_questions":total_questions}
+    
 def set_average_rating(self):
     total_rating = 0
     for entry in self.interview_details:
@@ -487,3 +499,67 @@ def reject_offer(name):
     return frappe.respond_as_web_page("Offer Rejected", "<h1>Offer Rejected</h1> <p>Thank you for considering our offer. If you change your mind, please feel free to contact us.</p>")
 
 # ========================= End code for sending mail from job offer to its accept or reject state ======================== >>
+
+
+# overriding for leave application calender view not to get rejected leaves data
+
+@frappe.whitelist()
+def get_events(doctype, start, end, field_map, filters=None, fields=None):
+    field_map = frappe._dict(json.loads(field_map))
+    fields = frappe.parse_json(fields)
+    doc_meta = frappe.get_meta(doctype)
+
+    for d in doc_meta.fields:
+        if d.fieldtype == "Color":
+            field_map.update({"color": d.fieldname})
+
+    filters = json.loads(filters) if filters else []
+
+    if not fields:
+        fields = [field_map.start, field_map.end, field_map.title, "name"]
+
+    if field_map.color:
+        fields.append(field_map.color)
+
+    start_date = "ifnull(%s, '0001-01-01 00:00:00')" % field_map.start
+    end_date = "ifnull(%s, '2199-12-31 00:00:00')" % field_map.end
+
+    if doctype == "Leave Application":
+        filters += [
+            [doctype, start_date, "<=", end],
+            [doctype, end_date, ">=", start],
+            [doctype, 'status', "not in", "Rejected"],
+        ]
+    else:
+        filters += [
+            [doctype, start_date, "<=", end],
+            [doctype, end_date, ">=", start],
+        ]
+
+    fields = list({field for field in fields if field})
+    return frappe.get_list(doctype, fields=fields, filters=filters)
+
+
+
+# overriding standard function in __init__.py allowing attendance to mark if attendance_date is greater also 
+def mark_attendance_for_leave(self):
+    pass
+
+def mark_attendance_for_applied_leave(doc,method):
+    from_date=getdate(doc.from_date)
+    while from_date <= getdate(doc.to_date):
+        create_attendance_record(doc.employee, from_date,doc.leave_type,doc.half_day)
+        from_date = add_days(from_date, 1)
+    frappe.msgprint((f"Attendance has been marked from {formatdate(getdate(doc.from_date), 'dd MMMM yyyy')} to {formatdate(doc.to_date,'dd MMMM yyyy')}"))
+
+def create_attendance_record(employee, attendance_date,leave_type,half_day):
+    attendance_doc = frappe.new_doc("Attendance")
+    attendance_doc.employee = employee
+    attendance_doc.attendance_date = attendance_date
+    if(half_day==1):
+        attendance_doc.status ="Half Day"
+    else:
+        attendance_doc.status = "Work From Home" if leave_type=="Work from Home" else "On Leave"
+    attendance_doc.leave_type=leave_type
+    attendance_doc.save(ignore_permissions=True)
+    attendance_doc.submit()

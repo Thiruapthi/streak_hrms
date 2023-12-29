@@ -61,6 +61,31 @@ frappe.ui.form.on("Job Applicant", {
                     }
                 })
               })
+            // Add Score column header
+            $('.table thead tr').append('<th style="width: 20%" class="text-left">Score</th>');
+            setTimeout(function() {
+              $('.table tbody tr').each(function(index, element) {
+                var id = $(element).find('td:nth-child(1)').text().trim();               
+                frappe.call({
+                    method: 'hyde_app.api.get_total_score',
+                    args: {
+                        email_id: frm.doc.email_id
+                    },
+                    callback: function(response) {
+                        var quizSubmission = response.message;                     
+                        if (quizSubmission) {
+                            var totalScore = quizSubmission.total_score || 0;
+                            var totalQuestions = quizSubmission.total_questions || 0;
+                        
+                            var scoreText = totalScore + '/' + totalQuestions;                        
+                            $(element).append('<td style="width: 20%" class="text-left">' + scoreText + '</td>');
+                        } else {
+                            $(element).append('<td style="width: 20%" class="text-left">No submission</td>');
+                        }
+                    }
+                });
+              });
+            },1200)
           }
         }
       });

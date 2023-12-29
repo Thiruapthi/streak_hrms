@@ -25,47 +25,67 @@ def get_monthly_report(company, employee, year, month):
     for day in range(1, last_day_of_month.day + 1):
         date_obj = date(year, month, day)
         columns.append(f"{day} {date_obj.strftime('%a')}")
-        # columns.append(str(day))
 
     records = []
 
     if employee == "None" and company == 'None':
-        records.extend(list(frappe.db.sql(f"""SELECT employee, employee_name, docstatus, status, attendance_date, company 
-                                             FROM `tabAttendance` 
-                                             WHERE attendance_date BETWEEN '{first_day_of_month}' AND '{last_day_of_month}' 
-                                             ORDER BY attendance_date ASC""")))
+        records.extend(list(frappe.db.sql(f"""SELECT att.employee, att.employee_name, att.docstatus, att.status, 
+                                             att.attendance_date, att.company, `leave`.leave_type
+                                          FROM `tabAttendance` att
+                                          LEFT JOIN `tabLeave Application` `leave` 
+                                          ON att.employee = `leave`.employee
+                                          AND att.attendance_date BETWEEN `leave`.from_date AND `leave`.to_date
+                                          WHERE att.attendance_date BETWEEN '{first_day_of_month}' AND '{last_day_of_month}' 
+                                          ORDER BY att.attendance_date ASC""")))
+
     elif employee == "None":
-        records.extend(list(frappe.db.sql(f"""SELECT employee, employee_name, docstatus, status, attendance_date, company 
-                                             FROM `tabAttendance` 
-                                             WHERE company='{company}' 
-                                             AND attendance_date BETWEEN '{first_day_of_month}' AND '{last_day_of_month}' 
-                                             ORDER BY attendance_date ASC""")))
+        records.extend(list(frappe.db.sql(f"""SELECT att.employee, att.employee_name, att.docstatus, att.status, 
+                                             att.attendance_date, att.company, `leave`.leave_type
+                                          FROM `tabAttendance` att
+                                          LEFT JOIN `tabLeave Application` `leave` 
+                                          ON att.employee = `leave`.employee
+                                          AND att.attendance_date BETWEEN `leave`.from_date AND `leave`.to_date
+                                          WHERE att.attendance_date BETWEEN '{first_day_of_month}' AND '{last_day_of_month}' 
+                                          ORDER BY att.attendance_date ASC""")))
     else:
-        records.extend(list(frappe.db.sql(f"""SELECT employee, employee_name, docstatus, status, attendance_date, company 
-                                             FROM `tabAttendance` 
-                                             WHERE company='{company}' 
-                                             AND employee = '{employee}' 
-                                             AND attendance_date BETWEEN '{first_day_of_month}' AND '{last_day_of_month}' 
-                                             ORDER BY attendance_date ASC""")))
+        records.extend(list(frappe.db.sql(f"""SELECT att.employee, att.employee_name, att.docstatus, att.status, 
+                                                 att.attendance_date, att.company, leave.leave_type
+                                              FROM `tabAttendance` att
+                                              LEFT JOIN `tabLeave Application` `leave` 
+                                              ON att.employee = leave.employee
+                                              AND att.attendance_date BETWEEN leave.from_date AND leave.to_date
+                                              WHERE att.company='{company}' 
+                                              AND att.employee = '{employee}' 
+                                              AND att.attendance_date BETWEEN '{first_day_of_month}' AND '{last_day_of_month}' 
+                                              ORDER BY att.attendance_date ASC""")))
 
     # Group records by employee ID
     employee_records = defaultdict(lambda: defaultdict(str))
     for record in records:
-        employee_id, employee_name, docstatus, status, attendance_date, _ = record
+        employee_id, employee_name, docstatus, status, attendance_date, _, leave_type = record
         day = attendance_date.day
 
         if docstatus == 2:
             status = ""
+            leave_type = ""
             employee_records[employee_id]['Employee Name'] = employee_name
+            employee_records[employee_id]['Leave Type'] = leave_type
             employee_records[employee_id][day] = status
         elif docstatus == 0:
             status = ""
+            leave_type = ""
             employee_records[employee_id]['Employee Name'] = employee_name
+            employee_records[employee_id]['Leave Type'] = leave_type
             employee_records[employee_id][day] = status
         else:
-            # Map status to desired abbreviations
-            status_mapping = {"Present": "P", "Absent": "A", "On Leave": "L", "Half Day": "HD", "Work From Home": "WFH"}
-            status = status_mapping.get(status, "")
+            if status == "On Leave":
+                # Fetch the leave type when status is "On Leave"
+                status = leave_type  # Set status to leave type for "On Leave" entries
+            else:
+                # Map status to desired abbreviations for other cases
+                status_mapping = {"Present": "P", "Absent": "A",
+                                  "Half Day": "HD", "Work From Home": "WFH"}
+                status = status_mapping.get(status, "")
 
             employee_records[employee_id]['Employee Name'] = employee_name
             employee_records[employee_id][day] = status
@@ -79,7 +99,8 @@ def get_monthly_report(company, employee, year, month):
     # Convert defaultdict to a list of dictionaries and sort dates
     formatted_data = []
     for employee_id, attendance_status in employee_records.items():
-        sorted_dates = sorted([day for day in attendance_status.keys() if day != 'Employee Name'], key=int)
+        sorted_dates = sorted([day for day in attendance_status.keys() if day not in [
+                              'Employee Name', 'Leave Type']], key=int)
         formatted_record = {
             "Employee": employee_id,
             "Employee Name": attendance_status['Employee Name'],
@@ -92,10 +113,12 @@ def get_monthly_report(company, employee, year, month):
 
 @frappe.whitelist(allow_guest=True)
 def get_employees():
-	employeeList = frappe.get_all('Employee',filters={'status':'Active'},fields=['name', 'employee_name','company','status'])
-	return employeeList
+    employeeList = frappe.get_all('Employee', filters={'status': 'Active'}, fields=[
+                                  'name', 'employee_name', 'company', 'status'])
+    return employeeList
+
 
 @frappe.whitelist(allow_guest=True)
 def get_company_list():
-	companyList = frappe.get_all('Company')
-	return companyList
+    companyList = frappe.get_all('Company')
+    return companyList

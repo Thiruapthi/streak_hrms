@@ -30,19 +30,19 @@ app_include_js = "/assets/hyde_app/js/attach.js"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-doctype_js = {"Role" : "public/js/role.js",
-"Opportunity" : "public/js/opportunity.js",
-"Sales Stage" : "public/js/sales_stage.js",
-"Leave Application":"public/js/leave_application.js",
-"Job Applicant":"public/js/job_applicant.js",
-"Appointment Letter": "public/js/ap_letter.js",
-"Employee":"public/js/employee.js",
-"Interview":"public/js/interview.js",
-"Job Offer" : "public/js/job_offer.js",
-"Employee Onboarding":"public/js/employee_onboarding.js",
-"Compensatory Leave Request":"public/js/compensatory_leave_request.js",
-"Interview Feedback":"public/js/interview_feedback.js"
-}
+doctype_js = {"Role": "public/js/role.js",
+              "Opportunity": "public/js/opportunity.js",
+              "Sales Stage": "public/js/sales_stage.js",
+              "Leave Application": "public/js/leave_application.js",
+              "Job Applicant": "public/js/job_applicant.js",
+              "Appointment Letter": "public/js/ap_letter.js",
+              "Employee": "public/js/employee.js",
+              "Interview": "public/js/interview.js",
+              "Job Offer": "public/js/job_offer.js",
+              "Employee Onboarding": "public/js/employee_onboarding.js",
+              "Compensatory Leave Request": "public/js/compensatory_leave_request.js",
+              "Interview Feedback": "public/js/interview_feedback.js"
+              }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -55,7 +55,7 @@ doctype_js = {"Role" : "public/js/role.js",
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+# "Role": "home_page"
 # }
 
 # Generators
@@ -69,8 +69,8 @@ doctype_js = {"Role" : "public/js/role.js",
 
 # add methods and filters to jinja environment
 # jinja = {
-#	"methods": "hyde_app.utils.jinja_methods",
-#	"filters": "hyde_app.utils.jinja_filters"
+# "methods": "hyde_app.utils.jinja_methods",
+# "filters": "hyde_app.utils.jinja_filters"
 # }
 
 # Installation
@@ -112,11 +112,11 @@ doctype_js = {"Role" : "public/js/role.js",
 # Permissions evaluated in scripted ways
 
 # permission_query_conditions = {
-#	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
+# "Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
 # }
 #
 # has_permission = {
-#	"Event": "frappe.desk.doctype.event.event.has_permission",
+# "Event": "frappe.desk.doctype.event.event.has_permission",
 # }
 
 # DocType Class
@@ -124,8 +124,8 @@ doctype_js = {"Role" : "public/js/role.js",
 # Override standard doctype classes
 
 override_doctype_class = {
-	# "ToDo": "custom_app.overrides.CustomToDo"
-    "Interview":"hyde_app.Controllers.interview.CustomInterviewController"
+    # "ToDo": "custom_app.overrides.CustomToDo"
+    "Interview": "hyde_app.Controllers.interview.CustomInterviewController"
 }
 
 # Document Events
@@ -133,58 +133,60 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
-#	"*": {
-#		"on_update": "method",
-#		"on_cancel": "method",
-#		"on_trash": "method"
-#	}
-"Sales Stage":{
-    "after_delete":"hyde_app.www.Kanban_Sales.update_custom_select_field"
-},
- "Interview": {
-       "on_update": "hyde_app.api.notify_hr_on_interview_update",
-       "after_insert": "hyde_app.api.send_email_on_interview_scheduled"
-   }
-   ,
- "Appointment Letter": {
-       "after_insert": "hyde_app.api.send_appointment_email",
-   },
-  "Compensatory Leave Request":{
-       "on_update": "hyde_app.api.send_compensatory_leave_request"
-   },
-   "Job Offer": {
-       "after_insert": "hyde_app.api.send_Job_offer_email",
-   },
-   "Job Applicant":{
-       "after_insert": "hyde_app.api.send_job_applicant_creation_email",
-       "on_update": "hyde_app.api.send_rejection_email_to_job_applicant_if_not_sent"
+    # "*": {
+    # "on_update": "method",
+    # "on_cancel": "method",
+    # "on_trash": "method"
+    # }
+    "Sales Stage": {
+        "after_delete": "hyde_app.www.Kanban_Sales.update_custom_select_field"
+    },
+    "Interview": {
+        "on_update": "hyde_app.api.notify_hr_on_interview_update",
+        "after_insert": "hyde_app.api.send_email_on_interview_scheduled"
+    },
+    "Appointment Letter": {
+        "after_insert": "hyde_app.api.send_appointment_email",
+    },
+    "Compensatory Leave Request": {
+        "on_update": "hyde_app.api.send_compensatory_leave_request"
+    },
+    "Job Offer": {
+        "after_insert": "hyde_app.api.send_Job_offer_email",
+    },
+    "Job Applicant": {
+        "after_insert": "hyde_app.api.send_job_applicant_creation_email",
+        "on_update": "hyde_app.api.send_rejection_email_to_job_applicant_if_not_sent"
+    },
+    "Leave Application": {
+        "after_insert": "hyde_app.api.mark_attendance_for_applied_leave"
     }
 }
-   # Scheduled Tasks
+# Scheduled Tasks
 # ---------------
 
 # scheduler_events = {
-#	"all": [
-#		"hyde_app.tasks.all"
-#	],
-#	"daily": [
-#		"hyde_app.tasks.daily"
-#	],
-#	"hourly": [
-#		"hyde_app.tasks.hourly"
-#	],
-#	"weekly": [
-#		"hyde_app.tasks.weekly"
-#	],
-#	"monthly": [
-#		"hyde_app.tasks.monthly"
-#	],
+# "all": [
+# "hyde_app.tasks.all"
+# ],
+# "daily": [
+# "hyde_app.tasks.daily"
+# ],
+# "hourly": [
+# "hyde_app.tasks.hourly"
+# ],
+# "weekly": [
+# "hyde_app.tasks.weekly"
+# ],
+# "monthly": [
+# "hyde_app.tasks.monthly"
+# ],
 # }
 scheduler_events = {
-  "daily": [
-		"hyde_app.api.execute_job_offer_workflow"
-        ]
- }
+    "daily": [
+        "hyde_app.api.execute_job_offer_workflow"
+    ]
+}
 # Testing
 # -------
 
@@ -193,15 +195,15 @@ scheduler_events = {
 # Overriding Methods
 # ------------------------------
 #
-# override_whitelisted_methods = {
-#	"frappe.desk.doctype.event.event.get_events": "hyde_app.event.get_events"
-# }
+override_whitelisted_methods = {
+    "frappe.desk.calendar.get_events": "hyde_app.api.get_events"
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
 # override_doctype_dashboards = {
-#	"Task": "hyde_app.task.get_dashboard_data"
+# "Task": "hyde_app.task.get_dashboard_data"
 # }
 
 # exempt linked doctypes from being automatically cancelled
@@ -227,29 +229,29 @@ scheduler_events = {
 # --------------------
 
 # user_data_fields = [
-#	{
-#		"doctype": "{doctype_1}",
-#		"filter_by": "{filter_by}",
-#		"redact_fields": ["{field_1}", "{field_2}"],
-#		"partial": 1,
-#	},
-#	{
-#		"doctype": "{doctype_2}",
-#		"filter_by": "{filter_by}",
-#		"partial": 1,
-#	},
-#	{
-#		"doctype": "{doctype_3}",
-#		"strict": False,
-#	},
-#	{
-#		"doctype": "{doctype_4}"
-#	}
+# {
+# "doctype": "{doctype_1}",
+# "filter_by": "{filter_by}",
+# "redact_fields": ["{field_1}", "{field_2}"],
+# "partial": 1,
+# },
+# {
+# "doctype": "{doctype_2}",
+# "filter_by": "{filter_by}",
+# "partial": 1,
+# },
+# {
+# "doctype": "{doctype_3}",
+# "strict": False,
+# },
+# {
+# "doctype": "{doctype_4}"
+# }
 # ]
 
 # Authentication and authorization
 # --------------------------------
 
 # auth_hooks = [
-#	"hyde_app.auth.validate"
+# "hyde_app.auth.validate"
 # ]
