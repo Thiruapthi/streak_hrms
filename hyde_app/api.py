@@ -548,7 +548,8 @@ def mark_attendance_for_leave(self):
 def mark_attendance_for_applied_leave(doc,method):
     from_date=getdate(doc.from_date)
     while from_date <= getdate(doc.to_date):
-        create_attendance_record(doc.employee, from_date,doc.leave_type,doc.half_day)
+        if from_date.weekday() < 5:
+            create_attendance_record(doc.employee, from_date,doc.leave_type,doc.half_day)
         from_date = add_days(from_date, 1)
     frappe.msgprint((f"Attendance has been marked from {formatdate(getdate(doc.from_date), 'dd MMMM yyyy')} to {formatdate(doc.to_date,'dd MMMM yyyy')}"))
 
@@ -563,3 +564,4 @@ def create_attendance_record(employee, attendance_date,leave_type,half_day):
     attendance_doc.leave_type=leave_type
     attendance_doc.save(ignore_permissions=True)
     attendance_doc.submit()
+    
