@@ -34,7 +34,22 @@ frappe.ui.form.on('Interview', {
         });
     },
 
-    validate(frm) {
+    validate: async function(frm){
+        if (frm.doc.__islocal) {
+            let scheduled_on = frm.doc.scheduled_on
+            console.log(scheduled_on,"Schedule Onnnn")
+            const currentDate = new Date();
+            const formattedDate = currentDate.toISOString().split('T')[0];
+            console.log(formattedDate,"Formated Date");
+            if (scheduled_on < formattedDate){
+                console.log("The Interview Schedule date is Before the Current date")
+                const confirmed = await showConfirmationPopup();
+                if (!confirmed) {
+                    frappe.validated = false;
+                }
+            }
+            
+        }
         frappe.call({
             method: 'hyde_app.api.get_job_applicant_details',
             args: {
@@ -71,3 +86,14 @@ frappe.ui.form.on('Interview', {
         });
     }
 })
+
+function showConfirmationPopup() {
+    return new Promise(function(resolve, reject) {
+        frappe.confirm(
+            "The Scheduled Date is Before the Current Date ",
+            function() {
+                resolve(true);
+            }
+        );
+    });
+}
