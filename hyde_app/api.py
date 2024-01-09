@@ -384,29 +384,40 @@ def send_rejection_email_to_job_applicant_if_not_sent(doc, method):
 
 @frappe.whitelist()
 def send_email_on_interview_scheduled(doc, method):
+    current_date = getdate()
+    schedule_date = getdate(doc.scheduled_on)
     try:
         # getting attachments from job applocant--------------------
-        attachments, applicant_name = frappe.db.get_value(
-            'Job Applicant', {'name': doc.job_applicant}, ['resume_attachment', 'applicant_name'])
-        frappe.sendmail(
-            recipients=doc.interview_details[0].interviewer,
-            cc=frappe.get_doc('HR Manager Settings').hr_email_id,
-            subject=f"Interview of {applicant_name} for {doc.designation} on {doc.scheduled_on}",
-            message=prepare_email_content_on_interview_scheduled(doc),
-            attachments=[{"file_url": attachments if attachments else ""}],
-            now=True
-        )
+        if (schedule_date >= current_date):
+            attachments, applicant_name = frappe.db.get_value(
+                'Job Applicant', {'name': doc.job_applicant}, ['resume_attachment', 'applicant_name'])
+            frappe.sendmail(
+                recipients=doc.interview_details[0].interviewer,
+                cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+                subject=f"Interview of {applicant_name} for {doc.designation} on {doc.scheduled_on}",
+                message=prepare_email_content_on_interview_scheduled(doc),
+                attachments=[{"file_url": attachments if attachments else ""}],
+                now=True
+            )
 
-        frappe.sendmail(
-            recipients=doc.job_applicant,
-            cc=frappe.get_doc('HR Manager Settings').hr_email_id,
-            subject=f"Interview for {doc.designation} with KoreCent Solutions Pvt. Ltd  on {doc.scheduled_on}.",
-            message=prepare_email_content_on_interview_scheduled_to_applicat(
-                applicant_name, doc),
-            now=True
-        )
+            frappe.sendmail(
+                recipients=doc.job_applicant,
+                cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+                subject=f"Interview for {doc.designation} with KoreCent Solutions Pvt. Ltd  on {doc.scheduled_on}.",
+                message=prepare_email_content_on_interview_scheduled_to_applicat(
+                    applicant_name, doc),
+                now=True
+            )
     except:
         pass
+
+@frappe.whitelist()
+def print_message_scheduledate_less(doc,method):
+    current_date = getdate()
+    shedule_date = getdate(doc.scheduled_on)
+    if (shedule_date < current_date):
+        frappe.confirm('Document updated successfully')
+    print(current_date,shedule_date,"Current Date Before insert \n\n")
 
 
 @frappe.whitelist(allow_guest=True)
