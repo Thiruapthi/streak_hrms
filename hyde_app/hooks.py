@@ -183,6 +183,11 @@ doc_events = {
 # ],
 # }
 scheduler_events = {
+    "cron": {
+        "*/1 * * * * *": [
+            "hyde_app.api.send_probation_completion_email"
+        ]
+    },
     "daily": [
         "hyde_app.api.execute_job_offer_workflow"
     ]
