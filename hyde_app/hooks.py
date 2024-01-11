@@ -184,8 +184,7 @@ doc_events = {
 # }
 scheduler_events = {
     "daily": [
-        ["hyde_app.api.execute_job_offer_workflow",
-            "hyde_app.api.send_probation_completion_email"]
+        "hyde_app.api.execute_job_offer_workflow"
     ]
 }
 # Testing

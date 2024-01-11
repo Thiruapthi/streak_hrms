@@ -422,6 +422,7 @@ def print_message_scheduledate_less(doc,method):
 
 @frappe.whitelist(allow_guest=True)
 def execute_job_offer_workflow():
+    send_probation_completion_email()
     get_rejected_job_offers_created(2)
     get_rejected_job_offers_created(5)
     get_rejected_job_offers_created(7, closing=True)
