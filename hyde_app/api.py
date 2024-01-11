@@ -411,14 +411,6 @@ def send_email_on_interview_scheduled(doc, method):
     except:
         pass
 
-@frappe.whitelist()
-def print_message_scheduledate_less(doc,method):
-    current_date = getdate()
-    shedule_date = getdate(doc.scheduled_on)
-    if (shedule_date < current_date):
-        frappe.confirm('Document updated successfully')
-    print(current_date,shedule_date,"Current Date Before insert \n\n")
-
 
 @frappe.whitelist(allow_guest=True)
 def execute_job_offer_workflow():
