@@ -20,7 +20,7 @@ from hyde_app.notifications import (
     get_rejected_job_offers_created,
     content_for_hr_all_rounds_cleared)
 from frappe.utils import cstr, flt, get_datetime, get_link_to_form, getdate, nowtime, add_days, formatdate
-
+import datetime
 
 @frappe.whitelist()
 def get_total_score(email_id):
@@ -674,3 +674,23 @@ def send_probation_completion_email():
                             subject=subject, message=message)
     except Exception as e:
         frappe.log_error(f"Error: {str(e)}")
+
+# Returning "Leave Without pay" Option If Employee Completes 260 days 
+@frappe.whitelist(allow_guest=True)
+def filtering_leave_type(doctype, txt, searchfield, start, page_len, filters):
+    user = filters.get("user_email")
+    joining_date_list  = frappe.db.sql(""" select date_of_joining from `tabEmployee` where employment_type = 'Permanent' and company_email = '{0}' """.format(user),as_dict=True)
+    try:
+        joining_date = joining_date_list[0].get('date_of_joining')
+        current_date = getdate()
+        if joining_date:
+            days_difference = (current_date - joining_date).days
+            if days_difference > 365:
+                return frappe.db.sql(""" select name from `tabLeave Type`""")
+            else:
+                return frappe.db.sql(""" select name from `tabLeave Type` where name != "Leave Without Pay" """)    
+    except:
+        pass
+
+    return frappe.db.sql(""" select name from `tabLeave Type` where name != "Leave Without Pay" """)
+

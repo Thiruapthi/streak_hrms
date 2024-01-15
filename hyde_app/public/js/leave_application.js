@@ -27,5 +27,13 @@ frappe.ui.form.on('Leave Application', {
                 }
             })
 		}
-	}
+	},
+    onload:function(frm){
+        frm.set_query("leave_type", function () {
+            return {
+                query: "hyde_app.api.filtering_leave_type",
+                filters:{"user_email":frappe.session.user_email}
+            };
+        });
+    }
 });
