@@ -286,3 +286,26 @@ def get_rejected_job_offers_created(days_ago, closing=False):
                 "<p>Wishing you all the very best.<br>Thanks and regards,<br>HR- Team KoreCent</p>"
             )
         send_reminder_email(doc.applicant_email, subject, message)
+
+
+
+def send_hr_leave_notification(doc,method):
+    hr_email = frappe.db.get_single_value('HR Manager Settings', 'hr_email_id')
+    if doc.workflow_state == "HR Approval Pending" and hr_email:
+        subject = "Leave Application Notification"
+        message = (
+            f"<h1>Leave Application Notification</h1>"
+            "<p>Dear Concerned,</p>"
+            f"<p>{doc.employee_name} has applied for {doc.custom_leave_segment_choice if doc.half_day else 'full day'} {doc.leave_type} From {doc.from_date} To {doc.to_date}.</p>"
+            f"<p>Respective leave approver : {doc.leave_approver_name}.</p>"
+            f"<p>Reason: {doc.description}.</p>"
+            f"<p> Leave Balance Before Application {doc.leave_balance}.</p>"
+            "<p>Thanks and regards,</p>"
+            "<p>HR- Team KoreCent.</p>"
+        )
+        frappe.sendmail(
+            recipients=hr_email,
+            subject=subject,
+            message=message,
+            now=True
+        )
