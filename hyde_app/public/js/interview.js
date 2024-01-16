@@ -14,13 +14,13 @@ frappe.ui.form.on('Interview', {
         let applicantName = frm.doc.job_applicant;  // Get the name of the saved applicant
         let newStatus// Specify the new status
         if (frm.doc.status === "Cleared") {
-            newStatus = "Job Offer Pending";
+            newStatus = frm.doc.interview_round+" Cleared";
         }
         else if (frm.doc.status === "Rejected") {
             newStatus = "Rejected";
         }
         else {
-            newStatus = 'Interview Scheduled'
+            newStatus = frm.doc.interview_round+" Scheduled";
         }
         frappe.call({
             method: 'hyde_app.api.update_applicant_status_interview',
