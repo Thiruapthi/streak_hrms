@@ -1,5 +1,6 @@
 import frappe
 from frappe import _
+from frappe.utils import  getdate
 
 @frappe.whitelist()
 def get_role_permissions(role):
@@ -33,3 +34,18 @@ def get_role_permissions(role):
             permission["parent"] = perm["parent"]
             permissions.append(permission)
     return permissions
+
+
+@frappe.whitelist()
+def hideing_leave_without_pay(doctype, txt, searchfield, start, page_len, filters):
+   user = filters.get("employee_id")
+   doc = frappe.get_doc('Employee', user)
+   joining_date = doc.date_of_joining
+   employment = doc.employment_type
+   current_date = getdate()
+   days_difference = (current_date - joining_date).days
+   if employment == "Permanent" and days_difference > 365:
+       return  frappe.db.sql(""" select name from `tabLeave Type`""")
+   else:
+       return frappe.db.sql(""" select name from `tabLeave Type` where name != "Leave Without Pay" """)
+  

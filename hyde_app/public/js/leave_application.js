@@ -1,4 +1,14 @@
 frappe.ui.form.on('Leave Application', {
+    employee:function(frm){
+        let employee_id = frm.doc.employee
+        frm.set_query("leave_type", function () {
+            return {
+                query: "hyde_app.role_perms_api.hideing_leave_without_pay",
+                filters:{"employee_id":employee_id}
+            };
+        });
+    },
+ 
     refresh: function(frm) {  
         frm.page.wrapper.find('.report-link').on('click', function() {
             var selectedEmployee = cur_frm.doc.employee;
