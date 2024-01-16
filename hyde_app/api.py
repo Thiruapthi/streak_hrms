@@ -20,7 +20,7 @@ from hyde_app.notifications import (
     get_rejected_job_offers_created,
     content_for_hr_all_rounds_cleared)
 from frappe.utils import cstr, flt, get_datetime, get_link_to_form, getdate, nowtime, add_days, formatdate
-
+import json
 
 @frappe.whitelist()
 def get_total_score(email_id):
@@ -57,7 +57,7 @@ def set_average_rating(self):
 
 @frappe.whitelist()
 def update_applicant_status_interview(applicant_name, status):
-    # This function Written for five Js Functions(ap_letter.js, employee_onboarding.js, employee.js, interview.js, job_offer.js,)
+    add_status_option_to_job_applicant(status)
     try:
         applicant = frappe.get_doc("Job Applicant", applicant_name)
         applicant.status = status
@@ -107,6 +107,15 @@ def get_job_applicant_details(job_applicant, job_opening):
     )
     return job_applicant_details, source_data
 
+@frappe.whitelist()
+def add_status_option_to_job_applicant(interview_round):
+    property_setter = frappe.get_doc("Property Setter", "Job Applicant-status-options")
+    current_options = property_setter.value.split("\n")    
+    if interview_round not in current_options:
+        current_options.append(interview_round)
+        property_setter.value = "\n".join(option for option in current_options)
+        property_setter.save()
+        frappe.clear_cache()
 
 @frappe.whitelist()
 def get_interviewers_list(interview, result):
@@ -123,6 +132,8 @@ def get_interviewers_list(interview, result):
     interviewr_details = frappe.db.sql(sql, (interview,), as_dict=False)
     interview_doc = frappe.get_doc("Interview", interview)
     applicant_id = interview_doc.job_applicant
+    interview_round=interview_doc.interview_round
+    status_options=frappe.get_meta("Job Applicant").get_field("status").options.split("\n")
     for interviewer in interviewr_details:
         status = frappe.db.get_list('Interview Feedback', filters={
                                     'interview': interview, "interviewer": interviewer[0]}, fields=['result'], as_list=True)
@@ -145,11 +156,17 @@ def get_interviewers_list(interview, result):
                 return
 
     if result == "Cleared":
-        update_applicant_status_interview(applicant_id, "Job Offer Pending")
+        interview_round=interview_round+" Cleared"
+        if interview_round not in status_options:
+            add_status_option_to_job_applicant(interview_round)
+        update_applicant_status_interview(applicant_id, interview_round)
     elif result == "Rejected":
         update_applicant_status_interview(applicant_id, "Rejected")
     elif result == "Under Review":
-        update_applicant_status_interview(applicant_id, "Interview Scheduled")
+        interview_round=interview_round+" Scheduled"
+        if interview_round not in status_options:
+            add_status_option_to_job_applicant(interview_round)
+        update_applicant_status_interview(applicant_id, interview_round)
 
     interview_doc.status = result
     interview_doc.save(ignore_permissions=True)
@@ -473,8 +490,12 @@ def get_interview_feedback(interview_name):
 
 # =========================  code for sending mail from job offer to its accept or reject state ======================== >>
 
+# <<<<<<< Updated upstream
 
 @frappe.whitelist()
+# =======
+@frappe.whitelist(allow_guest=True)
+# >>>>>>> Stashed changes
 def send_Job_offer_email(doc, method):
     applicant_email, applicant_name, position = get_applicant_data(
         doc.job_applicant)
