@@ -49,7 +49,3 @@ def hideing_leave_without_pay(doctype, txt, searchfield, start, page_len, filter
    else:
        return frappe.db.sql(""" select name from `tabLeave Type` where name != "Leave Without Pay" """)
   
-
-def nameing_job_applicant_doctype(self):
-    self.name = self.applicant_name
-    
