@@ -435,6 +435,7 @@ def execute_job_offer_workflow():
     get_rejected_job_offers_created(2)
     get_rejected_job_offers_created(5)
     get_rejected_job_offers_created(7, closing=True)
+    
 
 
 @frappe.whitelist(allow_guest=True)
@@ -490,12 +491,7 @@ def get_interview_feedback(interview_name):
 
 # =========================  code for sending mail from job offer to its accept or reject state ======================== >>
 
-# <<<<<<< Updated upstream
-
-@frappe.whitelist()
-# =======
 @frappe.whitelist(allow_guest=True)
-# >>>>>>> Stashed changes
 def send_Job_offer_email(doc, method):
     applicant_email, applicant_name, position = get_applicant_data(
         doc.job_applicant)
