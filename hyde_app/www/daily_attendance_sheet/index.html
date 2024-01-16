@@ -1,10 +1,19 @@
 {% extends "templates/web.html" %}
 
 {% block page_content %}
-<div class="main-container">
-    <input type="text" class="current_date" readonly></input><br><br>
-    <div id="attendanceTableContainer"></div>
-</div>
+{% set userVal = frappe.session %}
 
+    {% if userVal.user == 'Guest' %}
+
+    <div class="message-container">
+        <h3 class="login-message">You can't see the Report without Login</h3>
+      </div>
+
+    {% else %}
+        <div class="main-container">
+            <input type="text" class="current_date" readonly></input><br><br>
+            <div id="attendanceTableContainer"></div>
+        </div>
+    {% endif %}
 
 {% endblock %}
