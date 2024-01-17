@@ -159,7 +159,8 @@ doc_events = {
         "on_update": "hyde_app.api.send_rejection_email_to_job_applicant_if_not_sent"
     },
     "Leave Application": {
-        "after_insert": "hyde_app.api.mark_attendance_for_applied_leave"
+        "after_insert": "hyde_app.api.mark_attendance_for_applied_leave",
+        "on_update" : "hyde_app.notifications.send_hr_leave_notification"
     }
 }
 # Scheduled Tasks
@@ -183,11 +184,6 @@ doc_events = {
 # ],
 # }
 scheduler_events = {
-    "cron": {
-        "*/1 * * * * *": [
-            "hyde_app.api.send_probation_completion_email"
-        ]
-    },
     "daily": [
         "hyde_app.api.execute_job_offer_workflow"
     ]

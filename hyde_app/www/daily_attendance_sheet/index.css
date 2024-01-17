@@ -88,3 +88,18 @@ td.absent {
 .table-container th {
   background-color: #f2f2f2;
 }
+/* styles.css */
+.message-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-message {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  color: cadetblue;
+}

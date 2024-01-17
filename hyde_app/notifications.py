@@ -12,6 +12,48 @@ def email_content_candidate(applicant_name,position):
         <p>Thanks and regards,</p>
         <p>HR- Team KoreCent</p>
     """
+def email_content_candidate_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data):
+    if present_mode == 'Online':
+        return f"""\
+            <p>Dear {applicant_data['applicant_name']},</p>
+            <p>Greetings of the day!</p>
+            <p>Due to unforeseen circumstances we would like to inform you that the interview mode for the position of {applicant_data['job_title']} has been changed from {previous_mode} to {present_mode}. </p>
+            <p>The interview will now take on online. this is link :</p>
+            <a href='{interview_link}' >Interview Link</a>
+            <p>Thanks and regards,</p>
+            <p>HR- Team KoreCent</p>
+        """
+    else :
+        return f"""\
+            <p>Dear {applicant_data['applicant_name']},</p>
+            <p>Greetings of the day!</p>
+            <p>Due to unforeseen circumstances we would like to inform you that the interview mode for the position of {applicant_data['job_title']} has been changed from {previous_mode} to {present_mode}. </p>
+            <p>The interview will now take place at our office located at:</p>
+            <p>{interview_address}</p>
+            <p>Thanks and regards,</p>
+            <p>HR- Team KoreCent</p>
+        """
+def email_content_interviewer_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data):
+    if present_mode == 'Online':
+        return f"""\
+            <p>Dear Interviewer,</p>
+            <p>Greetings of the day!</p>
+            <p>Due to unforeseen circumstances we would like to inform you that the interview mode for the position of {applicant_data['job_title']} has been changed from {previous_mode} to {present_mode}. </p>
+            <p>The interview will now take on online. this is link :</p>
+            <a href='{interview_link}' >Interview Link</a>
+            <p>Thanks and regards,</p>
+            <p>HR- Team KoreCent</p>
+        """
+    else :
+        return f"""\
+            <p>Dear Interviewer,</p>
+            <p>Greetings of the day!</p>
+            <p>Due to unforeseen circumstances we would like to inform you that the interview mode for the position of {applicant_data['job_title']} has been changed from {previous_mode} to {present_mode}. </p>
+            <p>The interview will now take place at our office located at:</p>
+            <p>{interview_address}</p>
+            <p>Thanks and regards,</p>
+            <p>HR- Team KoreCent</p>
+        """
 
 # Email content for the interviewer when appointment letter created
 def email_content_interviewer(applicant_name,applicant_email,position):
@@ -286,3 +328,26 @@ def get_rejected_job_offers_created(days_ago, closing=False):
                 "<p>Wishing you all the very best.<br>Thanks and regards,<br>HR- Team KoreCent</p>"
             )
         send_reminder_email(doc.applicant_email, subject, message)
+
+
+
+def send_hr_leave_notification(doc,method):
+    hr_email = frappe.db.get_single_value('HR Manager Settings', 'hr_email_id')
+    if doc.workflow_state == "HR Approval Pending" and hr_email:
+        subject = "Leave Application Notification"
+        message = (
+            f"<h1>Leave Application Notification</h1>"
+            "<p>Dear Concerned,</p>"
+            f"<p>{doc.employee_name} has applied for {doc.custom_leave_segment_choice if doc.half_day else 'full day'} {doc.leave_type} From {doc.from_date} To {doc.to_date}.</p>"
+            f"<p>Respective leave approver : {doc.leave_approver_name}.</p>"
+            f"<p>Reason: {doc.description}.</p>"
+            f"<p> Leave Balance Before Application {doc.leave_balance}.</p>"
+            "<p>Thanks and regards,</p>"
+            "<p>HR- Team KoreCent.</p>"
+        )
+        frappe.sendmail(
+            recipients=hr_email,
+            subject=subject,
+            message=message,
+            now=True
+        )

@@ -18,9 +18,11 @@ from hyde_app.notifications import (
     prepare_email_content_on_interview_scheduled,
     prepare_email_content_on_interview_scheduled_to_applicat,
     get_rejected_job_offers_created,
-    content_for_hr_all_rounds_cleared)
+    content_for_hr_all_rounds_cleared,
+    email_content_candidate_for_changing_interview_mode,
+    email_content_interviewer_for_changing_interview_mode)
 from frappe.utils import cstr, flt, get_datetime, get_link_to_form, getdate, nowtime, add_days, formatdate
-
+import json
 
 @frappe.whitelist()
 def get_total_score(email_id):
@@ -57,7 +59,7 @@ def set_average_rating(self):
 
 @frappe.whitelist()
 def update_applicant_status_interview(applicant_name, status):
-    # This function Written for five Js Functions(ap_letter.js, employee_onboarding.js, employee.js, interview.js, job_offer.js,)
+    add_status_option_to_job_applicant(status)
     try:
         applicant = frappe.get_doc("Job Applicant", applicant_name)
         applicant.status = status
@@ -107,6 +109,15 @@ def get_job_applicant_details(job_applicant, job_opening):
     )
     return job_applicant_details, source_data
 
+@frappe.whitelist()
+def add_status_option_to_job_applicant(interview_round):
+    property_setter = frappe.get_doc("Property Setter", "Job Applicant-status-options")
+    current_options = property_setter.value.split("\n")    
+    if interview_round not in current_options:
+        current_options.append(interview_round)
+        property_setter.value = "\n".join(option for option in current_options)
+        property_setter.save()
+        frappe.clear_cache()
 
 @frappe.whitelist()
 def get_interviewers_list(interview, result):
@@ -123,6 +134,8 @@ def get_interviewers_list(interview, result):
     interviewr_details = frappe.db.sql(sql, (interview,), as_dict=False)
     interview_doc = frappe.get_doc("Interview", interview)
     applicant_id = interview_doc.job_applicant
+    interview_round=interview_doc.interview_round
+    status_options=frappe.get_meta("Job Applicant").get_field("status").options.split("\n")
     for interviewer in interviewr_details:
         status = frappe.db.get_list('Interview Feedback', filters={
                                     'interview': interview, "interviewer": interviewer[0]}, fields=['result'], as_list=True)
@@ -145,11 +158,17 @@ def get_interviewers_list(interview, result):
                 return
 
     if result == "Cleared":
-        update_applicant_status_interview(applicant_id, "Job Offer Pending")
+        interview_round=interview_round+" Cleared"
+        if interview_round not in status_options:
+            add_status_option_to_job_applicant(interview_round)
+        update_applicant_status_interview(applicant_id, interview_round)
     elif result == "Rejected":
         update_applicant_status_interview(applicant_id, "Rejected")
     elif result == "Under Review":
-        update_applicant_status_interview(applicant_id, "Interview Scheduled")
+        interview_round=interview_round+" Scheduled"
+        if interview_round not in status_options:
+            add_status_option_to_job_applicant(interview_round)
+        update_applicant_status_interview(applicant_id, interview_round)
 
     interview_doc.status = result
     interview_doc.save(ignore_permissions=True)
@@ -384,36 +403,41 @@ def send_rejection_email_to_job_applicant_if_not_sent(doc, method):
 
 @frappe.whitelist()
 def send_email_on_interview_scheduled(doc, method):
+    current_date = getdate()
+    schedule_date = getdate(doc.scheduled_on)
     try:
         # getting attachments from job applocant--------------------
-        attachments, applicant_name = frappe.db.get_value(
-            'Job Applicant', {'name': doc.job_applicant}, ['resume_attachment', 'applicant_name'])
-        frappe.sendmail(
-            recipients=doc.interview_details[0].interviewer,
-            cc=frappe.get_doc('HR Manager Settings').hr_email_id,
-            subject=f"Interview of {applicant_name} for {doc.designation} on {doc.scheduled_on}",
-            message=prepare_email_content_on_interview_scheduled(doc),
-            attachments=[{"file_url": attachments if attachments else ""}],
-            now=True
-        )
+        if (schedule_date >= current_date):
+            attachments, applicant_name = frappe.db.get_value(
+                'Job Applicant', {'name': doc.job_applicant}, ['resume_attachment', 'applicant_name'])
+            frappe.sendmail(
+                recipients=doc.interview_details[0].interviewer,
+                cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+                subject=f"Interview of {applicant_name} for {doc.designation} on {doc.scheduled_on}",
+                message=prepare_email_content_on_interview_scheduled(doc),
+                attachments=[{"file_url": attachments if attachments else ""}],
+                now=True
+            )
 
-        frappe.sendmail(
-            recipients=doc.job_applicant,
-            cc=frappe.get_doc('HR Manager Settings').hr_email_id,
-            subject=f"Interview for {doc.designation} with KoreCent Solutions Pvt. Ltd  on {doc.scheduled_on}.",
-            message=prepare_email_content_on_interview_scheduled_to_applicat(
-                applicant_name, doc),
-            now=True
-        )
+            frappe.sendmail(
+                recipients=doc.job_applicant,
+                cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+                subject=f"Interview for {doc.designation} with KoreCent Solutions Pvt. Ltd  on {doc.scheduled_on}.",
+                message=prepare_email_content_on_interview_scheduled_to_applicat(
+                    applicant_name, doc),
+                now=True
+            )
     except:
         pass
 
 
 @frappe.whitelist(allow_guest=True)
 def execute_job_offer_workflow():
+    send_probation_completion_email()
     get_rejected_job_offers_created(2)
     get_rejected_job_offers_created(5)
     get_rejected_job_offers_created(7, closing=True)
+    
 
 
 @frappe.whitelist(allow_guest=True)
@@ -469,8 +493,7 @@ def get_interview_feedback(interview_name):
 
 # =========================  code for sending mail from job offer to its accept or reject state ======================== >>
 
-
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def send_Job_offer_email(doc, method):
     applicant_email, applicant_name, position = get_applicant_data(
         doc.job_applicant)
@@ -670,3 +693,30 @@ def send_probation_completion_email():
                             subject=subject, message=message)
     except Exception as e:
         frappe.log_error(f"Error: {str(e)}")
+
+@frappe.whitelist()
+def sendEmailDuringChangeInterviewMode(previous_mode, present_mode, interview_link, interview_address, applicant_email, interviewers):
+    
+    applicant_data = frappe.get_value("Job Applicant", filters={"name": applicant_email}, fieldname=[
+                                      "email_id", "job_title", "applicant_name"], as_dict=True)
+   # Send email to the candidate
+    frappe.sendmail(
+        recipients=applicant_email,
+        cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+        subject='Interview mode is changed',
+        message=email_content_candidate_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data),
+        
+        now=True
+    )
+
+    interviewersArr = json.loads(interviewers)
+
+    for each_interviewer in interviewersArr :
+        print(each_interviewer)
+        frappe.sendmail(
+            recipients=each_interviewer['interviewer'],
+            subject='Interview mode is changed',
+            message=email_content_interviewer_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data),
+            now=True
+        )
+    
