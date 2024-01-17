@@ -12,6 +12,48 @@ def email_content_candidate(applicant_name,position):
         <p>Thanks and regards,</p>
         <p>HR- Team KoreCent</p>
     """
+def email_content_candidate_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data):
+    if present_mode == 'Online':
+        return f"""\
+            <p>Dear {applicant_data['applicant_name']},</p>
+            <p>Greetings of the day!</p>
+            <p>Due to unforeseen circumstances we would like to inform you that the interview mode for the position of {applicant_data['job_title']} has been changed from {previous_mode} to {present_mode}. </p>
+            <p>The interview will now take on online. this is link :</p>
+            <a href='{interview_link}' >Interview Link</a>
+            <p>Thanks and regards,</p>
+            <p>HR- Team KoreCent</p>
+        """
+    else :
+        return f"""\
+            <p>Dear {applicant_data['applicant_name']},</p>
+            <p>Greetings of the day!</p>
+            <p>Due to unforeseen circumstances we would like to inform you that the interview mode for the position of {applicant_data['job_title']} has been changed from {previous_mode} to {present_mode}. </p>
+            <p>The interview will now take place at our office located at:</p>
+            <p>{interview_address}</p>
+            <p>Thanks and regards,</p>
+            <p>HR- Team KoreCent</p>
+        """
+def email_content_interviewer_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data):
+    if present_mode == 'Online':
+        return f"""\
+            <p>Dear Interviewer,</p>
+            <p>Greetings of the day!</p>
+            <p>Due to unforeseen circumstances we would like to inform you that the interview mode for the position of {applicant_data['job_title']} has been changed from {previous_mode} to {present_mode}. </p>
+            <p>The interview will now take on online. this is link :</p>
+            <a href='{interview_link}' >Interview Link</a>
+            <p>Thanks and regards,</p>
+            <p>HR- Team KoreCent</p>
+        """
+    else :
+        return f"""\
+            <p>Dear Interviewer,</p>
+            <p>Greetings of the day!</p>
+            <p>Due to unforeseen circumstances we would like to inform you that the interview mode for the position of {applicant_data['job_title']} has been changed from {previous_mode} to {present_mode}. </p>
+            <p>The interview will now take place at our office located at:</p>
+            <p>{interview_address}</p>
+            <p>Thanks and regards,</p>
+            <p>HR- Team KoreCent</p>
+        """
 
 # Email content for the interviewer when appointment letter created
 def email_content_interviewer(applicant_name,applicant_email,position):
