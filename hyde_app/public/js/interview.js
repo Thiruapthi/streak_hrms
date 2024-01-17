@@ -1,16 +1,20 @@
+var firstInterviewMode
 frappe.ui.form.on('Interview', {
+
     refresh: function (frm) {
+        
         if (frm.doc.job_applicant) {
             frappe.db.get_doc("Job Applicant", frm.doc.job_applicant)
                 .then((name) => {
                     frm.set_value('custom_exam_portal_link', `https://kcs-ess.frappe.cloud/exam-portal?job_applicant=${name.applicant_name}&applicant_email=${frm.doc.job_applicant}`)
                 });
-
+            firstInterviewMode = frm.doc.custom_interview_type
+           
         }
-
 
     },
     after_save(frm) {
+        
         let applicantName = frm.doc.job_applicant;  // Get the name of the saved applicant
         let newStatus// Specify the new status
         if (frm.doc.status === "Cleared") {
@@ -29,11 +33,16 @@ frappe.ui.form.on('Interview', {
                 'status': newStatus
             },
             callback: function (r) {
-                location.reload();
+                // location.reload();
             }
         });
+        
+        let newInterviewType = frm.doc.custom_interview_type
+        if (firstInterviewMode !== newInterviewType){
+            sendEmailForChangingInterviewMode(firstInterviewMode, newInterviewType, frm)
+        }
     },
-
+    
     scheduled_on: async function(frm){
         if (frm.doc.__islocal) {
             let scheduled_on = frm.doc.scheduled_on
@@ -95,5 +104,23 @@ function showConfirmationPopup() {
                 resolve(true);
             }
         );
+    });
+}
+
+function sendEmailForChangingInterviewMode(previousMode, presentMode, frm){
+    
+    frappe.call({
+        method: 'hyde_app.api.sendEmailDuringChangeInterviewMode',
+        args: {
+            'previous_mode': previousMode,
+            'present_mode': presentMode,
+            'interview_link': frm.doc.custom_interview_link,
+            'interview_address': frm.doc.custom_address,
+            'applicant_email': frm.doc.job_applicant,
+            'interviewers' : frm.doc.interview_details
+        },
+        callback: function (r) {
+            // console.log(r)
+        }
     });
 }

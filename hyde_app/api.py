@@ -18,7 +18,9 @@ from hyde_app.notifications import (
     prepare_email_content_on_interview_scheduled,
     prepare_email_content_on_interview_scheduled_to_applicat,
     get_rejected_job_offers_created,
-    content_for_hr_all_rounds_cleared)
+    content_for_hr_all_rounds_cleared,
+    email_content_candidate_for_changing_interview_mode,
+    email_content_interviewer_for_changing_interview_mode)
 from frappe.utils import cstr, flt, get_datetime, get_link_to_form, getdate, nowtime, add_days, formatdate
 import json
 
@@ -691,3 +693,30 @@ def send_probation_completion_email():
                             subject=subject, message=message)
     except Exception as e:
         frappe.log_error(f"Error: {str(e)}")
+
+@frappe.whitelist()
+def sendEmailDuringChangeInterviewMode(previous_mode, present_mode, interview_link, interview_address, applicant_email, interviewers):
+    
+    applicant_data = frappe.get_value("Job Applicant", filters={"name": applicant_email}, fieldname=[
+                                      "email_id", "job_title", "applicant_name"], as_dict=True)
+   # Send email to the candidate
+    frappe.sendmail(
+        recipients=applicant_email,
+        cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+        subject='Interview mode is changed',
+        message=email_content_candidate_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data),
+        
+        now=True
+    )
+
+    interviewersArr = json.loads(interviewers)
+
+    for each_interviewer in interviewersArr :
+        print(each_interviewer)
+        frappe.sendmail(
+            recipients=each_interviewer['interviewer'],
+            subject='Interview mode is changed',
+            message=email_content_interviewer_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data),
+            now=True
+        )
+    
