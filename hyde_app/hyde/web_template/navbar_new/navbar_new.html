@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+        <link rel="stylesheet" type="text/css" href="/assets/korecent_website/korecent_css/css/style.css">
+        
+
+    <style>
+        body {
+            font-family: "Montserrat", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .navbar-row {
+            margin-left: 0;
+            margin-right: 0;
+            height: 100%;
+            background-color: white;
+        }
+
+        .dropdown-menu {
+            padding: 2rem;
+            background-color: #f9f9f9;
+            border: none;
+            width: 700px;
+            margin: auto;
+
+        }
+
+        .dropdown-menu .list-group-item {
+            padding: 0.5rem;
+            border: none;
+        }
+
+        .dropdown-menu .list-group-item:hover {
+            background-color: #e9e9e9;
+            border: none;
+        }
+
+        .dropdown-menu .list-group-item.active {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+        }
+        
+        .trusted-area{
+            z-index:0!important;
+        }
+        
+        .offer-area .offer-content .offer-quote{
+            z-index:0!important;
+        }
+        
+        .choose-area {
+            z-index:0 !important;
+        }
+        
+        .meet-area{
+            z-index:0!important;
+        }
+        
+        .row.footer-list {
+            margin-right: unset;
+    }
+
+    
+    .navbar-toggler{
+        line-height: 0!important;
+    }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        div#entairNavbar {
+            position: fixed;
+            z-index: 1;
+        }
+
+        .logo-css.col-xl-2 {
+            background-color: #FF7E00;
+
+        }
+
+        .logo-css {
+            display: flex;
+
+        }
+
+        .logo {
+            text-align: center;
+        }
+
+        .logo img {
+            width: 80%;
+        }
+
+        ul.navbar-nav.me-auto.ps-lg-0 {
+            padding-top: 5vh;
+        }
+
+        .industries-alignment {
+            margin-left: 23%;
+            width: 50%;
+        }
+
+        a {
+            font-size: 13px;
+            font-weight: 600;
+            color: #222232;
+            margin-right: 11px;
+        }
+
+        a.dropdown-item {
+            font-size: 14px;
+            letter-spacing: 0.01px;
+        }
+
+        .navbar-light .navbar-nav .nav-link {
+            color: black !important;
+        }
+
+        .dropdown-navbar-content a {
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        a:hover {
+            color: black;
+        }
+
+        .dropdown-menu-box {
+            width: 176%;
+            /*display: flex;*/
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .dropdown-menu-box-container {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            /*align-items: center;*/
+        }
+
+        .blog-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+        }
+
+        .blog-image {
+            width: 238;
+            height: 180px;
+        }
+
+        .navbar-brand {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .navbar-container-medium {
+            width: 100%;
+            background-color: #FF7E00;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .nav-items-mobile {
+            display: none;
+            position: inherit;
+            top: 0;
+            background-color: #424040;
+        }
+
+        .nav-mobile-container {
+            min-width: 400px;
+            width: 50%;
+            height: 100vh;
+            background-color: #e9e9e9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: slide-in 1s ease-in;
+
+        }
+
+        .menu-close-button {
+            align-self: flex-end;
+            margin: 20px;
+            width: 15px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-width: 0px;
+        }
+
+        @keyframes slide-in {
+            0% {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .navbar-toggler {
+                display: none;
+            }
+
+        }
+         @media screen and (max-width: 1210px) {
+             .nav-link {
+                 font-size : 10px;
+             }
+         }
+
+        @media screen and (max-width: 993px) {
+            .navbar-container {
+                width: 100%;
+                height: 100%;
+                background-color: #FF7E00;
+            }
+
+            .logo-medium-device {
+                flex-grow: 1;
+            }
+
+            .dropdown-menu-box-container {
+                width: 300px;
+            }
+
+            .dropdown-menu {
+                width: 330px;
+                position: static;
+            }
+
+            .menu-medium {
+                align-self: flex-start;
+                margin-left: 40px;
+            }
+        }
+        
+
+        
+        
+        a.d-none.d-lg-block.col-xl-2 {
+            background-color: #FF7E00;
+        }
+
+        .container-fluid {
+            padding-right: unset;
+            padding-left: unset;
+        }
+
+        #entairNavbar {
+            height: 110px !important;
+        }
+
+        ul.ml-auto.navbar-nav {
+            padding-top: 23px;
+        }
+
+        .super-child {
+            list-style: circle;
+        }
+
+        .nav-item ul li {
+            color: black;
+            font-weight: 600;
+        }
+
+
+        /* .blog-container.d-none.d-lg-block {
+            padding-left: 100px;
+        } */
+
+        .navbar-brand img {
+            display: inline-block;
+            max-width: 150px;
+            max-height: 25px;
+        }
+
+        a.d-none.d-lg-block.col-xl-2 {
+            height: 100%;
+        }
+        
+        .d-lg-none.logo-medium-device {
+            display: flex;
+            text-align: center;
+            padding-right: 40px;
+        }
+        .funfact-area{
+            z-index:0;
+        }
+        
+        .ml-5 {
+            margin-left: unset !important;
+        }
+        
+    @media (max-width: 994px){
+        .navbar-container-medium{
+            height: 93px;
+    }}
+        
+    @media (max-width: 994px){
+        #entairNavbar{
+                height: 93px !important;
+    }}
+       
+    </style>
+
+</head>
+
+<body>
+    {% set arr = ['MONTHLY ', 'WEEKLY', 'DAILY'] %}
+    <div class="container-fluid">
+        <div id="entairNavbar" class="container-fluid">
+            <div class="row navbar-row">
+                <a class="d-none d-lg-block col-xl-2" href="{{ url_prefix }}{{ home_page or " /" }}" style="width:200px">
+                    <div class="navbar-brand">
+                        {%- if brand_html -%}
+                        {{ brand_html }}
+                        {%- elif banner_image -%}
+                        <img src='{{ banner_image }}'>
+                        {%- else -%}
+                        <span>{{ (frappe.get_hooks("brand_html") or [_("Home")])[0] }}</span>
+                        {%- endif -%}
+                    </div>
+                </a>
+
+                <div class="navbar h-100 navbar-expand-lg d-none d-lg-block" style="min-width:780px;">
+ 
+                    {% macro render_item(item, submenu=False, parent=False) %}
+                    {% if item.child_items %}
+
+                    {% if parent %}
+
+                    {%- set dropdown_id = 'id-' + frappe.utils.generate_hash(length=12) -%}
+                    <li class="nav-item dropdown {% if submenu %} dropdown-submenu {% endif %}">
+
+                        <a class="nav-link dropdown-toggle" href="#" id="{{ dropdown_id }}" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{ _(item.label) }}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="{{ dropdown_id }}">
+                            <div class="dropdown-menu-box-container">
+                                <div class="dropdown-menu-box">
+
+                                    {% for child in item.child_items %}
+
+
+                                    <!-- {{ render_item(child, True) }} -->
+                                    <li class="nav-item">
+                                        
+                                        <a class="nav-link" href="{% if child.url %}{{ url }}/{{ child.url }}{% else %}{{ url }}{% endif %}" {% if item.open_in_new_tab %}target="_blank"{% endif %}>
+                                            {{ child.label }}
+                                        </a>
+
+                                        <ul>
+                                            {% for subChild in child.child_items %}
+                                            <li>
+                                                <a class="nav-link subchild-nav" href="{{ url }}/{{subChild.url}}" {% if item.open_in_new_tab
+                                                            %} target="_blank" {% endif %} style="margin-left: 26px;">
+                                                            {{ (subChild.label) }}
+                                                        </a>
+                                                <ul class="super-child superchild-nav" style="margin-left: 86px;">
+                                                    {% for superChild in subChild.child_items %}
+                                                    <li>
+                                                        
+                                                        <a class="nav-link" href="{{ url }}/{{superChild.url}}" {% if item.open_in_new_tab
+                                                            %} target="_blank" {% endif %}>
+                                                            {{ (superChild.label) }}
+                                                        </a>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+
+
+                                    {% endfor %}
+                                </div>
+                                <div class="blog-container d-none d-lg-block">
+                                    {% set recent_record = frappe.get_all('Blog Post',fields=['title','route',
+                                    'meta_image',
+                                    'blog_intro'], filters={}, order_by='creation DESC', limit=1) %}
+                                    <a href="{{ recent_record[0].route }}" <p>{{recent_record[0].title}}</p>
+                                        <img class="blog-image" src={{recent_record[0].meta_image}} alt="blog-image" />
+                                        <p>{{recent_record[0].blog_intro}} <span style="color:blue; text-decoration: underline;">...read more</span></p>
+                                    </a>
+                                </div>
+                            </div>
+                        </ul>
+                    </li>
+                    {% else %}
+                    {%- set dropdown_id = 'id-' + frappe.utils.generate_hash(length=12) -%}
+                    <li class="dropdown {% if submenu %} dropdown-submenu {% endif %}">
+                        <div class="each-dropmenu">
+                            <ul>
+                                {% for child in item.child_items %}
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url }}" {% if item.open_in_new_tab %} target="_blank"
+                                        {% endif %}>
+                                        {{ _(child.label) }}
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    {% else %}
+
+                    {% set url = item.url or '' %}
+                    {% set url = url if url.startswith('#') else url | abs_url %}
+
+                    {% if parent %}
+                    {% set userType = frappe.session %}
+                   
+                            {% if item.label in arr and userType.user == 'Guest' %}
+                            
+                            {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url }}" {% if item.open_in_new_tab %} target="_blank" {% endif %}>
+                                    {{ _(item.label) }}
+                                </a>
+                            </li>
+                            {% endif %}
+                    {% else %}
+                    <a class="dropdown-item" href="{{ url }}" {% if item.open_in_new_tab %} target="_blank" {% endif %}>
+                        {{ _(item.label) }}
+                    </a>
+                    {% endif %}
+
+                    {% endif %}
+                    {% endmacro %}
+
+                    {% if top_bar_items -%}
+                    <ul class="mr-auto navbar-nav">
+                        {%- for item in top_bar_items -%}
+                        {% if not item.parent_label and not item.right -%}
+                        {{ render_item(item, parent=True) }}
+                        {%- endif -%}
+                        {%- endfor %}
+                    </ul>
+                    {%- endif %}
+                    <ul class="ml-auto navbar-nav">
+                        {% if navbar_search %}
+                        <li>
+                            <form action='/search'>
+                                <input name='q' class='form-control navbar-search' type='text'
+                                    value='{{ frappe.form_dict.q|e if frappe.form_dict.q else ''}}' {% if not
+                                    frappe.form_dict.q%}placeholder="{{ _(" Search...") }}"{% endif %}>
+                            </form>
+                        </li>
+                        {% endif %}
+                        {%- for item in top_bar_items -%}
+                        {% if not item.parent_label and item.right -%}
+                        {{ render_item(item, parent=True) }}
+                        {%- endif -%}
+                        {%- endfor %}
+                        {% if not only_static %}
+                        {% block navbar_right_extension %}{% endblock %}
+                        {% endif %}
+
+                        {% if show_sidebar and sidebar_items %}
+                        <div class="d-block d-lg-none">
+                            <hr>
+                            {% for item in sidebar_items -%}
+                            <li class="nav-item">
+                                {% if item.type != 'input' %}
+                                <a href="{{ item.route }}"
+                                    class="nav-link {{ 'text-dark' if pathname==item.route else 'text-muted'}}" {% if
+                                    item.target %}target="{{ item.target }}" {% endif %}>
+                                    {{ _(item.title or item.label) }}
+                                </a>
+                                {% endif %}
+                            </li>
+                            {%- endfor %}
+                            <hr>
+                        </div>
+                        {% endif %}
+
+                        {% if read_only_mode %}
+                        <div class="indicator-pill yellow no-indicator-dot align-self-center" title="{{ _(" This site is
+                            in read only mode, full functionality will be restored soon.") }}">
+                            {{ _("Read Only Mode") }}
+                        </div>
+                        {% endif %}
+
+                    </ul>
+                    {%- if call_to_action -%}
+                    <a class="btn btn-primary navbar-cta" href="{{ call_to_action_url | abs_url }}">
+                        {{ call_to_action }}
+                    </a>
+                    {%- endif -%}
+                </div>
+                <div class="navbar-container-medium">
+                    <button class="navbar-toggler ml-5" type="button" id="navbarSupportedContent">
+                        <a href="#" title="open menu icons"><img src="https://korecent.com/files/menu.png" style="width:15px;" alt="mobile-menu"></a>
+                    </button>
+                    <div class="d-lg-none logo-medium-device">
+                        <div class="navbar-brand ml-auto mr-auto">
+                            {%- if brand_html -%}
+                            {{ brand_html }}
+                            {%- elif banner_image -%}
+                            <img src='{{ banner_image }}'>
+                            {%- else -%}
+                            <span>{{ (frappe.get_hooks("brand_html") or [_("Home")])[0] }}</span>
+                            {%- endif -%}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="navItemList" class="nav-items-mobile">
+            <div class="nav-mobile-container">
+                <button id="closeNavbar" class="menu-close-button" style="background-color:unset;">
+                    <img src="https://korecent.com/files/close.png" width:20px>
+                </button>
+                <div class="menu-medium">
+                    <ul class="ml-auto navbar-nav">
+                        {%- for item in top_bar_items -%}
+                        <!-- <p>{{item}}</p> -->
+                        {% if not item.parent_label and item.right -%}
+                        {{ render_item(item, parent=True) }}
+                        <!-- <p>{{item.label}}</p> -->
+                        {%- endif -%}
+                        {%- endfor %}
+
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+        
+        
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="js/jquery.min.js"></script>
+        <script src="js/popper.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/owl.carousel.min.js"></script>
+        <script src="js/magnificpopup.js"></script>
+        <script src="js/chart.js"></script>
+        <script src="js/main.js"></script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var navbarToggler = document.querySelector(".navbar-toggler");
+                var navbarCollapse = document.querySelector(".navbar-collapse");
+
+                navbarToggler.addEventListener("click", function () {
+                    navbarCollapse.classList.toggle("show");
+                });
+
+                var closeNavbarElm2 = document.getElementById('closeNavbar');
+                var navButton = document.getElementById('navbarSupportedContent');
+                var entairNavbarElm = document.getElementById('entairNavbar');
+                var navbarItems = document.getElementById('navItemList');
+
+                navButton.addEventListener('click', function () {
+                    navbarItems.style.display = "block";
+                    entairNavbarElm.style.display = 'none';
+                    console.log('cdcdo');
+                });
+
+                closeNavbarElm2.addEventListener('click', function () {
+                    navbarItems.style.display = "none";
+                    entairNavbarElm.style.display = 'block';
+                });
+
+                $(document).ready(function () {
+                    $('.dropdown-toggle').click(function (e) {
+                        e.preventDefault();
+                        $(this).siblings('.dropdown-menu').toggle();
+                        $('.dropdown-menu').not($(this).siblings()).hide();
+                    });
+
+                    $(document).click(function (e) {
+                        var target = e.target;
+                        if (!$(target).is('.dropdown-toggle') && !$(target).parents().is('.dropdown-toggle')) {
+                            $('.dropdown-menu').hide();
+                        }
+                    });
+                });
+            });
+        </script>
+        
+
+</body>
+
+</html>
+
+<br><br><br>
