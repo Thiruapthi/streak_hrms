@@ -1,6 +1,7 @@
 import frappe
 import json
 from hrms.hr.doctype.job_applicant.job_applicant import get_interview_details
+from hrms.hr.doctype.interview.interview import get_recipients
 from hyde_app.notifications import (
     prepare_email_content_job_offer,
     prepare_email_content_job_offer_hr,
@@ -20,7 +21,7 @@ from hyde_app.notifications import (
     get_rejected_job_offers_created,
     content_for_hr_all_rounds_cleared,
     email_content_candidate_for_changing_interview_mode,
-    email_content_interviewer_for_changing_interview_mode)
+    email_content_interviewer_for_changing_interview_mode,notify_interview_rescheduling)
 from frappe.utils import cstr, flt, get_datetime, get_link_to_form, getdate, nowtime, add_days, formatdate
 import json
 
@@ -721,3 +722,26 @@ def sendEmailDuringChangeInterviewMode(previous_mode, present_mode, interview_li
             now=True
         )
     
+@frappe.whitelist()
+def reschedule_interview(self, scheduled_on, from_time, to_time):
+    self.db_set({"scheduled_on": scheduled_on,
+    "from_time": from_time, "to_time": to_time})
+    self.notify_update()
+
+    recipients = get_recipients(self.name)
+
+    try:
+        frappe.sendmail(
+        recipients=recipients,
+        subject=("Interview: {0} Rescheduled").format(self.name),
+        message=notify_interview_rescheduling(self),
+        reference_doctype=self.doctype,
+        reference_name=self.name,
+        )
+        self.reload()
+    except Exception:
+        frappe.msgprint(
+        ("Failed to send the Interview Reschedule notification. Please configure your email account.")
+        )
+
+    frappe.msgprint(("Interview Rescheduled successfully"), indicator="green")
