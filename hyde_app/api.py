@@ -699,24 +699,25 @@ def sendEmailDuringChangeInterviewMode(previous_mode, present_mode, interview_li
     
     applicant_data = frappe.get_value("Job Applicant", filters={"name": applicant_email}, fieldname=[
                                       "email_id", "job_title", "applicant_name"], as_dict=True)
-   # Send email to the candidate
+    job_opening = frappe.get_doc('Job Opening', applicant_data['job_title'] )
+    job_title = job_opening.designation
+    # Send email to the candidate
     frappe.sendmail(
         recipients=applicant_email,
         cc=frappe.get_doc('HR Manager Settings').hr_email_id,
         subject='Interview mode is changed',
-        message=email_content_candidate_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data),
-        
+        message=email_content_candidate_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data, job_title),
         now=True
     )
 
     interviewersArr = json.loads(interviewers)
 
     for each_interviewer in interviewersArr :
-        print(each_interviewer)
+        
         frappe.sendmail(
             recipients=each_interviewer['interviewer'],
             subject='Interview mode is changed',
-            message=email_content_interviewer_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data),
+            message=email_content_interviewer_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data, job_title),
             now=True
         )
     
