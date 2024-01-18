@@ -195,7 +195,7 @@
    "collapsible_depends_on": null,
    "columns": 0,
    "creation": "2023-11-17 15:53:57.376127",
-   "default": "4th Floor,\nPlot # 7, \nSector 22, \nPanchkula, Haryana 134109\n\n\nPhone: +91 9041025546",
+   "default": "4th Floor,\nPlot # 7, \nSector 22, \nPanchkula, Haryana 134109",
    "depends_on": "eval:doc.custom_interview_type=='Offline';",
    "description": null,
    "docstatus": 0,

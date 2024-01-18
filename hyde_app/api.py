@@ -722,6 +722,7 @@ def sendEmailDuringChangeInterviewMode(previous_mode, present_mode, interview_li
             now=True
         )
     
+# overriding white list function in __init.py__ to override message sending in email on rescheduling intrerview
 @frappe.whitelist()
 def reschedule_interview(self, scheduled_on, from_time, to_time):
     self.db_set({"scheduled_on": scheduled_on,

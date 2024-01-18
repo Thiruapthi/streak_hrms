@@ -234,10 +234,12 @@ def prepare_email_content_on_interview_scheduled_to_applicat(applicant_name, doc
             <p>Wishing you the best for your interview.</p>
             <p>Thanks and regards,</p>
             <p>HR-Team KoreCent</p>
+            <h3>Contact us:</h3>
+            <p>Email:{frappe.get_single("HR Manager Settings").hr_email_id}</p>
+            <p>Mobile no: + 91 9041025546</p>
             """
 
 #  Template to notify HR when job offer is created
-
 
 def prepare_email_content_job_offer_hr(position, applicant_name):
     released_by = frappe.session.user
@@ -401,5 +403,8 @@ def notify_interview_rescheduling(self):
     <p>Wishing you the best for your interview.</p>
     <p>Thanks and regards,</p>
     <p>HR- Team KoreCent.</p>
+    <h3>Contact us:</h3>
+    <p>Email:{frappe.get_single("HR Manager Settings").hr_email_id}</p>
+    <p>Mobile no: + 91 9041025546</p>
     """)
     return message
