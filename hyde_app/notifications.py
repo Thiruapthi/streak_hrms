@@ -12,14 +12,15 @@ def email_content_candidate(applicant_name,position):
         <p>Thanks and regards,</p>
         <p>HR- Team KoreCent</p>
     """
-def email_content_candidate_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data):
+def email_content_candidate_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data, job_title):
     if present_mode == 'Online':
         return f"""\
             <p>Dear {applicant_data['applicant_name']},</p>
             <p>Greetings of the day!</p>
-            <p>Due to unforeseen circumstances we would like to inform you that the interview mode for the position of {applicant_data['job_title']} has been changed from {previous_mode} to {present_mode}. </p>
-            <p>The interview will now take on online. this is link :</p>
-            <a href='{interview_link}' >Interview Link</a>
+            <p>We want to inform you that your interview mode for the position of {job_title} has been updated from {previous_mode} to {present_mode}.</p>
+            <p>Link: <a href='{interview_link}' >Interview Link</a></p>
+            <p>Please confirm your availability within one day of receiving the email.</p>
+            <p>Wishing you all the best.</p>
             <p>Thanks and regards,</p>
             <p>HR- Team KoreCent</p>
         """
@@ -27,20 +28,20 @@ def email_content_candidate_for_changing_interview_mode(previous_mode, present_m
         return f"""\
             <p>Dear {applicant_data['applicant_name']},</p>
             <p>Greetings of the day!</p>
-            <p>Due to unforeseen circumstances we would like to inform you that the interview mode for the position of {applicant_data['job_title']} has been changed from {previous_mode} to {present_mode}. </p>
+            <p>We want to inform you that your interview mode for the position of {job_title} has been updated from {previous_mode} to {present_mode}.</p>
             <p>The interview will now take place at our office located at:</p>
             <p>{interview_address}</p>
+            <p>Wishing you all the best.</p>
             <p>Thanks and regards,</p>
             <p>HR- Team KoreCent</p>
         """
-def email_content_interviewer_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data):
+def email_content_interviewer_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data, job_title):
     if present_mode == 'Online':
         return f"""\
             <p>Dear Interviewer,</p>
             <p>Greetings of the day!</p>
-            <p>Due to unforeseen circumstances we would like to inform you that the interview mode for the position of {applicant_data['job_title']} has been changed from {previous_mode} to {present_mode}. </p>
-            <p>The interview will now take on online. this is link :</p>
-            <a href='{interview_link}' >Interview Link</a>
+            <p>We would like to inform you that the interview mode for the position of {job_title} has been updated from {previous_mode} to {present_mode}.</p>
+            <p>this is link : <a href='{interview_link}' >Interview Link</a></p>
             <p>Thanks and regards,</p>
             <p>HR- Team KoreCent</p>
         """
@@ -48,7 +49,7 @@ def email_content_interviewer_for_changing_interview_mode(previous_mode, present
         return f"""\
             <p>Dear Interviewer,</p>
             <p>Greetings of the day!</p>
-            <p>Due to unforeseen circumstances we would like to inform you that the interview mode for the position of {applicant_data['job_title']} has been changed from {previous_mode} to {present_mode}. </p>
+            <p>We would like to inform you that the interview mode for the position of {job_title} has been updated from {previous_mode} to {present_mode}.</p>
             <p>The interview will now take place at our office located at:</p>
             <p>{interview_address}</p>
             <p>Thanks and regards,</p>
