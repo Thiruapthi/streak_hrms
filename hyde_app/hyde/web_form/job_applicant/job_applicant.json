@@ -11,8 +11,10 @@
  "anonymous": 0,
  "apply_document_permissions": 0,
  "breadcrumbs": "",
+ "button_label": "Save",
  "client_script": "frappe.web_form.on('resume_link', (field, value) => {\n    if (!frappe.utils.is_url(value)) {\n        frappe.msgprint(__('Resume link not valid'));\n    }\n});\n",
- "creation": "2024-01-17 17:08:52.432298",
+ "creation": "2024-01-19 11:13:14.035173",
+ "currency": "INR",
  "doc_type": "Job Applicant",
  "docstatus": 0,
  "doctype": "Web Form",
@@ -22,18 +24,20 @@
  "list_columns": [],
  "login_required": 0,
  "max_attachment_size": 0,
- "modified": "2024-01-17 17:23:12.429944",
+ "modified": "2024-01-19 11:29:24.809935",
  "modified_by": "Administrator",
  "module": "Hyde",
- "name": "job-application",
+ "name": "job-applicant",
+ "owner": "Administrator",
+ "payment_button_label": "Buy Now",
  "published": 1,
- "route": "job_application",
+ "route": "job-applicant",
  "show_attachments": 0,
  "show_list": 0,
  "show_sidebar": 1,
  "success_message": "Thank you for applying.",
  "success_url": "https://korecent.com/career",
- "title": "Job Application",
+ "title": "Job Applicant",
  "web_form_fields": [
   {
    "allow_read_on_all_link_options": 0,
@@ -45,7 +49,7 @@
    "max_value": 0,
    "options": "",
    "read_only": 1,
-   "reqd": 0,
+   "reqd": 1,
    "show_in_filter": 0
   },
   {
@@ -58,7 +62,7 @@
    "max_value": 0,
    "options": "Designation",
    "read_only": 0,
-   "reqd": 0,
+   "reqd": 1,
    "show_in_filter": 0
   },
   {
@@ -96,7 +100,7 @@
    "max_value": 0,
    "options": "Phone",
    "read_only": 0,
-   "reqd": 0,
+   "reqd": 1,
    "show_in_filter": 0
   },
   {
@@ -109,19 +113,7 @@
    "max_value": 0,
    "options": "Country",
    "read_only": 0,
-   "reqd": 0,
-   "show_in_filter": 0
-  },
-  {
-   "allow_read_on_all_link_options": 0,
-   "fieldname": "cover_letter",
-   "fieldtype": "Text",
-   "hidden": 0,
-   "label": "Cover Letter",
-   "max_length": 0,
-   "max_value": 0,
-   "read_only": 0,
-   "reqd": 0,
+   "reqd": 1,
    "show_in_filter": 0
   },
   {
@@ -133,7 +125,19 @@
    "max_length": 0,
    "max_value": 0,
    "read_only": 0,
-   "reqd": 0,
+   "reqd": 1,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "cover_letter",
+   "fieldtype": "Text",
+   "hidden": 0,
+   "label": "Cover Letter",
+   "max_length": 0,
+   "max_value": 0,
+   "read_only": 0,
+   "reqd": 1,
    "show_in_filter": 0
   },
   {
@@ -158,7 +162,7 @@
    "max_value": 0,
    "options": "Currency",
    "read_only": 0,
-   "reqd": 0,
+   "reqd": 1,
    "show_in_filter": 0
   },
   {
@@ -182,7 +186,7 @@
    "max_value": 0,
    "options": "currency",
    "read_only": 0,
-   "reqd": 0,
+   "reqd": 1,
    "show_in_filter": 0
   },
   {
@@ -206,7 +210,7 @@
    "max_value": 0,
    "options": "currency",
    "read_only": 0,
-   "reqd": 0,
+   "reqd": 1,
    "show_in_filter": 0
   },
   {
@@ -219,7 +223,7 @@
    "max_value": 0,
    "options": "Job Applicant Source",
    "read_only": 0,
-   "reqd": 0,
+   "reqd": 1,
    "show_in_filter": 0
   },
   {
@@ -232,7 +236,7 @@
    "max_length": 0,
    "max_value": 0,
    "read_only": 0,
-   "reqd": 0,
+   "reqd": 1,
    "show_in_filter": 0
   },
   {
@@ -244,7 +248,7 @@
    "max_length": 0,
    "max_value": 0,
    "read_only": 0,
-   "reqd": 0,
+   "reqd": 1,
    "show_in_filter": 0
   }
  ]
