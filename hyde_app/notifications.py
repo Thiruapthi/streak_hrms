@@ -20,46 +20,59 @@ def email_content_candidate_for_changing_interview_mode(previous_mode, present_m
     if present_mode == 'Online':
         return f"""\
             <p>Dear {applicant_data['applicant_name']},</p>
-            <p>Greetings of the day!</p>
-            <p>We want to inform you that your interview mode for the position of {job_title} has been updated from {previous_mode} to {present_mode}.</p>
+            <p>Greetings of the day.</p>
+            <p>We want to inform you that your interview mode for the position of {job_title} has been updated to online mode now. The interview link has been enclosed below: </p>
             <p>Link: <a href='{interview_link}' >Interview Link</a></p>
-            <p>Please confirm your availability within one day of receiving the email.</p>
+            <p>Please confirm your availability within one day of receiving in this trail email.</p>
             <p>Wishing you all the best.</p>
-            <p>Thanks and regards,</p>
-            <p>HR- Team KoreCent</p>
+            <p>Thanks and regards</p>
+            <p>HR Team</p>
+            <p>Contact us:</p>
+            <p>Email: hr@korecent.com</p>
+            <p>Mobile no: + 91 9041025546</p>
         """
     else:
         return f"""\
             <p>Dear {applicant_data['applicant_name']},</p>
-            <p>Greetings of the day!</p>
-            <p>We want to inform you that your interview mode for the position of {job_title} has been updated from {previous_mode} to {present_mode}.</p>
-            <p>The interview will now take place at our office located at:</p>
-            <p>{interview_address}</p>
+            <p>Greetings of the day.</p>
+            <p>We want to inform you that your interview mode for the position of {job_title} has been updated to to offline mode now. The venue of the interview has as been enclosed below:</p>
+            <p>Office address:{interview_address}</p>
+            <p>Please confirm your availability within one day of receiving in this trail email.</p>
             <p>Wishing you all the best.</p>
-            <p>Thanks and regards,</p>
-            <p>HR- Team KoreCent</p>
+            <p>Thanks and regards</p>
+            <p>HR Team</p>
+            <p>Contact us:</p>
+            <p>Email: hr@korecent.com</p>
+            <p>Mobile no: + 91 9041025546</p>
         """
 
 
-def email_content_interviewer_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data, job_title):
+def email_content_interviewer_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data, job_title,interviewer_name):
     if present_mode == 'Online':
         return f"""\
-            <p>Dear Interviewer,</p>
-            <p>Greetings of the day!</p>
-            <p>We would like to inform you that the interview mode for the position of {job_title} has been updated from {previous_mode} to {present_mode}.</p>
-            <p>this is link : <a href='{interview_link}' >Interview Link</a></p>
-            <p>Thanks and regards,</p>
-            <p>HR- Team KoreCent</p>
+            <p>Dear {interviewer_name},</p>
+            <p>Greetings of the day.</p>
+            <p>We want to inform you that the interview of {applicant_data['applicant_name']} for the position of {job_title} has been updated to online mode now. The interview link has been enclosed below:</p>
+            <p>Link: <a href='{interview_link}' >Interview Link</a></p>
+            <p>Please ensure your availability for the interview and incase of any rescheduling let us know 1 day in advance.</p>
+            <p>Thanks and regards</p>
+            <p>HR Team</p>
+            <p>Contact us:</p>
+            <p>Email: hr@korecent.com</p>
+            <p>Mobile no: + 91 9041025546</p>
         """
     else:
         return f"""\
-            <p>Dear Interviewer,</p>
-            <p>Greetings of the day!</p>
-            <p>We would like to inform you that the interview mode for the position of {job_title} has been updated from {previous_mode} to {present_mode}.</p>
-            <p>The interview will now take place at our office located at:</p>
-            <p>{interview_address}</p>
-            <p>Thanks and regards,</p>
-            <p>HR- Team KoreCent</p>
+            <p>Dear {interviewer_name},</p>
+            <p>Greetings of the day.</p>
+            <p>We want to inform you that the interview of {applicant_data['applicant_name']} for the position of {job_title}  has been updated to offline mode now.</p>
+            <p>The venue of the interview has as been enclosed below:</p>
+            <p>Office address:{interview_address}</p>
+            <p>Thanks and regards</p>
+            <p>HR Team</p>
+            <p>Contact us:</p>
+            <p>Email: hr@korecent.com</p>
+            <p>Mobile no: + 91 9041025546</p>
         """
 
 # Email content for the interviewer when appointment letter created

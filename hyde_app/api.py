@@ -714,11 +714,11 @@ def sendEmailDuringChangeInterviewMode(previous_mode, present_mode, interview_li
     interviewersArr = json.loads(interviewers)
 
     for each_interviewer in interviewersArr :
-        
+        interviewer_name = each_interviewer['custom_interviewer_name']
         frappe.sendmail(
             recipients=each_interviewer['interviewer'],
             subject='Interview mode is changed',
-            message=email_content_interviewer_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data, job_title),
+            message=email_content_interviewer_for_changing_interview_mode(previous_mode, present_mode, interview_address, interview_link, applicant_data, job_title,interviewer_name),
             now=True
         )
     
