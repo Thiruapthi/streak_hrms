@@ -197,7 +197,8 @@ scheduler_events = {
 # ------------------------------
 #
 override_whitelisted_methods = {
-    "frappe.desk.calendar.get_events": "hyde_app.api.get_events"
+    "frappe.desk.calendar.get_events": "hyde_app.api.get_events",
+    "hrms.hr.doctype.interview.interview.get_events":"hyde_app.api.get_events_default"
 }
 #
 # each overriding function accepts a `data` argument;
