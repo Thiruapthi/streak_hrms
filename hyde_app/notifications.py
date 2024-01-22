@@ -421,3 +421,15 @@ def notify_interview_rescheduling(self):
     <p>Mobile no: + 91 9041025546</p>
     """)
     return message
+
+
+
+@frappe.whitelist(allow_guest=True)
+def get_open_jobs():
+    docs = frappe.get_list("Job Opening", order_by="creation desc")
+    li=[]
+    for i in docs:
+        if i.status!="Closed":
+            li.append(frappe.get_doc("Job Opening",i.name).as_dict())
+    return li
+    
