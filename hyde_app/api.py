@@ -782,13 +782,13 @@ def get_events_default(start, end, filters=None):
     interviews = frappe.db.sql(
         """
 			SELECT DISTINCT
-				`tabInterview`.name, `tabInterview`.custom_job_applicant_name, `tabInterview`.interview_round,
-				`tabInterview`.scheduled_on, `tabInterview`.status, `tabInterview`.from_time as from_time,
-				`tabInterview`.to_time as to_time
+				i.name, i.custom_job_applicant_name, i.interview_round,
+				i.scheduled_on, i.status, i.from_time as from_time,
+				i.to_time as to_time
 			from
-				`tabInterview`
+				`tabInterview` as i
 			where
-				(`tabInterview`.scheduled_on between %(start)s and %(end)s)
+				(i.scheduled_on between %(start)s and %(end)s)
 				and docstatus != 2
 				{conditions}
 			""".format(
