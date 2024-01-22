@@ -782,7 +782,7 @@ def get_events_default(start, end, filters=None):
     interviews = frappe.db.sql(
         """
 			SELECT DISTINCT
-				i.name, i.custom_job_applicant_name, i.interview_round,
+				i.name,i.custom_job_applicant_name, i.designation,i.interview_round,
 				i.scheduled_on, i.status, i.from_time as from_time,
 				i.to_time as to_time
 			from
@@ -801,7 +801,7 @@ def get_events_default(start, end, filters=None):
 
     for d in interviews:
         subject_data = []
-        for field in ["name", "custom_job_applicant_name", "interview_round"]:
+        for field in ["name","custom_job_applicant_name", "designation","interview_round"]:
             if not d.get(field):
                 continue
             subject_data.append(d.get(field))
