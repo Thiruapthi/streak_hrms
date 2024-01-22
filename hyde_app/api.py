@@ -818,3 +818,15 @@ def get_events_default(start, end, filters=None):
         events.append(interview_data)
 
     return events
+
+
+def get_data(data):
+    return {
+		"fieldname": "job_applicant",
+		"transactions": [
+			{"items": ["Employee", "Employee Onboarding"]},
+			{"items": ["Job Offer", "Appointment Letter"]},
+			{"items": ["Interview","Interview Feedback"]},
+		],
+	}
+
