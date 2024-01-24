@@ -1,0 +1,31 @@
+{% extends "templates/web.html" %}
+
+
+{% block page_content %}
+
+<h1 id="heading">Weekly Attendance Sheet <span id="previous_date"></span> To <span id="present_date"></span></h1>
+<div id="filters-container">
+  <select id="employee">
+    <option value="">Select Employee</option>
+  </select>
+  <select id="company"></select>
+  <div>
+    <label for="start_date">Start Date:</label>
+    <input type="date" id="start_date" name="start_date">
+  </div>
+  <div>
+    <label for="end_date">End Date:</label>
+    <input type="date" id="end_date" name="end_date">
+  </div>
+</div>
+
+<table style="width:100%" id="data-table">
+  <tr id="table-headers">
+
+  </tr>
+  <tr id="table-body">
+  </tr>
+</table>
+
+
+{% endblock %}

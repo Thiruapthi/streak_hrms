@@ -1,0 +1,151 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Workflow",
+  "document_type": "Compensatory Leave Request",
+  "is_active": 1,
+  "modified": "2023-11-10 11:58:14.430680",
+  "name": "Compensatory Leave Request Workflow",
+  "override_status": 0,
+  "send_email_alert": 1,
+  "states": [
+   {
+    "allow_edit": "All",
+    "doc_status": "0",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": "Compensatory Leave Request Approval Notification",
+    "parent": "Compensatory Leave Request Workflow",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "Team Lead Approval Pending",
+    "update_field": "",
+    "update_value": null
+   },
+   {
+    "allow_edit": "Leave Approver",
+    "doc_status": "0",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": null,
+    "parent": "Compensatory Leave Request Workflow",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "Rejected",
+    "update_field": "",
+    "update_value": null
+   },
+   {
+    "allow_edit": "HR Manager",
+    "doc_status": "0",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": null,
+    "parent": "Compensatory Leave Request Workflow",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "Rejected",
+    "update_field": "",
+    "update_value": null
+   },
+   {
+    "allow_edit": "Leave Approver",
+    "doc_status": "1",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": "Compensatory Leave Request Approval Notification",
+    "parent": "Compensatory Leave Request Workflow",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "Approved",
+    "update_field": "",
+    "update_value": null
+   },
+   {
+    "allow_edit": "HR Manager",
+    "doc_status": "0",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": "Compensatory Leave Request HR Approval Notification",
+    "parent": "Compensatory Leave Request Workflow",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "HR Approval Pending",
+    "update_field": "",
+    "update_value": null
+   },
+   {
+    "allow_edit": "Leave Approver",
+    "doc_status": "2",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": null,
+    "parent": "Compensatory Leave Request Workflow",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "Cancelled",
+    "update_field": "",
+    "update_value": null
+   }
+  ],
+  "transitions": [
+   {
+    "action": "Reject",
+    "allow_self_approval": 1,
+    "allowed": "Leave Approver",
+    "condition": null,
+    "next_state": "Rejected",
+    "parent": "Compensatory Leave Request Workflow",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Team Lead Approval Pending"
+   },
+   {
+    "action": "Approve",
+    "allow_self_approval": 1,
+    "allowed": "Leave Approver",
+    "condition": null,
+    "next_state": "HR Approval Pending",
+    "parent": "Compensatory Leave Request Workflow",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Team Lead Approval Pending"
+   },
+   {
+    "action": "Approve",
+    "allow_self_approval": 1,
+    "allowed": "HR Manager",
+    "condition": null,
+    "next_state": "Approved",
+    "parent": "Compensatory Leave Request Workflow",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "HR Approval Pending"
+   },
+   {
+    "action": "Reject",
+    "allow_self_approval": 1,
+    "allowed": "HR Manager",
+    "condition": null,
+    "next_state": "Rejected",
+    "parent": "Compensatory Leave Request Workflow",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "HR Approval Pending"
+   },
+   {
+    "action": "Cancel",
+    "allow_self_approval": 1,
+    "allowed": "All",
+    "condition": null,
+    "next_state": "Cancelled",
+    "parent": "Compensatory Leave Request Workflow",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Approved"
+   }
+  ],
+  "workflow_name": "Compensatory Leave Request Workflow",
+  "workflow_state_field": "workflow_state"
+ }
+]
