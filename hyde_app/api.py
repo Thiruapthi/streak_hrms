@@ -25,6 +25,8 @@ from hyde_app.notifications import (
     email_content_interviewer_for_changing_interview_mode, notify_interview_rescheduling)
 from frappe.utils import cstr, flt, get_datetime, get_link_to_form, getdate, nowtime, add_days, formatdate
 import json
+from frappe.core.doctype.communication.email import _make as make_communication
+from email.utils import formataddr
 
 
 @frappe.whitelist()
@@ -502,23 +504,66 @@ def get_interview_feedback(interview_name):
 
 @frappe.whitelist(allow_guest=True)
 def send_Job_offer_email(doc, method):
-    applicant_email, applicant_name, position = get_applicant_data(
-        doc.job_applicant)
-    # Send job offer notification to applicant and HR in CC
-    frappe.sendmail(recipients=applicant_email,
-                    subject='Job Offer Notification',
-                    message=prepare_email_content_job_offer(
-                        applicant_name, position, doc.custom_ctc, doc.name),
-                    attachments=[{"file_url": doc.custom_offer_letter}],
-                    cc=frappe.get_doc('HR Manager Settings').hr_email_id,
-                    now=True)
+    # Get the sender information
+    sender = frappe.get_value("Email Account", {"default_outgoing": 1}, ["name", "email_id"], as_dict=True)
+    formatted_sender = formataddr((sender.get("name", ""), sender.get("email_id", ""))) if sender else ""
 
-    # email for HR notification about the job offer release
-    frappe.sendmail(recipients=frappe.get_doc('HR Manager Settings').hr_email_id,
-                    subject='Job Offer Released to Applicant - Action Update',
-                    message=prepare_email_content_job_offer_hr(
-                        position, applicant_name),
-                    now=True)
+    # Get applicant data
+    applicant_email, applicant_name, position = get_applicant_data(doc.job_applicant)
+
+    # Prepare email content
+    job_offer_email_content = prepare_email_content_job_offer(applicant_name, position, doc.custom_ctc, doc.name)
+    job_offer_hr_email_content = prepare_email_content_job_offer_hr(position, applicant_name)
+
+    # Send job offer notification to applicant and HR in CC
+    frappe.sendmail(
+        recipients=applicant_email,
+        subject='Job Offer Notification',
+        sender=formatted_sender,
+        message=job_offer_email_content,
+        attachments=[{"file_url": doc.custom_offer_letter}],
+        cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+        reference_doctype=doc.doctype,
+        reference_name=doc.name,
+        now=True
+    )
+
+    # Create communication for the job offer notification
+    if doc.doctype != "Communication":
+        make_communication(
+            doctype=doc.doctype,
+            name=doc.name,
+            content=job_offer_email_content,
+            subject='Job Offer Notification',
+            sender=formatted_sender,
+            recipients=applicant_email,
+            communication_medium="Email",
+            send_email=False,
+            cc=frappe.get_doc('HR Manager Settings').hr_email_id,
+            communication_type="Automated Message",
+        )
+
+    # Send HR notification about the job offer release
+    frappe.sendmail(
+        recipients=frappe.get_doc('HR Manager Settings').hr_email_id,
+        subject='Job Offer Released to Applicant - Action Update',
+        message=job_offer_hr_email_content,
+        now=True
+    )
+
+    # Create communication for HR notification
+    if doc.doctype != "Communication":
+        make_communication(
+            doctype=doc.doctype,
+            name=doc.name,
+            content=job_offer_hr_email_content,
+            subject='Job Offer Released to Applicant - Action Update',
+            sender=formatted_sender,
+            recipients=frappe.get_doc('HR Manager Settings').hr_email_id,
+            communication_medium="Email",
+            send_email=False,
+            communication_type="Automated Message",
+        )
 
 # triggered when a candidate accepts a job offer & sends an acceptance email to the candidate, and generates a response page.
 
