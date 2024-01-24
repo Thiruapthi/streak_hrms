@@ -128,10 +128,3 @@ function sendEmailForChangingInterviewMode(previousMode, presentMode, frm){
         }
     });
 }
-
-frappe.ui.form.on('Interview Detail', {
-    average_rating_add:(frm, cdt, cdn) =>{
-        console.log("l")
-    }
-
-})
