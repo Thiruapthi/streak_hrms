@@ -1,6 +1,6 @@
-## Hyde App
+## Hyde
 
-For customization
+abc
 
 #### License
 
