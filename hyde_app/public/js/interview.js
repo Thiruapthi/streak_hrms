@@ -2,7 +2,11 @@ var firstInterviewMode
 frappe.ui.form.on('Interview', {
 
     refresh: function (frm) {
-        
+        frm.fields_dict.interview_details.grid.update_docfield_property('interviewer', "read_only", 1);
+        $('[data-fieldtype="Rating"]').css({'pointer-events': 'none','cursor': 'not-allowed'});
+        $('button.grid-add-row:contains("Add Row")').on('click', function() {
+            $('[data-fieldtype="Rating"]').css({'pointer-events': 'none','cursor': 'not-allowed'});
+        });
         if (frm.doc.job_applicant) {
             frappe.db.get_doc("Job Applicant", frm.doc.job_applicant)
                 .then((name) => {
